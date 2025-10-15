@@ -1,6 +1,6 @@
 import { geminiApi } from "@/configs/gemini.configs";
 
-export class SummaryService {
+export class AIService {
    async summarizeText(prompt: string) {
       const response = await geminiApi.models.generateContent({
          model: "gemini-2.5-flash",
