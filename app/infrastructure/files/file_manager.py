@@ -2,11 +2,9 @@ from typing import List
 import io
 import anyio
 
-# Librerías para cada tipo de archivo
 import pdfplumber
 import docx 
 
-# --- Función para PDF (sin cambios) ---
 def extract_pdf_content(file_bytes: bytes, filename: str) -> List[str]:
     pages = []
     try:
@@ -25,7 +23,6 @@ def extract_pdf_content(file_bytes: bytes, filename: str) -> List[str]:
         pages.append(f"Error processing PDF file {filename}: {str(e)}")
     return pages
 
-# --- NUEVA Función para Word ---
 def extract_docx_content(file_bytes: bytes, filename: str) -> List[str]:
     """Extrae el texto de un archivo .docx."""
     try:
@@ -36,7 +33,6 @@ def extract_docx_content(file_bytes: bytes, filename: str) -> List[str]:
     except Exception as e:
         return [f"Error processing Word file {filename}: {str(e)}"]
 
-# --- Función principal ACTUALIZADA ---
 async def extract_file_contents(files) -> List[List[str]]:
     if not files or len(files) == 0:
         return []
@@ -48,7 +44,7 @@ async def extract_file_contents(files) -> List[List[str]]:
 
         if filename.endswith(".pdf"):
             extracted = await anyio.to_thread.run_sync(extract_pdf_content, file_bytes, file.filename)
-        elif filename.endswith(".docx"): # <-- Integración
+        elif filename.endswith(".docx"): 
             extracted = await anyio.to_thread.run_sync(extract_docx_content, file_bytes, file.filename)
         else:
             extracted = [f"{file.filename}\n------------\n\nUnsupported file type."]
