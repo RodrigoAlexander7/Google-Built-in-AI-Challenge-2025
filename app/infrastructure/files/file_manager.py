@@ -2,6 +2,7 @@ from typing import List
 import pdfplumber
 import anyio
 import io
+import docx
 
 def extract_pdf_content(file_bytes: bytes, filename: str) -> List[str]:
     pages = []
@@ -49,3 +50,20 @@ async def extract_file_contents(files) -> List[List[str]]:
         content.append(extracted)
 
     return content
+
+
+def extract_docx_content(file_bytes: bytes, filename: str) -> List[str]:
+    """Extrae el texto de un archivo .docx."""
+    try:
+        # io.BytesIO -> to use the file on memory memoria
+        doc_stream = io.BytesIO(file_bytes)
+        document = docx.Document(doc_stream)
+        
+        # Extract an join text
+        full_text = "\n".join([para.text for para in document.paragraphs])
+        
+        # return a list to be consistent with other extractors
+        return [full_text]
+        
+    except Exception as e:
+        return [f"Error processing Word file {filename}: {str(e)}"]
