@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     GEMINI_MODEL: str
     GEMINI_MODEL_PRO: str
 
+# avoid reloading settings
 @lru_cache()
 def get_settings():
     return Settings()

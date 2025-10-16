@@ -33,7 +33,8 @@ def extract_pdf_content(file_bytes: bytes, filename: str) -> List[str]:
     return pages
 
 async def extract_file_contents(files) -> List[List[str]]:
-    if not files or len(files) == 0: return []
+    if not files or len(files) == 0:
+        return []
     content = []
 
     for file in files:
