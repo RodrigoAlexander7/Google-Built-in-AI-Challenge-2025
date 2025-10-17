@@ -11,8 +11,9 @@ const app = express();
 
 app.use(express.json())   // middleware to acept json responses
 app.use(authRouter)
+app.use(verifyToken)  // protect all routes below
 
-app.get("/", verifyToken, (req: Request, res: Response) => {
+app.get("/", (req: Request, res: Response) => {
    res.send("Hello word xd");
 });
 
