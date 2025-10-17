@@ -4,7 +4,9 @@
 import { useState } from 'react';
 import CheckBox from "./components/ui/CheckBox/CheckBox";
 import ListBox from "./components/ui/ListBox/ListBox";
+import ComboBox from "./components/ui/ComboBox/ComboBox";
 
+// Datos de ejemplo
 const sampleCheckBoxItems = [
   {
     id: '1',
@@ -32,103 +34,175 @@ const sampleListBoxItems = [
     description: 'Domina tipos genéricos y patrones avanzados',
     icon: 'fas fa-cogs',
     badge: 'Popular'
+  }
+];
+
+const sampleComboBoxItems = [
+  {
+    id: 'lang-1',
+    title: 'JavaScript',
+    description: 'Lenguaje de programación web',
+    icon: 'fab fa-js',
+    category: 'Frontend'
   },
   {
-    id: 'course-3',
-    title: 'Next.js 14',
-    description: 'Server Components y App Router',
-    icon: 'fas fa-rocket'
+    id: 'lang-2',
+    title: 'Python',
+    description: 'Lenguaje versátil para data science y web',
+    icon: 'fab fa-python',
+    category: 'Backend'
   },
   {
-    id: 'course-4',
-    title: 'Tailwind CSS',
-    description: 'Diseño moderno con utilidades CSS',
-    icon: 'fas fa-palette',
-    disabled: true
+    id: 'lang-3',
+    title: 'TypeScript',
+    description: 'JavaScript con tipos estáticos',
+    icon: 'fas fa-code',
+    category: 'Frontend'
+  },
+  {
+    id: 'lang-4',
+    title: 'Java',
+    description: 'Lenguaje empresarial robusto',
+    icon: 'fab fa-java',
+    category: 'Backend'
+  },
+  {
+    id: 'lang-5',
+    title: 'Go',
+    description: 'Lenguaje eficiente para sistemas',
+    icon: 'fas fa-code',
+    category: 'Backend'
   }
 ];
 
 export default function Home() {
   const [selectedCheckBoxItems, setSelectedCheckBoxItems] = useState<string[]>([]);
   const [selectedListBoxItems, setSelectedListBoxItems] = useState<string[]>([]);
+  const [selectedComboBoxItem, setSelectedComboBoxItem] = useState<any>(null);
+  const [createdItems, setCreatedItems] = useState<any[]>([]);
+
+  const handleCreateNew = (searchTerm: string) => {
+    const newItem = {
+      id: `custom-${Date.now()}`,
+      title: searchTerm,
+      description: 'Elemento personalizado creado por el usuario',
+      icon: 'fas fa-plus',
+      category: 'Personalizado'
+    };
+    
+    setCreatedItems(prev => [...prev, newItem]);
+    setSelectedComboBoxItem(newItem);
+  };
+
+  const allComboBoxItems = [...sampleComboBoxItems, ...createdItems];
 
   return (
     <div className="min-h-screen bg-gray-50 pt-16">
       <main className="max-w-6xl mx-auto px-4 py-8 space-y-12">
         
-        {/* ListBox Examples */}
+        {/* ComboBox Examples */}
         <section>
           <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
-            Componente ListBox
+            Componente ComboBox
           </h2>
 
-          {/* ListBox Default */}
+          {/* ComboBox Básico */}
           <div className="mb-12">
-            <h3 className="text-xl font-semibold mb-4 text-gray-800">Variante Default</h3>
-            <div className="bg-white rounded-2xl shadow-lg p-6">
-              <ListBox
-                items={sampleListBoxItems}
-                variant="default"
-                selectionMode="single"
-                onSelectionChange={setSelectedListBoxItems}
-                emptyMessage="No hay cursos disponibles"
-              />
-            </div>
-          </div>
-
-          {/* ListBox Card con Búsqueda */}
-          <div className="mb-12">
-            <h3 className="text-xl font-semibold mb-4 text-gray-800">Variante Card + Búsqueda</h3>
-            <div className="bg-white rounded-2xl shadow-lg p-6">
-              <ListBox
-                items={sampleListBoxItems}
-                variant="card"
-                selectionMode="multiple"
+            <h3 className="text-xl font-semibold mb-4 text-gray-800">ComboBox Básico</h3>
+            <div className="bg-white rounded-2xl shadow-lg p-6 max-w-2xl mx-auto">
+              <ComboBox
+                items={allComboBoxItems}
+                value={selectedComboBoxItem}
+                placeholder="Selecciona un lenguaje de programación..."
+                onSelect={setSelectedComboBoxItem}
                 searchable={true}
-                onSelectionChange={setSelectedListBoxItems}
+                showCategory={true}
               />
             </div>
           </div>
 
-          {/* ListBox Minimal */}
+          {/* ComboBox Creatable */}
           <div className="mb-12">
-            <h3 className="text-xl font-semibold mb-4 text-gray-800">Variante Minimal</h3>
-            <div className="bg-white rounded-2xl shadow-lg p-6">
-              <ListBox
-                items={sampleListBoxItems.slice(0, 3)}
-                variant="minimal"
-                selectionMode="single"
-                onSelectionChange={setSelectedListBoxItems}
+            <h3 className="text-xl font-semibold mb-4 text-gray-800">ComboBox con Creación</h3>
+            <div className="bg-white rounded-2xl shadow-lg p-6 max-w-2xl mx-auto">
+              <ComboBox
+                items={allComboBoxItems}
+                value={selectedComboBoxItem}
+                placeholder="Selecciona o crea un nuevo lenguaje..."
+                onSelect={setSelectedComboBoxItem}
+                onCreateNew={handleCreateNew}
+                creatable={true}
+                searchable={true}
+                showCategory={true}
+              />
+              <p className="text-sm text-gray-500 mt-3">
+                💡 Escribe el nombre de un lenguaje que no esté en la lista y presiona Enter para crearlo
+              </p>
+            </div>
+          </div>
+
+          {/* ComboBox Deshabilitado */}
+          <div className="mb-12">
+            <h3 className="text-xl font-semibold mb-4 text-gray-800">ComboBox Deshabilitado</h3>
+            <div className="bg-white rounded-2xl shadow-lg p-6 max-w-2xl mx-auto">
+              <ComboBox
+                items={sampleComboBoxItems}
+                placeholder="ComboBox deshabilitado..."
+                disabled={true}
               />
             </div>
           </div>
 
-          {/* Estado seleccionados */}
-          {selectedListBoxItems.length > 0 && (
-            <div className="bg-green-50 rounded-2xl p-6 border border-green-200">
-              <h3 className="text-lg font-semibold text-green-800 mb-4 flex items-center">
-                <i className="fas fa-list-check mr-2"></i>
-                Cursos Seleccionados ({selectedListBoxItems.length})
+          {/* Estado seleccionado */}
+          {selectedComboBoxItem && (
+            <div className="bg-blue-50 rounded-2xl p-6 border border-blue-200 max-w-2xl mx-auto">
+              <h3 className="text-lg font-semibold text-blue-800 mb-4 flex items-center">
+                <i className="fas fa-check-circle mr-2"></i>
+                Elemento Seleccionado
               </h3>
-              <div className="space-y-2">
-                {selectedListBoxItems.map(id => {
-                  const item = sampleListBoxItems.find(i => i.id === id);
-                  return item ? (
-                    <div key={id} className="flex items-center space-x-3 p-3 bg-white rounded-lg border border-green-100">
-                      <i className="fas fa-check-circle text-green-500"></i>
-                      <div>
-                        <p className="font-medium text-green-900">{item.title}</p>
-                        <p className="text-sm text-green-700">{item.description}</p>
-                      </div>
-                    </div>
-                  ) : null;
-                })}
+              <div className="flex items-center space-x-4 p-4 bg-white rounded-lg">
+                {selectedComboBoxItem.icon && (
+                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <i className={`${selectedComboBoxItem.icon} text-blue-600 text-lg`}></i>
+                  </div>
+                )}
+                <div className="flex-1">
+                  <h4 className="font-semibold text-gray-900">{selectedComboBoxItem.title}</h4>
+                  <p className="text-gray-600 text-sm">{selectedComboBoxItem.description}</p>
+                  {selectedComboBoxItem.category && (
+                    <span className="inline-block mt-1 px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">
+                      {selectedComboBoxItem.category}
+                    </span>
+                  )}
+                </div>
+                <button
+                  onClick={() => setSelectedComboBoxItem(null)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                >
+                  <i className="fas fa-times"></i>
+                </button>
               </div>
             </div>
           )}
         </section>
 
-        {/* CheckBox Examples (existente) */}
+        {/* ListBox Examples */}
+        <section>
+          <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+            Componente ListBox
+          </h2>
+          <div className="bg-white rounded-2xl shadow-lg p-6">
+            <ListBox
+              items={sampleListBoxItems}
+              variant="card"
+              selectionMode="multiple"
+              searchable={true}
+              onSelectionChange={setSelectedListBoxItems}
+            />
+          </div>
+        </section>
+
+        {/* CheckBox Examples */}
         <section>
           <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
             Componente CheckBox
