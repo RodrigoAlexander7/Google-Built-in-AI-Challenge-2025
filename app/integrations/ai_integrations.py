@@ -1,5 +1,5 @@
-from app.integrations.ai_templates import exercises_template, summarize_template
-from app.integrations.ai_structures import ExerciseSet, Exercise
+from app.integrations.ai_templates import exercises_template, summarize_template, flashcards_template
+from app.integrations.ai_structures import ExerciseSet, Exercise, FlashCardSet, FlashCard
 from app.core.settings import get_settings 
 from langchain_google_genai import ChatGoogleGenerativeAI
 from typing import List
@@ -27,6 +27,13 @@ class AIClient:
         structured_llm = self.model.with_structured_output(ExerciseSet)
         chain = instructions | structured_llm
         result = await chain.ainvoke({"content": content, "exercises_count": exercises_count})
-        if not result or not hasattr(result, "exercises"):
-            return None
-        return result.exercises
+        if result: return result.exercises
+        return []
+
+    async def generate_flashcards(self, content: str, flashcards_count: int = 5) -> List[FlashCard]:
+        instructions = flashcards_template()
+        structured_llm = self.model.with_structured_output(FlashCardSet)
+        chain = instructions | structured_llm
+        result = await chain.ainvoke({"content": content, "flashcards_count": flashcards_count})
+        if result: return result.flashcards
+        return []
