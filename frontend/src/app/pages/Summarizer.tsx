@@ -16,7 +16,6 @@ const Summarizer: React.FC = () => {
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Text Summarizer</h1>
 
-      <SummaryOptions value={options} onChange={setOptions} />
 
       {/* Live reflection */}
       <div className="mt-6 bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
@@ -34,6 +33,8 @@ const Summarizer: React.FC = () => {
           </div>
         </div>
       </div>
+      <SummaryOptions value={options} onChange={setOptions} />
+
     </div>
   );
 };
