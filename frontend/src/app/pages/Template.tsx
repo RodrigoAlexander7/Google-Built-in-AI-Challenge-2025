@@ -3,7 +3,11 @@ import Navbar from '../components/layout/NavBar';
 import Footer from '../components/layout/Footer';
 import Sidebar from '../components/layout/Sidebar';
 
-const Template = () => {
+interface TemplateProps {
+  children: React.ReactNode;
+}
+
+const Template: React.FC<TemplateProps> = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const toggleSidebar = () => {
@@ -33,7 +37,7 @@ const Template = () => {
         )}
   
         <main className={`flex-1 min-h-[calc(100vh-4rem)] transition-all duration-300 ${isSidebarOpen ? 'lg:ml-80' : 'ml-0'}`}>
-          
+          {children}
         </main>
       </div>
 
