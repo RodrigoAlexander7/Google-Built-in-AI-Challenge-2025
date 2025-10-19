@@ -18,3 +18,14 @@ async def flashcard(
     flashcards = await generate_flashcards(joined_content, flashcards_count)
 
     return {"flashcards": flashcards}
+
+@router.post("/by_topic",response_model=dict)
+async def flashcard_by_topic(
+    flashcards_count: int = 5,
+    topic: str = File(..., description="Topic or text to generate flashcards from")
+):
+
+    # Flashcard Generation
+    flashcards = await generate_flashcards(topic, flashcards_count)
+
+    return {"flashcards": flashcards}

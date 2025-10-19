@@ -18,3 +18,13 @@ async def exercises(
     exercises = await generate_exercises(joined_content, exercises_count)
 
     return {"exercises": exercises}
+
+@router.post("/by_topic", response_model=dict)
+async def exercises_by_topic(
+    exercises_count: int = 5,
+    topic: str = File(..., description="Topic or text to generate exercises from")
+):
+    # Exercises Generation
+    exercises = await generate_exercises(topic, exercises_count)    
+
+    return {"exercises": exercises}
