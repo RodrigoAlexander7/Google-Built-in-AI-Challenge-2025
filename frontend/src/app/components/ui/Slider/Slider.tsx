@@ -8,6 +8,7 @@ interface SliderProps {
   onChange?: (value: number) => void;
   label?: string;
   showValue?: boolean;
+  showMinMaxLabels?: boolean; // new: allow hiding numeric min/max labels
 }
 
 const Slider: React.FC<SliderProps> = ({
@@ -17,7 +18,8 @@ const Slider: React.FC<SliderProps> = ({
   value = 50,
   onChange,
   label,
-  showValue = true
+  showValue = true,
+  showMinMaxLabels = true
 }) => {
   const [currentValue, setCurrentValue] = useState(value);
   const [isDragging, setIsDragging] = useState(false);
@@ -137,10 +139,12 @@ const Slider: React.FC<SliderProps> = ({
       </div>
 
       {/* Min/Max labels */}
-      <div className="flex justify-between mt-2">
-        <span className="text-xs text-gray-500">{min}</span>
-        <span className="text-xs text-gray-500">{max}</span>
-      </div>
+      {showMinMaxLabels && (
+        <div className="flex justify-between mt-2">
+          <span className="text-xs text-gray-500">{min}</span>
+          <span className="text-xs text-gray-500">{max}</span>
+        </div>
+      )}
     </div>
   );
 };
