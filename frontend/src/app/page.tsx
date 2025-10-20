@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import PracticeQuestionBox from './components/layout/PracticeQuestionBox';
+import Template from './pages/Template';
 import type { 
   MultipleChoiceQuestion, 
   TrueFalseQuestion, 
@@ -78,7 +79,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <Template>
       <div className="max-w-4xl mx-auto space-y-8 px-4">
         <h1 className="text-3xl font-bold text-gray-800 text-center mb-8">
           Ejemplos de Preguntas
@@ -102,6 +103,7 @@ export default function Home() {
         {/* Justification */}
         <PracticeQuestionBox question={justificationQuestion} />
       </div>
-    </div>
+
+    </Template>
   );
 }
