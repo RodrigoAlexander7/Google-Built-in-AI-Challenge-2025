@@ -2,8 +2,7 @@
 
 import { useState } from 'react';
 import PracticeQuestionBox from '../components/layout/PracticeQuestionBox';
-import Template from './Template';
-
+import PromptInput from '../components/layout/PromptInput';
 import type { 
   MultipleChoiceQuestion, 
   TrueFalseQuestion, 
@@ -13,7 +12,52 @@ import type {
   JustificationQuestion 
 } from '../components/layout/PracticeQuestionBox';
 
+interface UploadedFile {
+  id: string;
+  file: File;
+  previewUrl?: string;
+}
+
+interface SummaryOptionsData {
+  summaryType: string | null;
+  languageRegister: string | null;
+  language: string | null;
+  detailLevel: number;
+  contentFocus: string[];
+  structure: string[];
+}
+
 export default function Practice() {
+  const [options, setOptions] = useState<SummaryOptionsData>({
+    summaryType: null,
+    languageRegister: null,
+    language: null,
+    detailLevel: 2,
+    contentFocus: [],
+    structure: []
+  });
+
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  const [response, setResponse] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleFilesChange = (files: UploadedFile[]) => {
+    setUploadedFiles(files);
+    console.log('Archivos subidos:', files);
+  };
+
+  const handleSendMessage = async (message: string, files?: UploadedFile[]) => {
+    setIsLoading(true);
+    console.log('Mensaje enviado:', message);
+    console.log('Archivos:', files || uploadedFiles);
+    
+    // Simular una respuesta
+    setTimeout(() => {
+      setResponse('Respuesta simulada del servidor');
+      setIsLoading(false);
+    }, 1000);
+  };
+
   // Ejemplo Multiple Choice
   const multipleChoiceQuestion: MultipleChoiceQuestion = {
     id: '1',
@@ -81,6 +125,7 @@ export default function Practice() {
   };
 
   return (
+    <div>
       <div className="max-w-4xl mx-auto space-y-8 px-4">
         <h1 className="text-3xl font-bold text-gray-800 text-center mb-8">
           Ejemplos de Preguntas
@@ -104,5 +149,30 @@ export default function Practice() {
         {/* Justification */}
         <PracticeQuestionBox question={justificationQuestion} />
       </div>
+      
+      <div className="max-w-4xl mx-auto mt-12 px-4">
+        <h2 className="text-2xl font-bold text-gray-800 text-center mb-6">
+          Prueba el Prompt
+        </h2>
+        <div className="mb-6">
+          <PromptInput
+            placeholder="Escribe el texto que quieres resumir o sube archivos..."
+            onFilesChange={handleFilesChange}
+            onSendMessage={handleSendMessage}
+          />
+        </div>
+        
+        {isLoading && (
+          <div className="text-center text-gray-600">Cargando...</div>
+        )}
+        
+        {response && (
+          <div className="mt-6 p-4 bg-gray-100 rounded-lg">
+            <h3 className="font-bold mb-2">Respuesta:</h3>
+            <p>{response}</p>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
