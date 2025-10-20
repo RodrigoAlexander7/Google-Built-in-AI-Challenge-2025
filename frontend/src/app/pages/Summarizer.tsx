@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import SummaryOptions, { SummaryOptionsData } from '../components/layout/SummaryOptions';
 import PromptInput from '../components/layout/PromptInput';
+import ResponseVisualizer from '../components/layout/ResponseVisualizer';
 
 interface UploadedFile {
   id: string;
@@ -9,7 +10,6 @@ interface UploadedFile {
 }
 
 const Summarizer: React.FC = () => {
-
   const [options, setOptions] = useState<SummaryOptionsData>({
     summaryType: null,
     languageRegister: null,
@@ -20,15 +20,19 @@ const Summarizer: React.FC = () => {
   });
 
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  const [response, setResponse] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleFilesChange = (files: UploadedFile[]) => {
     setUploadedFiles(files);
     console.log('Archivos subidos:', files);
   };
 
-  const handleSendMessage = (message: string, files: UploadedFile[]) => {
+  const handleSendMessage = async (message: string, files: UploadedFile[]) => {
     console.log('Mensaje enviado:', message);
     console.log('Archivos:', files);
+    
+    setIsLoading(true);
     
     const requestData = {
       message,
@@ -42,15 +46,98 @@ const Summarizer: React.FC = () => {
     
     console.log('Datos para el resumen:', requestData);
     
-    // await summarizeText(requestData);
+    // Simular llamada a la API
+    setTimeout(() => {
+      const mockResponse = `# Resumen Generado
+
+## Configuración aplicada:
+- **Tipo de resumen**: ${options.summaryType || 'General'}
+- **Nivel de detalle**: ${options.detailLevel}/5
+- **Registro lingüístico**: ${options.languageRegister || 'Neutral'}
+- **Idioma**: ${options.language?.title || 'Español'}
+
+## Contenido resumido:
+${message || 'Se procesaron los archivos adjuntos para generar este resumen.'}
+
+${files.length > 0 ? `
+### Archivos procesados:
+${files.map(file => `- **${file.file.name}** (${file.file.type}) - ${(file.file.size / 1024).toFixed(1)} KB`).join('\n')}
+` : ''}
+
+## Ejemplo matemático:
+La fórmula cuadrática es: $x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}$
+
+## Código de ejemplo:
+\`\`\`python
+def procesar_resumen(texto, opciones):
+    """
+    Procesa el texto según las opciones seleccionadas
+    """
+    detalle = opciones.get('detailLevel', 2)
+    tipo = opciones.get('summaryType', 'general')
+    
+    if detalle > 3:
+        return resumen_detallado(texto)
+    else:
+        return resumen_breve(texto)
+\`\`\`
+
+> Resumen generado automáticamente basado en tus preferencias.`;
+
+      setResponse(mockResponse);
+      setIsLoading(false);
+    }, 1500);
+  };
+
+  const handleCopy = () => {
+    console.log('Contenido copiado al portapapeles');
+  };
+
+  const handleRegenerate = () => {
+    console.log('Regenerando respuesta...');
+  };
+
+  const handleLike = () => {
+    console.log('Respuesta marcada como útil');
+  };
+
+  const handleDislike = () => {
+    console.log('Respuesta marcada como no útil');
+  };
+
+  const handleExercises = () => {
+    console.log('Generando ejercicios...');
+  };
+
+  const handleFlashcards = () => {
+    console.log('Creando flashcards...');
+  };
+
+  const handleLearningPath = () => {
+    console.log('Generando ruta de aprendizaje...');
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="p-6 max-w-4xl mx-auto space-y-6">
       <h1 className="text-2xl font-bold mb-4">Text Summarizer</h1>
 
+
+
+      {/* ResponseVisualizer */}
+      <ResponseVisualizer
+        content={response}
+        onCopy={handleCopy}
+        onRegenerate={handleRegenerate}
+        onLike={handleLike}
+        onDislike={handleDislike}
+        onExercises={handleExercises}
+        onFlashcards={handleFlashcards}
+        onLearningPath={handleLearningPath}
+        isLoading={isLoading}
+      />
+
       {/* PromptInput component */}
-      <div className="mb-6">
+            <div className="mb-6">
         <PromptInput
           placeholder="Escribe el texto que quieres resumir o sube archivos..."
           onFilesChange={handleFilesChange}
@@ -59,7 +146,7 @@ const Summarizer: React.FC = () => {
       </div>
 
       {/* Live reflection */}
-      <div className="mt-6 bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
+      <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
         <h2 className="text-lg font-semibold text-gray-800 mb-3">Opciones seleccionadas</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
           <div className="space-y-1">
@@ -98,7 +185,7 @@ const Summarizer: React.FC = () => {
       </div>
 
       {/* SummaryOptions component */}
-      <div className="mt-6">
+      <div>
         <SummaryOptions value={options} onChange={setOptions} />
       </div>
     </div>
