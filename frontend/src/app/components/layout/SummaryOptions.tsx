@@ -107,6 +107,17 @@ const SummaryOptions: React.FC<SummaryOptionsProps> = ({ value, onChange, classN
     ];
   }, [structureSelected]);
 
+  // Sync with parent value changes
+  useEffect(() => {
+    if (!value) return;
+    setSummaryTypeSelected(value.summaryType ? [value.summaryType] : []);
+    setRegisterSelected(value.languageRegister ? [value.languageRegister] : []);
+    setLanguage(value.language ?? null);
+    if (typeof value.detailLevel === 'number') setDetailLevel(value.detailLevel);
+    if (Array.isArray(value.contentFocus)) setContentFocusSelected(value.contentFocus);
+    if (Array.isArray(value.structure)) setStructureSelected(value.structure);
+  }, [value?.summaryType, value?.languageRegister, value?.language, value?.detailLevel, value?.contentFocus, value?.structure]);
+
   // Emit changes upward whenever something changes
   useEffect(() => {
     onChange?.({
@@ -128,7 +139,7 @@ const SummaryOptions: React.FC<SummaryOptionsProps> = ({ value, onChange, classN
   ]);
 
   return (
-    <div className={`p-6 md:p-8 max-w-6xl mx-auto space-y-6 ${className ?? ''}`}>
+    <div className={`p-6 md:p-8 max-w-10xl mx-auto space-y-6 ${className ?? ''}`}>
       <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Opciones de resumen</h1>
 
       {/* Top grid: Type, Register, Language */}
@@ -140,6 +151,7 @@ const SummaryOptions: React.FC<SummaryOptionsProps> = ({ value, onChange, classN
             items={summaryTypeItems}
             selectionMode="single"
             onSelectionChange={setSummaryTypeSelected}
+            selectedIds={summaryTypeSelected}
             className="space-y-3"
           />
         </section>
@@ -151,6 +163,7 @@ const SummaryOptions: React.FC<SummaryOptionsProps> = ({ value, onChange, classN
             items={languageRegisterItems}
             selectionMode="single"
             onSelectionChange={setRegisterSelected}
+            selectedIds={registerSelected}
             className="space-y-3"
           />
         </section>
@@ -235,6 +248,7 @@ const SummaryOptions: React.FC<SummaryOptionsProps> = ({ value, onChange, classN
               items={contentFocusItemsBase}
               selectionMode="multiple"
               onSelectionChange={setContentFocusSelected}
+              selectedIds={contentFocusSelected}
               className=""
             />
           </div>
@@ -246,6 +260,7 @@ const SummaryOptions: React.FC<SummaryOptionsProps> = ({ value, onChange, classN
               items={structureItems}
               selectionMode="multiple"
               onSelectionChange={setStructureSelected}
+              selectedIds={structureSelected}
               className=""
             />
             <div className="mt-3 text-xs text-gray-600">

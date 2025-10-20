@@ -118,7 +118,7 @@ def procesar_resumen(texto, opciones):
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto space-y-6">
+    <div className="p-6 max-w-10xl mx-auto space-y-6">
       <h1 className="text-2xl font-bold mb-4">Text Summarizer</h1>
 
 

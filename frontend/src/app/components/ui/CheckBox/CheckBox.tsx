@@ -1,9 +1,8 @@
 // src/components/ui/CheckBox/CheckBox.tsx
 
-
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import CheckBoxItem, { CheckBoxItemProps } from './CheckBoxItem';
 
 export interface CheckBoxItemData {
@@ -19,6 +18,8 @@ export interface CheckBoxProps {
   disabled?: boolean;
   className?: string;
   onSelectionChange?: (selectedIds: string[]) => void;
+  selectedIds?: string[]; // new: controlled selection
+  defaultSelectedIds?: string[]; // new: initial selection
 }
 
 const CheckBox: React.FC<CheckBoxProps> = ({
@@ -27,33 +28,40 @@ const CheckBox: React.FC<CheckBoxProps> = ({
   selectionMode = 'multiple',
   disabled = false,
   className = '',
-  onSelectionChange
+  onSelectionChange,
+  selectedIds: controlledSelectedIds,
+  defaultSelectedIds = []
 }) => {
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [internalSelectedIds, setInternalSelectedIds] = useState<string[]>(controlledSelectedIds ?? defaultSelectedIds);
+
+  // Sync with controlled prop
+  useEffect(() => {
+    if (controlledSelectedIds) {
+      setInternalSelectedIds(controlledSelectedIds);
+    }
+  }, [controlledSelectedIds]);
 
   const handleToggle = (id: string) => {
     let newSelectedIds: string[];
-    
     if (selectionMode === 'single') {
-      newSelectedIds = selectedIds.includes(id) ? [] : [id];
+      newSelectedIds = internalSelectedIds.includes(id) ? [] : [id];
     } else {
-      newSelectedIds = selectedIds.includes(id)
-        ? selectedIds.filter(selectedId => selectedId !== id)
-        : [...selectedIds, id];
+      newSelectedIds = internalSelectedIds.includes(id)
+        ? internalSelectedIds.filter(selectedId => selectedId !== id)
+        : [...internalSelectedIds, id];
     }
-
-    setSelectedIds(newSelectedIds);
+    setInternalSelectedIds(newSelectedIds);
     onSelectionChange?.(newSelectedIds);
   };
 
   const selectAll = () => {
     const allIds = items.map(item => item.id);
-    setSelectedIds(allIds);
+    setInternalSelectedIds(allIds);
     onSelectionChange?.(allIds);
   };
 
   const clearAll = () => {
-    setSelectedIds([]);
+    setInternalSelectedIds([]);
     onSelectionChange?.([]);
   };
 
@@ -63,7 +71,7 @@ const CheckBox: React.FC<CheckBoxProps> = ({
       {selectionMode === 'multiple' && items.length > 0 && (
         <div className="flex justify-between items-center mb-4">
           <span className="text-sm text-gray-500">
-            {selectedIds.length} de {items.length} seleccionados
+            {internalSelectedIds.length} de {items.length} seleccionados
           </span>
           <div className="flex space-x-2">
             <button
@@ -91,7 +99,7 @@ const CheckBox: React.FC<CheckBoxProps> = ({
           <CheckBoxItem
             key={item.id}
             item={item}
-            isSelected={selectedIds.includes(item.id)}
+            isSelected={internalSelectedIds.includes(item.id)}
             onToggle={handleToggle}
             variant={variant}
             disabled={disabled}
