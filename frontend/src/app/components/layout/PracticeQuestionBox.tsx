@@ -212,79 +212,203 @@ const PracticeQuestionBox: React.FC<QuestionBoxProps> = ({
   };
 
   // Renderizado de Relationship
-  const renderRelationship = (question: RelationshipQuestion) => {
-    return (
-      <div className="space-y-6">
-        <div className="grid grid-cols-2 gap-6">
-          {/* Items */}
-          <div className="space-y-3">
-            <h4 className="font-semibold text-gray-700 mb-3">Temas</h4>
-            {question.items.map((item, index) => {
-              const pairedConcept = relationshipPairs.find(pair => pair[0] === index)?.[1];
-              return (
-                <button
-                  key={index}
-                  onClick={() => setSelectedItem(selectedItem === index ? null : index)}
-                  className={`w-full p-3 rounded-lg border-2 transition-all duration-200 ${
-                    selectedItem === index 
-                      ? 'border-blue-500 bg-blue-50' 
-                      : pairedConcept !== undefined
-                      ? 'border-purple-500 bg-purple-50'
-                      : 'border-gray-200 hover:border-blue-300'
-                  }`}
-                >
-                  {item}
-                </button>
-              );
-            })}
-          </div>
+  // Renderizado de Relationship - Versión corregida sin botones anidados
+const renderRelationship = (question: RelationshipQuestion) => {
+  // Array de colores para los pares
+  const pairColors = [
+    'bg-blue-50 border-blue-500 text-blue-700',
+    'bg-green-50 border-green-500 text-green-700',
+    'bg-purple-50 border-purple-500 text-purple-700',
+    'bg-orange-50 border-orange-500 text-orange-700',
+    'bg-pink-50 border-pink-500 text-pink-700',
+    'bg-indigo-50 border-indigo-500 text-indigo-700',
+  ];
 
-          {/* Concepts */}
-          <div className="space-y-3">
-            <h4 className="font-semibold text-gray-700 mb-3">Conceptos</h4>
-            {question.concepts.map((concept, index) => {
-              const pairedItem = relationshipPairs.find(pair => pair[1] === index)?.[0];
+  // Función para obtener el color de un par
+  const getPairColor = (pairIndex: number) => {
+    return pairColors[pairIndex % pairColors.length];
+  };
+
+  // Encontrar el índice del par para un item o concepto
+  const getPairIndex = (itemIndex: number, conceptIndex: number) => {
+    return relationshipPairs.findIndex(pair => 
+      pair[0] === itemIndex && pair[1] === conceptIndex
+    );
+  };
+
+  // Eliminar un par existente
+  const removePair = (itemIndex: number, conceptIndex: number) => {
+    const newPairs = relationshipPairs.filter(pair => 
+      !(pair[0] === itemIndex && pair[1] === conceptIndex)
+    );
+    setRelationshipPairs(newPairs);
+    handleAnswer(newPairs);
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 gap-6">
+        {/* Items */}
+        <div className="space-y-3">
+          <h4 className="font-semibold text-gray-700 mb-3">Temas</h4>
+          {question.items.map((item, index) => {
+            const pairIndex = relationshipPairs.findIndex(pair => pair[0] === index);
+            const isPaired = pairIndex !== -1;
+            const isSelected = selectedItem === index;
+            
+            return (
+              <div
+                key={index}
+                onClick={() => {
+                  if (isPaired) {
+                    // Si ya está emparejado, eliminar el par
+                    const conceptIndex = relationshipPairs[pairIndex][1];
+                    removePair(index, conceptIndex);
+                  } else {
+                    // Si no está emparejado, seleccionar/deseleccionar
+                    setSelectedItem(isSelected ? null : index);
+                  }
+                }}
+                className={`w-full p-3 rounded-lg border-2 transition-all duration-200 flex items-center justify-between group cursor-pointer ${
+                  isSelected 
+                    ? 'border-blue-500 bg-blue-50' 
+                    : isPaired
+                    ? getPairColor(pairIndex)
+                    : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50'
+                }`}
+              >
+                <span className="font-medium">{item}</span>
+                {isPaired && (
+                  <div className="flex items-center space-x-2">
+                    <span className="text-xs opacity-70">
+                      → {question.concepts[relationshipPairs[pairIndex][1]]}
+                    </span>
+                    <div
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removePair(index, relationshipPairs[pairIndex][1]);
+                      }}
+                      className="w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer"
+                    >
+                      ×
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Concepts */}
+        <div className="space-y-3">
+          <h4 className="font-semibold text-gray-700 mb-3">Conceptos</h4>
+          {question.concepts.map((concept, index) => {
+            const pairIndex = relationshipPairs.findIndex(pair => pair[1] === index);
+            const isPaired = pairIndex !== -1;
+            const isSelectable = selectedItem !== null;
+            
+            return (
+              <div
+                key={index}
+                onClick={() => {
+                  if (selectedItem !== null && !isPaired) {
+                    handleRelationshipPair(selectedItem, index);
+                  }
+                }}
+                className={`w-full p-3 rounded-lg border-2 transition-all duration-200 flex items-center justify-between group cursor-pointer ${
+                  isPaired
+                    ? getPairColor(pairIndex)
+                    : isSelectable
+                    ? 'border-green-500 bg-green-50'
+                    : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50'
+                }`}
+              >
+                <span className="font-medium">{concept}</span>
+                {isPaired && (
+                  <div className="flex items-center space-x-2">
+                    <span className="text-xs opacity-70">
+                      ← {question.items[relationshipPairs[pairIndex][0]]}
+                    </span>
+                    <div
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removePair(relationshipPairs[pairIndex][0], index);
+                      }}
+                      className="w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer"
+                    >
+                      ×
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Pares establecidos con colores */}
+      {relationshipPairs.length > 0 && (
+        <div className="bg-gray-50 p-4 rounded-xl">
+          <h4 className="font-semibold text-gray-700 mb-3">Relaciones establecidas:</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {relationshipPairs.map(([itemIdx, conceptIdx], index) => {
+              const colorClass = getPairColor(index);
+              
               return (
-                <button
-                  key={index}
-                  onClick={() => {
-                    if (selectedItem !== null) {
-                      handleRelationshipPair(selectedItem, index);
-                    }
-                  }}
-                  className={`w-full p-3 rounded-lg border-2 transition-all duration-200 ${
-                    pairedItem !== undefined
-                      ? 'border-purple-500 bg-purple-50'
-                      : selectedItem !== null
-                      ? 'border-green-500 bg-green-50'
-                      : 'border-gray-200 hover:border-blue-300'
-                  }`}
+                <div 
+                  key={index} 
+                  className={`p-3 rounded-lg border-2 ${colorClass} transition-all duration-200 hover:shadow-md`}
                 >
-                  {concept}
-                </button>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className={`w-3 h-3 rounded-full ${
+                        colorClass.includes('blue') ? 'bg-blue-500' :
+                        colorClass.includes('green') ? 'bg-green-500' :
+                        colorClass.includes('purple') ? 'bg-purple-500' :
+                        colorClass.includes('orange') ? 'bg-orange-500' :
+                        colorClass.includes('pink') ? 'bg-pink-500' :
+                        'bg-indigo-500'
+                      }`}></div>
+                      <div className="flex-1">
+                        <div className="font-medium text-sm">
+                          {question.items[itemIdx]}
+                        </div>
+                        <div className="text-xs opacity-75 flex items-center space-x-1">
+                          <span>→</span>
+                          <span>{question.concepts[conceptIdx]}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      onClick={() => removePair(itemIdx, conceptIdx)}
+                      className="w-6 h-6 rounded-full bg-white border border-gray-300 text-gray-600 text-xs flex items-center justify-center hover:bg-red-500 hover:text-white transition-all duration-200 cursor-pointer"
+                    >
+                      ×
+                    </div>
+                  </div>
+                </div>
               );
             })}
           </div>
         </div>
+      )}
 
-        {/* Pares establecidos */}
-        {relationshipPairs.length > 0 && (
-          <div className="bg-gray-50 p-4 rounded-xl">
-            <h4 className="font-semibold text-gray-700 mb-2">Relaciones establecidas:</h4>
-            <div className="space-y-2">
-              {relationshipPairs.map(([itemIdx, conceptIdx], index) => (
-                <div key={index} className="flex items-center space-x-3 text-sm">
-                  <span className="text-gray-600">{question.items[itemIdx]}</span>
-                  <span className="text-gray-400">→</span>
-                  <span className="text-gray-600">{question.concepts[conceptIdx]}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+      {/* Instrucciones */}
+      <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+        <div className="flex items-center space-x-2 text-sm text-blue-700">
+          <i className="fas fa-info-circle"></i>
+          <span>
+            {selectedItem !== null 
+              ? `Selecciona un concepto para relacionar con "${question.items[selectedItem]}"`
+              : 'Haz clic en un tema para seleccionarlo, luego en un concepto para relacionarlos'
+            }
+          </span>
+        </div>
       </div>
-    );
-  };
+    </div>
+  );
+};
+
 
   // Renderizado de Justification
   const renderJustification = (question: JustificationQuestion) => {
