@@ -14,6 +14,8 @@ export interface ListBoxProps {
   searchable?: boolean;
   onSelectionChange?: (selectedIds: string[]) => void;
   onActiveItemChange?: (activeId: string | null) => void;
+  selectedIds?: string[]; // new: controlled selection
+  defaultSelectedIds?: string[]; // new: initial selection
 }
 
 const ListBox: React.FC<ListBoxProps> = ({
@@ -25,12 +27,21 @@ const ListBox: React.FC<ListBoxProps> = ({
   emptyMessage = 'No hay elementos disponibles',
   searchable = false,
   onSelectionChange,
-  onActiveItemChange
+  onActiveItemChange,
+  selectedIds: controlledSelectedIds,
+  defaultSelectedIds = []
 }) => {
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [selectedIds, setSelectedIds] = useState<string[]>(controlledSelectedIds ?? defaultSelectedIds);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const listRef = useRef<HTMLDivElement>(null);
+
+  // Sync with controlled prop
+  useEffect(() => {
+    if (controlledSelectedIds) {
+      setSelectedIds(controlledSelectedIds);
+    }
+  }, [controlledSelectedIds]);
 
   // Filtrar items basado en búsqueda
   const filteredItems = searchable 

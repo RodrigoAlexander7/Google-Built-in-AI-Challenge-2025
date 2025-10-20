@@ -116,22 +116,6 @@ const Navbar: React.FC = () => {
 
             {/* Separador */}
             <div className="w-px h-6 bg-gray-300/50"></div>
-
-            {/* Botones Auth */}
-            <div className="flex items-center space-x-3">
-              <a
-                href="/login"
-                className="px-6 py-2.5 text-gray-700 font-medium hover:text-blue-600 transition-colors duration-300 rounded-xl hover:bg-gray-100/80"
-              >
-                Login
-              </a>
-              <a
-                href="/register"
-                className="px-6 py-2.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-medium rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 hover:from-blue-600 hover:to-purple-700"
-              >
-                Get Started
-              </a>
-            </div>
           </div>
 
           {/* Mobile Menu Button */}
