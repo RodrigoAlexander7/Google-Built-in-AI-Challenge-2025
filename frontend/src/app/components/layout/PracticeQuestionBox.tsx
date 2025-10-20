@@ -10,50 +10,50 @@ export type QuestionType =
   | 'justification';
 
 // Interfaces para los datos de cada tipo de pregunta
-interface BaseQuestion {
+export interface BaseQuestion {
   id: string;
   question: string;
   points?: number;
 }
 
-interface MultipleChoiceQuestion extends BaseQuestion {
+export interface MultipleChoiceQuestion extends BaseQuestion {
   type: 'multiple-choice';
   options: string[];
   correctAnswer: number; // índice de la opción correcta
 }
 
-interface TrueFalseQuestion extends BaseQuestion {
+export interface TrueFalseQuestion extends BaseQuestion {
   type: 'true-false';
   correctAnswer: boolean;
 }
 
-interface FillBlankQuestion extends BaseQuestion {
+export interface FillBlankQuestion extends BaseQuestion {
   type: 'fill-blank';
   blanks: number; // número de espacios en blanco
   correctAnswers: string[]; // respuestas para cada espacio
 }
 
-interface ShortAnswerQuestion extends BaseQuestion {
+export interface ShortAnswerQuestion extends BaseQuestion {
   type: 'short-answer';
   correctAnswer: string;
   maxLength?: number;
 }
 
-interface RelationshipQuestion extends BaseQuestion {
+export interface RelationshipQuestion extends BaseQuestion {
   type: 'relationship';
   items: string[];
   concepts: string[];
   correctPairs: [number, number][]; // [índice_item, índice_concepto]
 }
 
-interface JustificationQuestion extends BaseQuestion {
+export interface JustificationQuestion extends BaseQuestion {
   type: 'justification';
   statement: string;
   correctAnswer: boolean;
   justification: string;
 }
 
-type QuestionData = 
+export type QuestionData = 
   | MultipleChoiceQuestion 
   | TrueFalseQuestion 
   | FillBlankQuestion 
@@ -61,13 +61,13 @@ type QuestionData =
   | RelationshipQuestion 
   | JustificationQuestion;
 
-interface QuestionBoxProps {
+export interface QuestionBoxProps {
   question: QuestionData;
   onAnswer?: (answer: any) => void;
   showResults?: boolean;
 }
 
-const QuestionBox: React.FC<QuestionBoxProps> = ({ 
+const PracticeQuestionBox: React.FC<QuestionBoxProps> = ({ 
   question, 
   onAnswer, 
   showResults = false 
@@ -75,6 +75,7 @@ const QuestionBox: React.FC<QuestionBoxProps> = ({
   const [userAnswer, setUserAnswer] = useState<any>(null);
   const [fillBlankAnswers, setFillBlankAnswers] = useState<string[]>([]);
   const [relationshipPairs, setRelationshipPairs] = useState<[number, number][]>([]);
+  const [selectedItem, setSelectedItem] = useState<number | null>(null);
 
   const handleAnswer = (answer: any) => {
     setUserAnswer(answer);
@@ -93,6 +94,7 @@ const QuestionBox: React.FC<QuestionBoxProps> = ({
     newPairs.push([itemIndex, conceptIndex]);
     setRelationshipPairs(newPairs);
     handleAnswer(newPairs);
+    setSelectedItem(null);
   };
 
   const getAnswerStatus = (isCorrect: boolean) => {
@@ -211,8 +213,6 @@ const QuestionBox: React.FC<QuestionBoxProps> = ({
 
   // Renderizado de Relationship
   const renderRelationship = (question: RelationshipQuestion) => {
-    const [selectedItem, setSelectedItem] = useState<number | null>(null);
-
     return (
       <div className="space-y-6">
         <div className="grid grid-cols-2 gap-6">
@@ -250,7 +250,6 @@ const QuestionBox: React.FC<QuestionBoxProps> = ({
                   onClick={() => {
                     if (selectedItem !== null) {
                       handleRelationshipPair(selectedItem, index);
-                      setSelectedItem(null);
                     }
                   }}
                   className={`w-full p-3 rounded-lg border-2 transition-all duration-200 ${
@@ -291,6 +290,10 @@ const QuestionBox: React.FC<QuestionBoxProps> = ({
   const renderJustification = (question: JustificationQuestion) => {
     return (
       <div className="space-y-6">
+        <div className="bg-blue-50 p-4 rounded-xl border border-blue-200">
+          <p className="text-gray-800 font-medium">{question.statement}</p>
+        </div>
+        
         {/* True/False */}
         <div className="flex space-x-4">
           <button
@@ -367,4 +370,4 @@ const QuestionBox: React.FC<QuestionBoxProps> = ({
   );
 };
 
-export default QuestionBox;
+export default PracticeQuestionBox;
