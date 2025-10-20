@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import PracticeQuestionBox from '../components/layout/PracticeQuestionBox';
 import PromptInput from '../components/layout/PromptInput';
+import PracticeOptions, { PracticeOptionsValue } from '../components/layout/PracticeOptions';
 import type { 
   MultipleChoiceQuestion, 
   TrueFalseQuestion, 
@@ -12,34 +13,39 @@ import type {
   JustificationQuestion 
 } from '../components/layout/PracticeQuestionBox';
 
+const DIFFICULTY_LABELS: Record<PracticeOptionsValue['difficulty'], string> = {
+  1: 'Fácil',
+  2: 'Medio',
+  3: 'Difícil',
+  4: 'Extremo',
+};
+
+const QUESTION_TYPE_LABELS: Record<NonNullable<PracticeOptionsValue['questionType']>, string> = {
+  'multiple-choice': 'Opción múltiple',
+  'true-false': 'Verdadero/Falso',
+  'fill-blank': 'Espacio en blanco',
+  'short-answer': 'Respuesta corta',
+  'relationship': 'Relacionar',
+  'justification': 'Justificación',
+};
+
 interface UploadedFile {
   id: string;
   file: File;
   previewUrl?: string;
 }
 
-interface SummaryOptionsData {
-  summaryType: string | null;
-  languageRegister: string | null;
-  language: string | null;
-  detailLevel: number;
-  contentFocus: string[];
-  structure: string[];
-}
-
 export default function Practice() {
-  const [options, setOptions] = useState<SummaryOptionsData>({
-    summaryType: null,
-    languageRegister: null,
-    language: null,
-    detailLevel: 2,
-    contentFocus: [],
-    structure: []
-  });
-
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [response, setResponse] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  const [practiceOptions, setPracticeOptions] = useState<PracticeOptionsValue>({
+    exerciseCount: 4,
+    difficulty: 2,
+    focusAreas: [],
+    questionType: null,
+  });
 
   const handleFilesChange = (files: UploadedFile[]) => {
     setUploadedFiles(files);
@@ -48,14 +54,27 @@ export default function Practice() {
 
   const handleSendMessage = async (message: string, files?: UploadedFile[]) => {
     setIsLoading(true);
-    console.log('Mensaje enviado:', message);
-    console.log('Archivos:', files || uploadedFiles);
-    
-    // Simular una respuesta
+    const usedFiles = files ?? uploadedFiles;
+
+    const configText = [
+      `- Número de ejercicios: ${practiceOptions.exerciseCount}`,
+      `- Nivel de dificultad: ${DIFFICULTY_LABELS[practiceOptions.difficulty]}`,
+      `- Área(s) de enfoque: ${practiceOptions.focusAreas.length ? practiceOptions.focusAreas.join(', ') : 'General'}`,
+      `- Tipo de pregunta: ${practiceOptions.questionType ? QUESTION_TYPE_LABELS[practiceOptions.questionType] : 'Mixto'}`,
+    ].join('\n');
+
+    const filesText = usedFiles.length ? `\nArchivos adjuntos: ${usedFiles.map(f => f.file.name).join(', ')}` : '';
+
+    // Simular una respuesta con la configuración seleccionada
     setTimeout(() => {
-      setResponse('Respuesta simulada del servidor');
+      setResponse(
+        `¡Estas son las preguntas que generaría con tu configuración!\n\n` +
+        `Configuración seleccionada:\n${configText}\n\n` +
+        `Prompt recibido: "${message || 'Sin prompt'}"${filesText}\n\n` +
+        `Nota: Este es un ejemplo de respuesta. Aquí se generarán ${practiceOptions.exerciseCount} preguntas acorde a tu configuración.`
+      );
       setIsLoading(false);
-    }, 1000);
+    }, 700);
   };
 
   // Ejemplo Multiple Choice
@@ -127,49 +146,44 @@ export default function Practice() {
   return (
     <div>
       <div className="max-w-4xl mx-auto space-y-8 px-4">
-        <h1 className="text-3xl font-bold text-gray-800 text-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-800 text-center mb-2">
           Ejemplos de Preguntas
         </h1>
-        
-        {/* Multiple Choice */}
+        <p className="text-center text-gray-500 mb-6">Configura y prueba la generación de ejercicios</p>
+
+        {/* Opciones de práctica */}
+        <PracticeOptions value={practiceOptions} onChange={setPracticeOptions} />
+
+        {/* Ejemplos */}
         <PracticeQuestionBox question={multipleChoiceQuestion} />
-        
-        {/* True/False */}
         <PracticeQuestionBox question={trueFalseQuestion} />
-        
-        {/* Fill in the Blank */}
         <PracticeQuestionBox question={fillBlankQuestion} />
-        
-        {/* Short Answer */}
         <PracticeQuestionBox question={shortAnswerQuestion} />
-        
-        {/* Relationship */}
         <PracticeQuestionBox question={relationshipQuestion} />
-        
-        {/* Justification */}
         <PracticeQuestionBox question={justificationQuestion} />
       </div>
-      
+
+      {/* Prompt + Respuesta */}
       <div className="max-w-4xl mx-auto mt-12 px-4">
         <h2 className="text-2xl font-bold text-gray-800 text-center mb-6">
           Prueba el Prompt
         </h2>
         <div className="mb-6">
           <PromptInput
-            placeholder="Escribe el texto que quieres resumir o sube archivos..."
+            placeholder="Escribe el texto que quieres practicar o sube archivos..."
             onFilesChange={handleFilesChange}
             onSendMessage={handleSendMessage}
           />
         </div>
-        
+
         {isLoading && (
           <div className="text-center text-gray-600">Cargando...</div>
         )}
-        
+
         {response && (
           <div className="mt-6 p-4 bg-gray-100 rounded-lg">
-            <h3 className="font-bold mb-2">Respuesta:</h3>
-            <p>{response}</p>
+            <h3 className="font-bold mb-2">Resultado:</h3>
+            <pre className="whitespace-pre-wrap text-sm text-gray-800">{response}</pre>
           </div>
         )}
       </div>
