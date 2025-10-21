@@ -2,11 +2,11 @@
 
 import Template from './pages/Template';
 import Practice from './pages/Practice';
-import FlashCard from './pages/FlashCard';
+import FlashCardPage from './pages/FlashCardPage';
 export default function Home() {
   return (
     <Template>
-      <FlashCard />
+      <FlashCardPage />
     </Template>
   );
 }
