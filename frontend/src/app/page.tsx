@@ -4,12 +4,12 @@ import Template from './pages/Template';
 import Practice from './pages/Practice';
 
 import FlashCardPage from './pages/FlashCardPage';
-import { GameOne } from './components/ReactGameComponents';
+import { GameOne, GameTwo } from './components/ReactGameComponents';
 
 export default function Home() {
   return (
     <Template>
-      <GameOne />
+      <GameTwo />
     </Template>
   );
 }

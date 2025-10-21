@@ -350,49 +350,29 @@ export function GameOne() {
   );
 }
 
+import WordConnectGame from '../components/WordConnectGame';
 
 export function GameTwo() {
   return (
     <GameShell
-      title="Juego 2: Memoria rápida"
-      defaultParams={{ timeSeconds: 45, difficulty: 'medium', hints: 2 }}
-      renderGameContent={({ started, useHint, endGame, ticks }) => {
-        // Placeholder: press 'Resolver' after 10 ticks
-        return (
-          <div className="p-4">
-            {!started ? (
-              <p className="text-gray-500">Prepara tu memoria...</p>
-            ) : (
-              <div className="space-y-3">
-                <p>Tiempo jugado: {ticks}s</p>
-                <p>Observa los elementos mostrados y memorízalos.</p>
-
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => endGame(ticks >= 10)}
-                    className="px-3 py-2 bg-blue-600 text-white rounded-lg"
-                  >
-                    Resolver
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      if (useHint()) alert('Fíjate en el segundo elemento.');
-                      else alert('No quedan pistas');
-                    }}
-                    className="px-3 py-2 border rounded-lg"
-                  >
-                    Pista
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        );
-      }}
+      title="Juego 2: Conecta las Letras"
+      defaultParams={{ timeSeconds: 60, difficulty: 'medium', hints: 2 }}
+      renderGameContent={({ started, endGame }) => (
+        <div className="p-4">
+          {!started ? (
+            <p className="text-gray-500">Une las letras en círculo para formar las palabras correctas.</p>
+          ) : (
+            <WordConnectGame
+              words={['SOL', 'LUNA', 'MAR']}
+              onComplete={() => endGame(true)}
+            />
+          )}
+        </div>
+      )}
     />
   );
 }
+
 
 export function GameThree() {
   return (
