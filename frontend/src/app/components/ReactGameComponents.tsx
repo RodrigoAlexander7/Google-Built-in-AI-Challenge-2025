@@ -419,57 +419,29 @@ export function GameThree() {
 }
 
 
-
+import ExplainIt from '../components/ExplainIt';
 export function GameFour() {
   return (
     <GameShell
-      title="Juego 4: Adivina el número"
-      defaultParams={{ timeSeconds: 30, difficulty: 'easy', hints: 3 }}
-      renderGameContent={({ started, useHint, endGame }) => {
-        const [guess, setGuess] = useState<number | ''>('');
-        const secret = 7;
-
-        return (
-          <div className="p-4">
-            {!started ? (
-              <p className="text-gray-500">Adivina el número entre 1 y 10.</p>
-            ) : (
-              <div className="space-y-3">
-                <input
-                  type="number"
-                  value={guess}
-                  onChange={(e) => setGuess(e.target.value === '' ? '' : Number(e.target.value))}
-                  className="w-full px-3 py-2 border rounded-lg"
-                />
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => {
-                      if (guess === secret) endGame(true);
-                      else alert(guess === '' ? 'Introduce un número' : 'Incorrecto');
-                    }}
-                    className="px-3 py-2 bg-blue-600 text-white rounded-lg"
-                  >
-                    Probar
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      if (useHint()) alert(secret > 5 ? 'Mayor que 5' : 'Menor o igual a 5');
-                      else alert('No quedan pistas');
-                    }}
-                    className="px-3 py-2 border rounded-lg"
-                  >
-                    Pista
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        );
-      }}
+      title="Juego 4: ExplainIt"
+      defaultParams={{ timeSeconds: 120, difficulty: 'medium', hints: 1 }}
+      renderGameContent={({ started, endGame }) => (
+        <div className="p-4">
+          {!started ? (
+            <p className="text-gray-500">
+              Explica el concepto que se te indica y presiona "Jugar" para empezar.
+            </p>
+          ) : (
+            <ExplainIt question="¿Puedes explicar sobre la fotosíntesis?" />
+          )}
+        </div>
+      )}
     />
   );
 }
+
+
+
 
 export function GameFive() {
   return (
