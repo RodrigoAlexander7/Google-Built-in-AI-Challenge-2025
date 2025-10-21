@@ -324,57 +324,32 @@ export function GameShell({
 // When you tell me the 5 specific games, I will replace the placeholder content
 // with the real gameplay logic.
 
+import WordSearchGame from '../components/WordSearchGame';
+
 export function GameOne() {
+  const words = React.useMemo(() => ['SOL', 'LUNA', 'ESTRELLA', 'MAR', 'NUBE'], []);
+
   return (
     <GameShell
-      title="Juego 1: Encuentra la palabra"
-      defaultParams={{ timeSeconds: 60, difficulty: 'easy', hints: 3 }}
-      renderGameContent={({ started, useHint, endGame }) => {
-        const [input, setInput] = useState('');
-        // Placeholder secret
-        const secret = 'sol';
-
-        return (
-          <div className="p-4">
-            {!started ? (
-              <p className="text-gray-500">Ajusta parámetros y pulsa Jugar para empezar.</p>
-            ) : (
-              <div className="space-y-3">
-                <p>Introduce la palabra secreta:</p>
-                <input
-                  className="w-full px-3 py-2 border rounded-lg"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                />
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => {
-                      if (input.trim().toLowerCase() === secret) endGame(true);
-                      else alert('Incorrecto, sigue intentando');
-                    }}
-                    className="px-3 py-2 bg-blue-600 text-white rounded-lg"
-                  >
-                    Comprobar
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      if (useHint()) alert('Empieza con "s".');
-                      else alert('No quedan pistas');
-                    }}
-                    className="px-3 py-2 border rounded-lg"
-                  >
-                    Usar pista
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        );
-      }}
+      title="Juego 1: Sopa de Letras"
+      defaultParams={{ timeSeconds: 90, difficulty: 'medium', hints: 2 }}
+      renderGameContent={({ started, endGame }) => (
+        <div className="p-4">
+          {!started ? (
+            <p className="text-gray-500">Ajusta los parámetros y pulsa Jugar para iniciar la sopa de letras.</p>
+          ) : (
+            <WordSearchGame
+              words={words}
+              size={12}
+              onComplete={() => endGame(true)}
+            />
+          )}
+        </div>
+      )}
     />
   );
 }
+
 
 export function GameTwo() {
   return (
