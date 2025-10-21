@@ -145,7 +145,7 @@ export default function Practice() {
 
   return (
     <div>
-      <div className="max-w-4xl mx-auto space-y-8 px-4">
+      <div className="max-w-12xl mx-auto space-y-8 px-4">
         <h1 className="text-3xl font-bold text-gray-800 text-center mb-2">
           Ejemplos de Preguntas
         </h1>
@@ -164,7 +164,7 @@ export default function Practice() {
       </div>
 
       {/* Prompt + Respuesta */}
-      <div className="max-w-4xl mx-auto mt-12 px-4">
+      <div className="max-w-10xl mx-auto mt-12 px-4">
         <h2 className="text-2xl font-bold text-gray-800 text-center mb-6">
           Prueba el Prompt
         </h2>
