@@ -339,7 +339,7 @@ export function GameOne() {
             <p className="text-gray-500">Ajusta los parámetros y pulsa Jugar para iniciar la sopa de letras.</p>
           ) : (
             <WordSearchGame
-              words={words}
+              words={['SOL', 'LUNA', 'ESTRELLA', 'MAR', 'NUBE']}
               size={12}
               onComplete={() => endGame(true)}
             />
@@ -373,50 +373,52 @@ export function GameTwo() {
   );
 }
 
+import CrosswordGame from '../components/CrosswordGame';
 
 export function GameThree() {
   return (
     <GameShell
-      title="Juego 3: Rompecabezas"
-      defaultParams={{ timeSeconds: 90, difficulty: 'hard', hints: 1 }}
-      renderGameContent={({ started, useHint, endGame }) => {
-        const [piecesPlaced, setPiecesPlaced] = useState(0);
-
-        return (
-          <div className="p-4">
-            {!started ? (
-              <p className="text-gray-500">Pon a prueba tus habilidades de puzzle.</p>
-            ) : (
-              <div className="space-y-3">
-                <p>Piezas colocadas: {piecesPlaced} / 6</p>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setPiecesPlaced((p) => Math.min(6, p + 1))}
-                    className="px-3 py-2 bg-green-600 text-white rounded-lg"
-                  >
-                    Colocar pieza
-                  </button>
-                  <button onClick={() => endGame(piecesPlaced >= 6)} className="px-3 py-2 bg-blue-600 text-white rounded-lg">
-                    Comprobar
-                  </button>
-                  <button
-                    onClick={() => {
-                      if (useHint()) alert('Empieza por las esquinas.');
-                      else alert('No quedan pistas');
-                    }}
-                    className="px-3 py-2 border rounded-lg"
-                  >
-                    Pista
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        );
-      }}
+      title="Juego 3: Crucigrama"
+      defaultParams={{ timeSeconds: 90, difficulty: 'medium', hints: 2 }}
+      renderGameContent={({ started, endGame }) => (
+        <div className="p-4">
+          {!started ? (
+            <p className="text-gray-500">Completa el crucigrama escribiendo las palabras correctas.</p>
+          ) : (
+            <CrosswordGame
+              onComplete={() => endGame(true)}
+              words={[
+                { id: 1, word: 'SOL', clue: 'Estrella que ilumina la Tierra' },
+                { id: 2, word: 'LUNA', clue: 'Satélite natural de la Tierra' },
+                { id: 3, word: 'MAR', clue: 'Gran masa de agua salada' },
+                { id: 4, word: 'RIO', clue: 'Corriente natural de agua que fluye hacia el mar' },
+                { id: 5, word: 'MONTAÑA', clue: 'Elevación natural del terreno de gran altura' },
+                { id: 6, word: 'ARBOL', clue: 'Planta de tronco leñoso que se ramifica a cierta altura' },
+                { id: 7, word: 'NUBE', clue: 'Masa visible de vapor de agua suspendida en la atmósfera' },
+                { id: 8, word: 'FLOR', clue: 'Parte de la planta que contiene los órganos de reproducción' },
+                { id: 9, word: 'FUEGO', clue: 'Fenómeno de combustión que produce luz y calor' },
+                { id: 10, word: 'VIENTO', clue: 'Aire en movimiento producido por diferencias de presión' },
+                { id: 11, word: 'TIERRA', clue: 'Planeta donde vivimos o superficie firme del planeta' },
+                { id: 12, word: 'ARENA', clue: 'Conjunto de pequeñas partículas que cubren playas o desiertos' },
+                { id: 13, word: 'LLUVIA', clue: 'Precipitación de gotas de agua desde las nubes' },
+                { id: 14, word: 'ESTRELLA', clue: 'Cuerpo celeste que brilla con luz propia' },
+                { id: 15, word: 'CAMPO', clue: 'Terreno extenso sin edificar, dedicado al cultivo o pastoreo' },
+                { id: 16, word: 'BOSQUE', clue: 'Terreno extenso poblado de árboles y vegetación' },
+                { id: 17, word: 'PIEDRA', clue: 'Mineral duro que forma parte de la corteza terrestre' },
+                { id: 18, word: 'NIEVE', clue: 'Agua congelada que cae del cielo en forma de copos blancos' },
+                { id: 19, word: 'LAGO', clue: 'Gran masa de agua dulce rodeada de tierra' },
+                { id: 20, word: 'CIELO', clue: 'Espacio que se extiende sobre nosotros y donde están los astros' },
+              ]}
+              
+            />
+          )}
+        </div>
+      )}
     />
   );
 }
+
+
 
 export function GameFour() {
   return (
