@@ -3,6 +3,7 @@ import { SummaryRecord } from '../../types/SummaryRecord';
 export const mockSummaries: SummaryRecord[] = [
   {
     id: 'summary_001',
+    title: 'Resumen de Biología - Fotosíntesis',
     date: '2025-10-20T14:32:00.000Z',
     files: [
       { name: 'biologia.pdf', type: 'application/pdf', size: 204800 },
@@ -21,6 +22,7 @@ La **fotosíntesis** es el proceso mediante el cual las plantas, algas y algunas
   },
   {
     id: 'summary_002',
+    title: 'Resumen de Química - Teoría Atómica Moderna',
     date: '2025-10-21T09:15:00.000Z',
     files: [],
     response: `
@@ -37,6 +39,7 @@ La **teoría atómica moderna** propone que la materia está compuesta por átom
   },
   {
     id: 'summary_003',
+    title: 'Resumen de Historia - La Revolución Francesa',
     date: '2025-10-21T18:45:00.000Z',
     files: [
       { name: 'revolucion_francesa.docx', type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', size: 51200 },
@@ -61,6 +64,7 @@ La **Revolución Francesa (1789–1799)** transformó radicalmente la estructura
   },
   {
     id: 'summary_004',
+    title: 'Resumen de Tecnología - Aprendizaje Automático',
     date: '2025-10-22T10:00:00.000Z',
     files: [],
     response: `
@@ -85,6 +89,7 @@ model.fit(X_train, y_train)
   },
   {
     id: 'summary_005',
+    title: 'Resumen de Literatura - Poesía Contemporánea',
     date: '2025-10-22T14:10:00.000Z',
     files: [
       { name: 'poesia_contemporanea.txt', type: 'text/plain', size: 10240 },

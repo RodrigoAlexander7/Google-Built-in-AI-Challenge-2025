@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { mockSummaries } from '@/resources/files/mockSummaries';
+
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;

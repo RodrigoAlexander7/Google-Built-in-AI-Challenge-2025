@@ -1,5 +1,6 @@
 export interface SummaryRecord {
     id: string;           // ID único
+    title: string;      // Título del resumen
     date: string;         // Fecha ISO
     files: {
       name: string;
