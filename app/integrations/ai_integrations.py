@@ -1,3 +1,4 @@
+from app.domain.models import SumamaryOptions
 from app.integrations.ai_templates import exercises_template, summarize_template, flashcards_template
 from app.integrations.ai_structures import ExerciseSet, Exercise, FlashCardSet, FlashCard
 from app.core.settings import get_settings 
@@ -14,10 +15,25 @@ class AIClient:
             max_retries=7
         )
 
-    async def summarize_text(self, content: str) -> str:
-        instructions = summarize_template()
+    async def summarize_text(self, content: str, options: SumamaryOptions) -> str:
+        instructions = summarize_template(
+            character=options.character,
+            languaje_register=options.languaje_register,
+            language=options.language,
+            extension=options.extension,
+            include_references=options.include_references,
+            include_examples=options.include_examples,
+            include_conclusions=options.include_conclusions
+        )
         chain = instructions | self.model
-        result = await chain.ainvoke({"content": content})
+        result = await chain.ainvoke({
+            "content": content,
+            "character": options.character,
+            "languaje_register": options.languaje_register,
+            "language": options.language,
+            "extension": options.extension
+        })
+
         if not result or not hasattr(result, "content"):
             return "No summary could be generated."
         return str(result.content)

@@ -6,3 +6,12 @@ class SummaryRequest(BaseModel):
 
 class SummaryResponse(BaseModel):
     summary: str
+
+class SumamaryOptions(BaseModel):
+    character: str = 'review'
+    languaje_register: str = 'formal'
+    language: str = 'English'
+    extension: str = 'medium'
+    include_references: bool = False
+    include_examples: bool = False
+    include_conclusions: bool = False
