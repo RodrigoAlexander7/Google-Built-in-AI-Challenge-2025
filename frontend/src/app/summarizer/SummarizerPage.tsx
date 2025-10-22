@@ -1,8 +1,8 @@
 'use client'
 import React, { useState } from 'react';
-import SummaryOptions, { SummaryOptionsData } from '../components/layout/SummaryOptions';
-import PromptInput from '../components/layout/PromptInput';
-import ResponseVisualizer from '../components/layout/ResponseVisualizer';
+import SummaryOptions, { SummaryOptionsData } from '../../components/layout/SummaryOptions';
+import PromptInput from '../../components/layout/PromptInput';
+import ResponseVisualizer from '../../components/layout/ResponseVisualizer';
 
 interface UploadedFile {
   id: string;

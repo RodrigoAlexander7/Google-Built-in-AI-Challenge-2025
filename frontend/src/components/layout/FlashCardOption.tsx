@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import CheckBox from '@/app/components/ui/CheckBox/CheckBox';
-import Slider from '@/app/components/ui/Slider/Slider';
+import CheckBox from '@/components/ui/CheckBox/CheckBox';
+import Slider from '@/components/ui/Slider/Slider';
 
 type Complexity = 1 | 2 | 3;
 

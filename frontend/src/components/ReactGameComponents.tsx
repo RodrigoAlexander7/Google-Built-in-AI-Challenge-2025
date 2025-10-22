@@ -324,7 +324,7 @@ export function GameShell({
 // When you tell me the 5 specific games, I will replace the placeholder content
 // with the real gameplay logic.
 
-import WordSearchGame from '../components/WordSearchGame';
+import WordSearchGame from './WordSearchGame';
 
 export function GameOne() {
   const words = React.useMemo(() => ['SOL', 'LUNA', 'ESTRELLA', 'MAR', 'NUBE'], []);
@@ -350,7 +350,7 @@ export function GameOne() {
   );
 }
 
-import WordConnectGame from '../components/WordConnectGame';
+import WordConnectGame from './WordConnectGame';
 
 export function GameTwo() {
   return (
@@ -373,7 +373,7 @@ export function GameTwo() {
   );
 }
 
-import CrosswordGame from '../components/CrosswordGame';
+import CrosswordGame from './CrosswordGame';
 
 export function GameThree() {
   return (
@@ -419,7 +419,7 @@ export function GameThree() {
 }
 
 
-import ExplainIt from '../components/ExplainIt';
+import ExplainIt from './ExplainIt';
 export function GameFour() {
   return (
     <GameShell

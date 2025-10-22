@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import FlashCardContainer from "../components/layout/FlashCardContainer";
-import PromptInput from "../components/layout/PromptInput";
-import FlashCardOption, { FlashCardOptionsValue } from "../components/layout/FlashCardOption";
+import FlashCardContainer from "../../components/layout/FlashCardContainer";
+import PromptInput from "../../components/layout/PromptInput";
+import FlashCardOption, { FlashCardOptionsValue } from "../../components/layout/FlashCardOption";
 
 export default function FlashCardPage() {
   const [options, setOptions] = useState<FlashCardOptionsValue>({
