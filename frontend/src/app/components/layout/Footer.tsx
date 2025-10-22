@@ -2,6 +2,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 
 interface FooterLink {
   href: string;
@@ -21,11 +22,11 @@ const Footer: React.FC = () => {
     {
       title: 'Producto',
       links: [
-        { href: '/sumarizer', label: 'Sumarizer' },
-        { href: '/exercise', label: 'Exercise' },
+        { href: '/summarizer', label: 'Summarizer' },
+        { href: '/practice', label: 'Practice' },
         { href: '/flashcards', label: 'Flashcards' },
-        { href: '/learnPlay', label: 'LearnPlay' },
-        { href: '/learninnPath', label: 'LearninnPath' },
+        { href: '/learn-play', label: 'Learn&Play' },
+        { href: '/learning-path', label: 'Learning Path' },
       ],
     },
     {
@@ -145,20 +146,32 @@ const Footer: React.FC = () => {
                 <ul className="space-y-3">
                   {section.links.map((link) => (
                     <li key={link.href}>
-                      <a
-                        href={link.href}
-                        className="text-gray-300 hover:text-white transition-all duration-200 flex items-center group"
-                        target={link.external ? '_blank' : undefined}
-                        rel={link.external ? 'noopener noreferrer' : undefined}
-                      >
-                        <i className="fas fa-circle text-blue-500 text-[6px] mr-3 opacity-0 group-hover:opacity-100 transition-all duration-300"></i>
-                        <span className="group-hover:translate-x-1 transition-transform duration-200">
-                          {link.label}
-                        </span>
-                        {link.external && (
-                          <i className="fas fa-external-link-alt text-xs ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></i>
-                        )}
-                      </a>
+                      {link.external ? (
+                        <a
+                          href={link.href}
+                          className="text-gray-300 hover:text-white transition-all duration-200 flex items-center group"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <i className="fas fa-circle text-blue-500 text-[6px] mr-3 opacity-0 group-hover:opacity-100 transition-all duration-300"></i>
+                          <span className="group-hover:translate-x-1 transition-transform duration-200">
+                            {link.label}
+                          </span>
+                          {link.external && (
+                            <i className="fas fa-external-link-alt text-xs ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></i>
+                          )}
+                        </a>
+                      ) : (
+                        <Link
+                          href={link.href}
+                          className="text-gray-300 hover:text-white transition-all duration-200 flex items-center group"
+                        >
+                          <i className="fas fa-circle text-blue-500 text-[6px] mr-3 opacity-0 group-hover:opacity-100 transition-all duration-300"></i>
+                          <span className="group-hover:translate-x-1 transition-transform duration-200">
+                            {link.label}
+                          </span>
+                        </Link>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -187,7 +200,7 @@ const Footer: React.FC = () => {
           </div>
           <div className="flex space-x-6">
             {['privacy', 'terms', 'cookies'].map((item) => (
-              <a 
+              <Link 
                 key={item}
                 href={`/${item}`} 
                 className="text-gray-400 hover:text-white text-sm transition-all duration-200 flex items-center group"
@@ -195,7 +208,7 @@ const Footer: React.FC = () => {
                 <i className="fas fa-shield-alt text-blue-400 text-xs mr-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></i>
                 {item === 'privacy' ? 'Privacidad' : 
                  item === 'terms' ? 'Términos' : 'Cookies'}
-              </a>
+              </Link>
             ))}
           </div>
         </div>
