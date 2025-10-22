@@ -9,7 +9,7 @@ interface UploadedFile {
   previewUrl?: string;
 }
 
-const Summarizer: React.FC = () => {
+const SummarizerPage: React.FC = () => {
   const [options, setOptions] = useState<SummaryOptionsData>({
     summaryType: null,
     languageRegister: null,
@@ -192,4 +192,4 @@ def procesar_resumen(texto, opciones):
   );
 };
 
-export default Summarizer;
+export default SummarizerPage

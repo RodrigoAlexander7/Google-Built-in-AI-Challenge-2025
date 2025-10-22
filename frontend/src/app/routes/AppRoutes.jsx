@@ -1,9 +1,11 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Template from '../pages/Template';
-import Practice from '../pages/Practice';
+import Summarizer from '../pages/SummarizerPage';
+import Practice from '../pages/PracticePage';
 import FlashCardPage from '../pages/FlashCardPage';
-import LearningPath from '../pages/LearningPath';
+import LearningPath from '../pages/LearningPathPage';
+import LearnPlay from '../pages/LearnPlayPage';
 
 // Placeholder simple page for routes not yet implemented
 const Placeholder = ({ title }) => (
