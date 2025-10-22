@@ -63,7 +63,7 @@ export default function SummarizerPage({
   };
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-6">
+    <div className="p-6 max-w-8xl mx-auto space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between">
         <h1 className="text-2xl font-bold mb-2">{title}</h1>
         {date && <p className="text-sm text-gray-500">{new Date(date).toLocaleString('es-ES')}</p>}

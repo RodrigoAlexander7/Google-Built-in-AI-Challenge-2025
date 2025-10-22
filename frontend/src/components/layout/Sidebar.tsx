@@ -1,7 +1,10 @@
 'use client';
 import React from 'react';
+import { usePathname } from 'next/navigation';
 import { mockSummaries } from '@/resources/files/mockSummaries';
 import { SummaryRecord } from '../../types/SummaryRecord';
+import { mockPracticePages } from '@/resources/files/mockPractice';
+import type { QuestionGroup } from '@/types/QuestionGroup';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -10,10 +13,16 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle }) => {
-  const sortedSummaries = [...mockSummaries].sort(
-    (a: SummaryRecord, b: SummaryRecord) =>
-      new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
+  const pathname = usePathname();
+  const isPractice = pathname?.startsWith('/practice') ?? false;
+
+  // Datos a mostrar según sección
+  const summariesList = isPractice
+    ? mockPracticePages
+    : [...mockSummaries].sort(
+        (a: SummaryRecord, b: SummaryRecord) =>
+          new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
 
   return (
     <>
@@ -58,7 +67,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle }) => {
       >
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200/50">
-          <h2 className="text-lg font-semibold text-gray-800">Resúmenes</h2>
+          <h2 className="text-lg font-semibold text-gray-800">
+            {isPractice ? 'Mis Prácticas' : 'Resúmenes'}
+          </h2>
           <button
             onClick={onClose}
             className="lg:hidden p-2 rounded-xl hover:bg-gray-100/80 transition-all duration-300 group"
@@ -71,37 +82,36 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle }) => {
         {/* Contenido scrollable */}
         <div className="h-[calc(100vh-5rem)] overflow-y-auto">
           <div className="p-6">
-            {/* Botón Nuevo Resumen */}
+            {/* Botón Nuevo Resumen / Nueva Práctica */}
             <a
-                href="/summarizer"
-                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-3.5 px-4 rounded-2xl transition-all duration-300 flex items-center justify-center gap-3 mb-8 shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-95 group"
-                >
+              href={isPractice ? '/practice' : '/summarizer'}
+              className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-3.5 px-4 rounded-2xl transition-all duration-300 flex items-center justify-center gap-3 mb-8 shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-95 group"
+            >
               <i className="fas fa-plus group-hover:rotate-90 transition-transform duration-300"></i>
-            <span>Nuevo Resumen</span>
+              <span>{isPractice ? 'Nueva Práctica' : 'Nuevo Resumen'}</span>
             </a>
-            {/* Lista de resúmenes */}
-            <div className="space-y-1 mb-8">
-              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 mb-3">
-                Mis Resúmenes
-              </h3>
 
-              {sortedSummaries.length > 0 ? (
-                sortedSummaries.map((summary) => (
+            {/* Lista de resúmenes / prácticas */}
+            <div className="space-y-1 mb-8">
+              {summariesList.length > 0 ? (
+                summariesList.map((item: SummaryRecord | QuestionGroup) => (
                   <a
-                    key={summary.id}
-                    href={`/summarizer/${summary.id}`}
+                    key={item.id}
+                    href={isPractice ? `/practice/${item.id}` : `/summarizer/${item.id}`}
                     onClick={onClose}
                     className="block px-4 py-3 rounded-xl text-gray-700 hover:text-blue-600 hover:bg-blue-50/80 transition-all duration-300 group relative"
                   >
                     <div className="flex flex-col">
-                      <span className="font-medium truncate">{summary.title}</span>
-                      <span className="text-xs text-gray-500 mt-1">
-                        {new Date(summary.date).toLocaleDateString('es-ES', {
-                          day: '2-digit',
-                          month: 'short',
-                          year: 'numeric',
-                        })}
-                      </span>
+                      <span className="font-medium truncate">{item.title}</span>
+                      {'date' in item && (
+                        <span className="text-xs text-gray-500 mt-1">
+                          {new Date(item.date).toLocaleDateString('es-ES', {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric',
+                          })}
+                        </span>
+                      )}
                     </div>
 
                     {/* Línea de acento al pasar el mouse */}
@@ -110,7 +120,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle }) => {
                 ))
               ) : (
                 <p className="text-sm text-gray-500 px-4 py-2">
-                  No hay resúmenes guardados.
+                  {isPractice ? 'No hay prácticas guardadas.' : 'No hay resúmenes guardados.'}
                 </p>
               )}
             </div>
