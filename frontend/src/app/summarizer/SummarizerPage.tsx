@@ -1,7 +1,8 @@
+'use client'
 import React, { useState } from 'react';
-import SummaryOptions, { SummaryOptionsData } from '../components/layout/SummaryOptions';
-import PromptInput from '../components/layout/PromptInput';
-import ResponseVisualizer from '../components/layout/ResponseVisualizer';
+import SummaryOptions, { SummaryOptionsData } from '../../components/layout/SummaryOptions';
+import PromptInput from '../../components/layout/PromptInput';
+import ResponseVisualizer from '../../components/layout/ResponseVisualizer';
 
 interface UploadedFile {
   id: string;
@@ -9,7 +10,7 @@ interface UploadedFile {
   previewUrl?: string;
 }
 
-const Summarizer: React.FC = () => {
+export default function SummarizerPage() {
   const [options, setOptions] = useState<SummaryOptionsData>({
     summaryType: null,
     languageRegister: null,
@@ -190,6 +191,4 @@ def procesar_resumen(texto, opciones):
       </div>
     </div>
   );
-};
-
-export default Summarizer;
+}

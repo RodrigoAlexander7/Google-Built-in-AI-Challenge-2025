@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import PracticeQuestionBox from '../components/layout/PracticeQuestionBox';
-import PromptInput from '../components/layout/PromptInput';
-import PracticeOptions, { PracticeOptionsValue } from '../components/layout/PracticeOptions';
+import PracticeQuestionBox from '../../components/layout/PracticeQuestionBox';
+import PromptInput from '../../components/layout/PromptInput';
+import PracticeOptions, { PracticeOptionsValue } from '../../components/layout/PracticeOptions';
 import type { 
   MultipleChoiceQuestion, 
   TrueFalseQuestion, 
@@ -11,7 +11,7 @@ import type {
   ShortAnswerQuestion, 
   RelationshipQuestion, 
   JustificationQuestion 
-} from '../components/layout/PracticeQuestionBox';
+} from '../../components/layout/PracticeQuestionBox';
 
 const DIFFICULTY_LABELS: Record<PracticeOptionsValue['difficulty'], string> = {
   1: 'Fácil',

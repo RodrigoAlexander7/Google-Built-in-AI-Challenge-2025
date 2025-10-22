@@ -2,6 +2,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 
 const Navbar: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -19,7 +20,7 @@ const Navbar: React.FC = () => {
 
   // Navegación principal
   const mainNavItems = [
-    { name: 'Sumarizer', href: '/sumarizer', icon: 'fas fa-file-alt' },
+    { name: 'Summarizer', href: '/summarizer', icon: 'fas fa-file-alt' },
     { name: 'Practice', href: '/practice', icon: 'fas fa-dumbbell' },
     { name: 'Flashcards', href: '/flashcards', icon: 'fas fa-layer-group' },
     { name: 'LearningPath', href: '/learning-path', icon: 'fas fa-road' },
@@ -52,7 +53,7 @@ const Navbar: React.FC = () => {
           
           {/* Logo y Brand */}
           <div className="flex-shrink-0 flex items-center">
-            <a 
+            <Link 
               href="/" 
               className="flex items-center space-x-3 group"
               onClick={handleNavClick}
@@ -63,14 +64,14 @@ const Navbar: React.FC = () => {
               <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 LearnGo!
               </span>
-            </a>
+            </Link>
           </div>
 
           {/* Navegación Desktop - Centro */}
           <div className="hidden lg:flex lg:items-center lg:justify-center lg:flex-1 lg:px-8">
             <div className="flex space-x-1 bg-gray-100/80 rounded-2xl p-1.5 backdrop-blur-sm">
               {mainNavItems.map((item) => (
-                <a
+                <Link
                   key={item.name}
                   href={item.href}
                   className="flex items-center space-x-2 px-4 py-2.5 rounded-xl text-gray-700 hover:text-blue-600 hover:bg-white transition-all duration-300 group relative"
@@ -80,7 +81,7 @@ const Navbar: React.FC = () => {
                   
                   {/* Efecto de subrayado animado */}
                   <div className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-blue-500 transform -translate-x-1/2 group-hover:w-3/4 transition-all duration-300"></div>
-                </a>
+                </Link>
               ))}
             </div>
           </div>
@@ -100,7 +101,7 @@ const Navbar: React.FC = () => {
               <div className="absolute right-0 top-full mt-2 w-64 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200/50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
                 <div className="p-2">
                   {dropdownItems.map((item) => (
-                    <a
+                    <Link
                       key={item.name}
                       href={item.href}
                       className="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-700 hover:text-blue-600 hover:bg-blue-50/80 transition-all duration-200 group"
@@ -108,7 +109,7 @@ const Navbar: React.FC = () => {
                       <i className={`${item.icon} text-blue-500 group-hover:scale-110 transition-transform duration-300`}></i>
                       <span className="font-medium flex-1">{item.name}</span>
                       <i className="fas fa-arrow-right text-xs opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all duration-300"></i>
-                    </a>
+                    </Link>
                   ))}
                 </div>
               </div>
@@ -152,7 +153,7 @@ const Navbar: React.FC = () => {
                 Main Features
               </h3>
               {mainNavItems.map((item) => (
-                <a
+                <Link
                   key={item.name}
                   href={item.href}
                   onClick={handleNavClick}
@@ -161,7 +162,7 @@ const Navbar: React.FC = () => {
                   <i className={`${item.icon} text-blue-500 w-5 text-center group-hover:scale-110 transition-transform duration-300`}></i>
                   <span className="font-medium flex-1">{item.name}</span>
                   <i className="fas fa-chevron-right text-xs text-gray-400 group-hover:text-blue-500 transform group-hover:translate-x-1 transition-all duration-300"></i>
-                </a>
+                </Link>
               ))}
             </div>
 
@@ -171,7 +172,7 @@ const Navbar: React.FC = () => {
                 More Tools
               </h3>
               {dropdownItems.map((item) => (
-                <a
+                <Link
                   key={item.name}
                   href={item.href}
                   onClick={handleNavClick}
@@ -180,26 +181,26 @@ const Navbar: React.FC = () => {
                   <i className={`${item.icon} text-purple-500 w-5 text-center group-hover:scale-110 transition-transform duration-300`}></i>
                   <span className="font-medium flex-1">{item.name}</span>
                   <i className="fas fa-arrow-right text-xs text-gray-400 group-hover:text-blue-500 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all duration-300"></i>
-                </a>
+                </Link>
               ))}
             </div>
 
             {/* Auth Buttons Mobile */}
             <div className="flex space-x-3 pt-4 border-t border-gray-200/50">
-              <a
+              <Link
                 href="/login"
                 onClick={handleNavClick}
                 className="flex-1 text-center px-4 py-3 text-gray-700 font-medium rounded-xl hover:bg-gray-100/80 transition-all duration-300"
               >
                 Login
-              </a>
-              <a
+              </Link>
+              <Link
                 href="/register"
                 onClick={handleNavClick}
                 className="flex-1 text-center px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-medium rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
               >
                 Get Started
-              </a>
+              </Link>
             </div>
           </div>
         </div>
