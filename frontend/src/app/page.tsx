@@ -1,7 +1,10 @@
 'use client';
-
-import AppRoutes from './routes/AppRoutes';
+import Template from "./pages/Template";
 
 export default function Home() {
-  return <AppRoutes />;
+  return (
+    <Template>
+      <div>waos</div>
+    </Template>
+  );
 }
