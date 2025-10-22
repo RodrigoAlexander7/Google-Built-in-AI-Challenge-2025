@@ -1,3 +1,4 @@
+'use client'
 import React, { useState } from 'react';
 import SummaryOptions, { SummaryOptionsData } from '../components/layout/SummaryOptions';
 import PromptInput from '../components/layout/PromptInput';
