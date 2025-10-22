@@ -10,7 +10,6 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle }) => {
-  // Ordenar los resúmenes del más reciente al más antiguo
   const sortedSummaries = [...mockSummaries].sort(
     (a: SummaryRecord, b: SummaryRecord) =>
       new Date(b.date).getTime() - new Date(a.date).getTime()
@@ -73,11 +72,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle }) => {
         <div className="h-[calc(100vh-5rem)] overflow-y-auto">
           <div className="p-6">
             {/* Botón Nuevo Resumen */}
-            <button className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-3.5 px-4 rounded-2xl transition-all duration-300 flex items-center justify-center gap-3 mb-8 shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-95 group">
+            <a
+                href="/summarizer"
+                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-3.5 px-4 rounded-2xl transition-all duration-300 flex items-center justify-center gap-3 mb-8 shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-95 group"
+                >
               <i className="fas fa-plus group-hover:rotate-90 transition-transform duration-300"></i>
-              <span>Nuevo Resumen</span>
-            </button>
-
+            <span>Nuevo Resumen</span>
+            </a>
             {/* Lista de resúmenes */}
             <div className="space-y-1 mb-8">
               <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 mb-3">
@@ -88,7 +89,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle }) => {
                 sortedSummaries.map((summary) => (
                   <a
                     key={summary.id}
-                    href={`/summaries/${summary.id}`}
+                    href={`/summarizer/${summary.id}`}
                     onClick={onClose}
                     className="block px-4 py-3 rounded-xl text-gray-700 hover:text-blue-600 hover:bg-blue-50/80 transition-all duration-300 group relative"
                   >
