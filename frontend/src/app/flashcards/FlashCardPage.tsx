@@ -5,7 +5,7 @@ import FlashCardContainer from "../components/layout/FlashCardContainer";
 import PromptInput from "../components/layout/PromptInput";
 import FlashCardOption, { FlashCardOptionsValue } from "../components/layout/FlashCardOption";
 
-const FlashCardPage: React.FC = () => {
+export default function FlashCardPage() {
   const [options, setOptions] = useState<FlashCardOptionsValue>({
     count: 8,
     complexity: 2,
@@ -34,6 +34,4 @@ const FlashCardPage: React.FC = () => {
       </div>
     </div>
   );
-};
-
-export default FlashCardPage;
+}
