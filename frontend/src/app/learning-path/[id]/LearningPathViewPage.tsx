@@ -12,6 +12,8 @@ interface Session {
   duration: string;
   completed: boolean;
   order: number;
+  totalTopics: number;
+  completedTopics: number;
 }
 
 interface Module {
@@ -75,7 +77,9 @@ export default function LearningPathViewPage() {
                 description: 'Historia, filosofía y ecosistema de React',
                 duration: '15 min',
                 completed: true,
-                order: 1
+                order: 1,
+                totalTopics: 5,
+                completedTopics: 5
               },
               {
                 id: 'sess-1-2',
@@ -83,7 +87,9 @@ export default function LearningPathViewPage() {
                 description: 'Instalación de Node.js, npm y creación del primer proyecto',
                 duration: '20 min',
                 completed: true,
-                order: 2
+                order: 2,
+                totalTopics: 4,
+                completedTopics: 4
               },
               {
                 id: 'sess-1-3',
@@ -91,7 +97,9 @@ export default function LearningPathViewPage() {
                 description: 'Sintaxis JSX y creación de componentes funcionales',
                 duration: '25 min',
                 completed: true,
-                order: 3
+                order: 3,
+                totalTopics: 6,
+                completedTopics: 6
               }
             ]
           },
@@ -108,7 +116,9 @@ export default function LearningPathViewPage() {
                 description: 'Gestión de estado local en componentes funcionales',
                 duration: '30 min',
                 completed: true,
-                order: 1
+                order: 1,
+                totalTopics: 7,
+                completedTopics: 7
               },
               {
                 id: 'sess-2-2',
@@ -116,7 +126,9 @@ export default function LearningPathViewPage() {
                 description: 'Efectos secundarios y ciclo de vida',
                 duration: '35 min',
                 completed: false,
-                order: 2
+                order: 2,
+                totalTopics: 8,
+                completedTopics: 3
               },
               {
                 id: 'sess-2-3',
@@ -124,7 +136,9 @@ export default function LearningPathViewPage() {
                 description: 'Compartir estado y crear hooks personalizados',
                 duration: '40 min',
                 completed: false,
-                order: 3
+                order: 3,
+                totalTopics: 6,
+                completedTopics: 0
               },
               {
                 id: 'sess-2-4',
@@ -132,7 +146,9 @@ export default function LearningPathViewPage() {
                 description: 'Gestión avanzada de estado con useReducer',
                 duration: '30 min',
                 completed: false,
-                order: 4
+                order: 4,
+                totalTopics: 5,
+                completedTopics: 0
               }
             ]
           },
@@ -149,7 +165,9 @@ export default function LearningPathViewPage() {
                 description: 'Tipos básicos y configuración con React',
                 duration: '25 min',
                 completed: false,
-                order: 1
+                order: 1,
+                totalTopics: 5,
+                completedTopics: 0
               },
               {
                 id: 'sess-3-2',
@@ -157,7 +175,9 @@ export default function LearningPathViewPage() {
                 description: 'Props, state y eventos con TypeScript',
                 duration: '30 min',
                 completed: false,
-                order: 2
+                order: 2,
+                totalTopics: 7,
+                completedTopics: 0
               },
               {
                 id: 'sess-3-3',
@@ -165,7 +185,9 @@ export default function LearningPathViewPage() {
                 description: 'Patrones avanzados de tipado en React',
                 duration: '35 min',
                 completed: false,
-                order: 3
+                order: 3,
+                totalTopics: 6,
+                completedTopics: 0
               }
             ]
           }
@@ -423,10 +445,28 @@ export default function LearningPathViewPage() {
                               {session.title}
                             </h4>
                             <p className="text-sm text-gray-500 mt-1">{session.description}</p>
+                            
+                            {/* Contador de temas */}
+                            <div className="flex items-center gap-2 mt-2">
+                              <div className="flex items-center gap-1 text-xs text-gray-600">
+                                <BookOpen className="w-3.5 h-3.5" />
+                                <span className="font-medium">{session.completedTopics}/{session.totalTopics} temas</span>
+                              </div>
+                              {session.completedTopics > 0 && session.completedTopics < session.totalTopics && (
+                                <div className="flex-1 max-w-[120px]">
+                                  <div className="w-full bg-gray-200 rounded-full h-1.5">
+                                    <div 
+                                      className="bg-blue-500 h-1.5 rounded-full transition-all duration-300"
+                                      style={{ width: `${(session.completedTopics / session.totalTopics) * 100}%` }}
+                                    />
+                                  </div>
+                                </div>
+                              )}
+                            </div>
                           </div>
 
                           {/* Duración */}
-                          <div className="flex items-center gap-2 text-sm text-gray-500">
+                          <div className="flex items-center gap-2 text-sm text-gray-500 flex-shrink-0">
                             <Clock className="w-4 h-4" />
                             <span>{session.duration}</span>
                           </div>

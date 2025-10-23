@@ -1,0 +1,118 @@
+{
+  "session": {
+    "id": "1",
+    "title": "Variables y Tipos de Datos",
+    "moduleTitle": "Módulo 1: Fundamentos de JavaScript",
+    "hasFlashcards": true,
+    "hasQuestions": true,
+    "hasGames": false,
+    "topics": [
+      {
+        "id": "1",
+        "title": "let, const y var",
+        "content": "# Declaración de Variables en JavaScript\n\nJavaScript ofrece tres formas de declarar variables: **let**, **const** y **var**. Cada una tiene características específicas que las hacen apropiadas para diferentes situaciones.\n\n## var (Legacy)\nLa palabra clave más antigua para declarar variables. Tiene alcance de función (function scope) y permite redeclaración.\n\n```javascript\nvar nombre = \"Juan\";\nvar nombre = \"Pedro\"; // ✅ Permitido\nconsole.log(nombre); // \"Pedro\"\n```\n\n**Problemas con var:**\n- No tiene block scope\n- Se puede redeclarar accidentalmente\n- Causa confusión con el hoisting\n\n## let (Moderno - ES6)\nIntroducido en ES6, tiene alcance de bloque (block scope) y no permite redeclaración.\n\n```javascript\nlet edad = 25;\nedad = 26; // ✅ Permitido (reasignación)\nlet edad = 27; // ❌ Error: ya fue declarada\n```\n\n**Características de let:**\n- Block scope: solo existe dentro del bloque {}\n- No se puede redeclarar en el mismo scope\n- Se puede reasignar\n- Ideal para variables que cambiarán\n\n## const (Constante - ES6)\nSimilar a let, pero la variable no puede ser reasignada después de su declaración inicial.\n\n```javascript\nconst PI = 3.14159;\nPI = 3.14; // ❌ Error: no se puede reasignar\n\nconst usuario = { nombre: \"Ana\" };\nusuario.nombre = \"María\"; // ✅ Permitido (modificar propiedades)\nusuario = {}; // ❌ Error: no se puede reasignar el objeto\n```\n\n**Características de const:**\n- Block scope\n- No se puede reasignar\n- **Importante:** En objetos y arrays, se pueden modificar sus propiedades/elementos\n- Usar por defecto, cambiar a let solo si es necesario\n\n## Mejores Prácticas\n\n1. **Preferir const por defecto**: Hace el código más predecible\n2. **Usar let cuando sea necesario**: Solo si la variable cambiará\n3. **Evitar var**: Es legacy y puede causar bugs\n\n```javascript\n// ✅ Buena práctica\nconst MAX_USERS = 100;\nlet contador = 0;\n\nfor (let i = 0; i < 10; i++) {\n  contador += i;\n}\n\n// ❌ Mala práctica\nvar total = 0;\nvar MAX = 100; // Debería ser const\n```",
+        "completed": false,
+        "estimatedMinutes": 8
+      },
+      {
+        "id": "2",
+        "title": "Tipos Primitivos: Number y String",
+        "content": "# Tipos Primitivos: Number y String\n\nJavaScript tiene tipos de datos primitivos que son inmutables y se comparan por valor. Vamos a explorar los dos más comunes: **Number** y **String**.\n\n## Number\nJavaScript tiene un único tipo numérico que representa tanto enteros como decimales (punto flotante de 64 bits - IEEE 754).\n\n### Números Enteros y Decimales\n```javascript\nconst entero = 42;\nconst decimal = 3.14159;\nconst negativo = -100;\nconst cientifico = 2.5e6; // 2,500,000\n\nconsole.log(typeof entero); // \"number\"\nconsole.log(typeof decimal); // \"number\"\n```\n\n### Operaciones Matemáticas\n```javascript\nconst suma = 10 + 5;        // 15\nconst resta = 10 - 5;       // 5\nconst multiplicacion = 10 * 5; // 50\nconst division = 10 / 5;    // 2\nconst modulo = 10 % 3;      // 1 (resto)\nconst potencia = 2 ** 3;    // 8 (2^3)\n```\n\n### Valores Especiales\n```javascript\nconst infinito = Infinity;\nconst noEsNumero = NaN; // Not a Number\nconst negInfinito = -Infinity;\n\nconsole.log(10 / 0);        // Infinity\nconsole.log(\"texto\" * 5);   // NaN\nconsole.log(isNaN(NaN));    // true\nconsole.log(Number.isFinite(100)); // true\n```\n\n### Métodos Útiles\n```javascript\nconst num = 123.456;\n\nnum.toFixed(2);          // \"123.46\" (redondeo)\nnum.toPrecision(4);      // \"123.5\"\nparseInt(\"123.45\");      // 123\nparseFloat(\"123.45\");    // 123.45\nMath.round(num);         // 123\nMath.ceil(num);          // 124\nMath.floor(num);         // 123\n```\n\n## String\nRepresenta texto y puede ser declarado con comillas simples, dobles o backticks.\n\n### Declaración de Strings\n```javascript\nconst simple = 'Hola';\nconst doble = \"Mundo\";\nconst template = `Hola ${simple}`; // Template literals\n\nconsole.log(typeof simple); // \"string\"\n```\n\n### Propiedades y Métodos Comunes\n```javascript\nconst texto = \"JavaScript\";\n\n// Propiedad\nconsole.log(texto.length); // 10\n\n// Métodos de búsqueda\ntexto.charAt(0);           // \"J\"\ntexto.indexOf(\"Script\");   // 4\ntexto.includes(\"Java\");    // true\ntexto.startsWith(\"Java\");  // true\ntexto.endsWith(\"Script\");  // true\n\n// Métodos de transformación\ntexto.toUpperCase();       // \"JAVASCRIPT\"\ntexto.toLowerCase();       // \"javascript\"\ntexto.trim();              // Elimina espacios al inicio/fin\ntexto.replace(\"Java\", \"Type\"); // \"TypeScript\"\n\n// Métodos de división y unión\ntexto.split(\"\");           // [\"J\",\"a\",\"v\",\"a\",\"S\",\"c\",\"r\",\"i\",\"p\",\"t\"]\ntexto.slice(0, 4);         // \"Java\"\ntexto.substring(4, 10);    // \"Script\"\n```\n\n### Template Literals (ES6)\nPermiten interpolación de variables y strings multilínea.\n\n```javascript\nconst nombre = \"Ana\";\nconst edad = 25;\n\n// Interpolación\nconst mensaje = `Hola, soy ${nombre} y tengo ${edad} años`;\n\n// Multilínea\nconst html = `\n  <div>\n    <h1>${nombre}</h1>\n    <p>Edad: ${edad}</p>\n  </div>\n`;\n\n// Expresiones\nconst precio = 100;\nconsole.log(`Total con IVA: ${precio * 1.16}`); // \"Total con IVA: 116\"\n```\n\n### Concatenación\n```javascript\n// Forma tradicional\nconst saludo1 = \"Hola\" + \" \" + \"Mundo\"; // \"Hola Mundo\"\n\n// Forma moderna (preferida)\nconst saludo2 = `Hola ${\"Mundo\"}`; // \"Hola Mundo\"\n```\n\n## Conversión entre Tipos\n\n```javascript\n// String a Number\nconst strNum = \"123\";\nconst num1 = Number(strNum);      // 123\nconst num2 = parseInt(strNum);    // 123\nconst num3 = parseFloat(\"123.45\"); // 123.45\nconst num4 = +strNum;             // 123 (conversión unaria)\n\n// Number a String\nconst numero = 123;\nconst str1 = String(numero);      // \"123\"\nconst str2 = numero.toString();   // \"123\"\nconst str3 = `${numero}`;        // \"123\"\n```",
+        "completed": false,
+        "estimatedMinutes": 12
+      },
+      {
+        "id": "3",
+        "title": "Boolean y valores falsy/truthy",
+        "content": "# Boolean y Valores Falsy/Truthy\n\nLos booleanos son fundamentales para la lógica de programación, representando verdadero (true) o falso (false). JavaScript también tiene el concepto de valores \"falsy\" y \"truthy\".\n\n## Boolean Básico\n\nEl tipo Boolean solo tiene dos valores posibles: **true** y **false**.\n\n```javascript\nconst isActive = true;\nconst isCompleted = false;\n\nconsole.log(typeof isActive); // \"boolean\"\n```\n\n### Operadores de Comparación\nDevuelven valores booleanos:\n\n```javascript\n// Igualdad\n5 == \"5\"   // true (conversión de tipos)\n5 === \"5\"  // false (sin conversión - estricto)\n5 != \"5\"   // false\n5 !== \"5\"  // true\n\n// Comparación\n10 > 5     // true\n10 < 5     // false\n10 >= 10   // true\n10 <= 5    // false\n```\n\n**Recomendación:** Siempre usar **===** y **!==** (comparación estricta).\n\n### Operadores Lógicos\nCombinan expresiones booleanas:\n\n```javascript\nconst edad = 25;\nconst tieneLicencia = true;\n\n// AND (&&) - Ambos deben ser true\nconsole.log(edad >= 18 && tieneLicencia); // true\n\n// OR (||) - Al menos uno debe ser true\nconsole.log(edad >= 18 || tieneLicencia); // true\n\n// NOT (!) - Invierte el valor\nconsole.log(!tieneLicencia); // false\nconsole.log(!!tieneLicencia); // true (doble negación para convertir a boolean)\n```\n\n## Valores Falsy\n\nEn JavaScript, estos valores se consideran **false** en contextos booleanos:\n\n1. **false** - El boolean falso\n2. **0** - El número cero\n3. **-0** - Cero negativo\n4. **\"\"** o **''** o **``** - String vacío\n5. **null** - Ausencia intencional de valor\n6. **undefined** - Variable no definida\n7. **NaN** - Not a Number\n\n```javascript\n// Ejemplos de falsy\nif (false) { /* No se ejecuta */ }\nif (0) { /* No se ejecuta */ }\nif (\"\") { /* No se ejecuta */ }\nif (null) { /* No se ejecuta */ }\nif (undefined) { /* No se ejecuta */ }\nif (NaN) { /* No se ejecuta */ }\n\n// Prueba de valores falsy\nconsole.log(Boolean(false));     // false\nconsole.log(Boolean(0));         // false\nconsole.log(Boolean(\"\"));        // false\nconsole.log(Boolean(null));      // false\nconsole.log(Boolean(undefined)); // false\nconsole.log(Boolean(NaN));       // false\n```\n\n## Valores Truthy\n\n**Todos los demás valores** son truthy, incluyendo:\n\n- Números diferentes de 0 (positivos y negativos)\n- Strings no vacíos (incluso **\" \"** con espacio)\n- Arrays (incluso vacíos **[]**)\n- Objetos (incluso vacíos **{}**)\n- Funciones\n- La palabra **\"false\"** (es un string, no boolean)\n\n```javascript\n// Ejemplos de truthy\nif (true) { /* Sí se ejecuta */ }\nif (1) { /* Sí se ejecuta */ }\nif (-1) { /* Sí se ejecuta */ }\nif (\"0\") { /* Sí se ejecuta - string no vacío */ }\nif (\"false\") { /* Sí se ejecuta - string no vacío */ }\nif ([]) { /* Sí se ejecuta - array vacío */ }\nif ({}) { /* Sí se ejecuta - objeto vacío */ }\nif (function() {}) { /* Sí se ejecuta */ }\n\n// Prueba de valores truthy\nconsole.log(Boolean(1));         // true\nconsole.log(Boolean(\"hola\"));    // true\nconsole.log(Boolean([]));        // true\nconsole.log(Boolean({}));        // true\nconsole.log(Boolean(\"false\"));   // true ⚠️\n```\n\n## Conversión a Boolean\n\n### Función Boolean()\n```javascript\nBoolean(1);          // true\nBoolean(0);          // false\nBoolean(\"texto\");    // true\nBoolean(\"\");         // false\nBoolean([]);         // true\nBoolean(null);       // false\n```\n\n### Doble Negación (!!)\nUn truco común para convertir cualquier valor a boolean:\n\n```javascript\nconst valor = \"hola\";\nconst esBoolean = !!valor; // true\n\nconsole.log(!!\"\");           // false\nconsole.log(!!0);            // false\nconsole.log(!!\"texto\");      // true\nconsole.log(!!42);           // true\nconsole.log(!!null);         // false\nconsole.log(!!undefined);    // false\n```\n\n## Casos Prácticos\n\n### Valores por Defecto (Fallback)\n```javascript\n// Usando OR (||) para valores por defecto\nconst nombre = usuarioNombre || \"Invitado\";\nconst edad = usuarioEdad || 18;\n\n// Con nullish coalescing (??) - ES2020\n// Solo considera null y undefined como falsy\nconst cantidad = 0 ?? 10;  // 0 (porque 0 no es null/undefined)\nconst cantidad2 = null ?? 10; // 10\n```\n\n### Short-circuit Evaluation\n```javascript\n// AND (&&) - Ejecuta solo si el primero es truthy\nconst usuario = { nombre: \"Ana\" };\nusuario && console.log(usuario.nombre); // \"Ana\"\n\n// OR (||) - Ejecuta solo si el primero es falsy\nconst mensaje = errorMsg || \"Sin errores\";\n```\n\n### Validación de Formularios\n```javascript\nfunction validarFormulario(nombre, email, edad) {\n  // Validar que todos los campos tengan valor\n  if (!nombre || !email || !edad) {\n    return \"Todos los campos son requeridos\";\n  }\n  \n  // Validar edad mínima\n  if (edad < 18) {\n    return \"Debes ser mayor de edad\";\n  }\n  \n  return true; // Validación exitosa\n}\n```\n\n## Mejores Prácticas\n\n1. **Comparación estricta**: Usar **===** en lugar de **==**\n2. **Valores por defecto**: Usar **??** para null/undefined, **||** para valores falsy\n3. **Conversión explícita**: Usar **Boolean()** o **!!** para claridad\n4. **Validaciones claras**: Ser explícito con las condiciones\n\n```javascript\n// ✅ Buena práctica\nif (usuario !== null && usuario !== undefined) {\n  console.log(usuario.nombre);\n}\n\n// ✅ Mejor con optional chaining\nconsole.log(usuario?.nombre);\n\n// ❌ Mala práctica (ambigua)\nif (usuario) {\n  console.log(usuario.nombre);\n}\n```",
+        "completed": false,
+        "estimatedMinutes": 10
+      }
+    ]
+  },
+  "flashcards": [
+    {
+      "id": "1",
+      "front": {
+        "text": "¿Cuál es la diferencia principal entre let y const?",
+        "color": "#ffffff"
+      },
+      "back": {
+        "text": "let permite reasignación de valores, mientras que const no. Ambos tienen block scope.",
+        "color": "#f3f4f6"
+      }
+    },
+    {
+      "id": "2",
+      "front": {
+        "text": "¿Por qué se recomienda evitar var?",
+        "color": "#ffffff"
+      },
+      "back": {
+        "text": "var tiene function scope en lugar de block scope, permite redeclaración y puede causar bugs por hoisting.",
+        "color": "#f3f4f6"
+      }
+    },
+    {
+      "id": "3",
+      "front": {
+        "text": "¿Qué es un valor \"falsy\" en JavaScript?",
+        "color": "#ffffff"
+      },
+      "back": {
+        "text": "Son valores que se evalúan como false en contextos booleanos: false, 0, \"\", null, undefined, NaN",
+        "color": "#f3f4f6"
+      }
+    },
+    {
+      "id": "4",
+      "front": {
+        "text": "¿Cuál es el tipo de dato de NaN?",
+        "color": "#ffffff"
+      },
+      "back": {
+        "text": "Sorprendentemente, typeof NaN devuelve \"number\". NaN significa \"Not a Number\" pero es de tipo number.",
+        "color": "#f3f4f6"
+      }
+    }
+  ],
+  "questions": [
+    {
+      "id": "1",
+      "type": "multiple-choice",
+      "question": "¿Cuál de las siguientes declaraciones es correcta para una constante?",
+      "options": ["var PI = 3.14", "let PI = 3.14", "const PI = 3.14", "PI = 3.14"],
+      "correctAnswer": 2,
+      "points": 5
+    },
+    {
+      "id": "2",
+      "type": "true-false",
+      "question": "Un array vacío [] es considerado un valor falsy en JavaScript",
+      "correctAnswer": false,
+      "points": 3
+    },
+    {
+      "id": "3",
+      "type": "fill-blank",
+      "question": "JavaScript usa el estándar ________ para representar números de punto flotante.",
+      "blanks": 1,
+      "correctAnswers": ["IEEE 754"],
+      "points": 4
+    },
+    {
+      "id": "4",
+      "type": "relationship",
+      "question": "Relaciona cada palabra clave con su característica:",
+      "items": ["var", "let", "const", "template literal"],
+      "concepts": [
+        "Function scope y permite redeclaración",
+        "Block scope y permite reasignación",
+        "Block scope sin reasignación",
+        "Strings con interpolación usando ${}"
+      ],
+      "correctPairs": [[0, 0], [1, 1], [2, 2], [3, 3]],
+      "points": 8
+    }
+  ]
+}
