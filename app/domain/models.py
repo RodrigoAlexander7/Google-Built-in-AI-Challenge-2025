@@ -7,7 +7,7 @@ class SummaryRequest(BaseModel):
 class SummaryResponse(BaseModel):
     summary: str
 
-class SumamaryOptions(BaseModel):
+class SummaryOptions(BaseModel):
     character: str = 'review'
     languaje_register: str = 'formal'
     language: str = 'English'
