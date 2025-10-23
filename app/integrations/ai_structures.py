@@ -5,6 +5,12 @@ class Choice(BaseModel):
     text: str = Field(description="The text of the choice")
     is_correct: bool = Field(description="Indicates if this choice is the correct answer")
 
+class Summary(BaseModel):
+    summary: str = Field(description="The text summary")
+    references: Optional[list[str]] = Field(description="The list of refferences")
+    examples: Optional[list[str]] = Field(description="The list of examples")
+    conclusions: Optional[str] = Field(description="The summary conclusions")
+    
 class Exercise(BaseModel):
     #id: Optional[str] = Field(None, description="Unique identifier for the exercise")
     topic: Optional[str] = Field(description="The topic or subject area of the exercise")

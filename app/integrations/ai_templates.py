@@ -1,10 +1,23 @@
 from langchain_core.prompts import PromptTemplate
+from app.domain.models import SummaryOptions
 
+'''
+character: str = "informative, descriptive, investigation, synopsis, review"
+languaje_register: str = "formal, informal, colloquial, creative, etc"
+language: str = "Spanish"
+extension: str = "short, medium, long
+
+'''
 def summarize_template():
     return PromptTemplate.from_template("""
     You are an expert AI assistant specialized in summarizing documents.
-    Your task is to read the provided content and generate a concise summary that captures the main points and key information.
-    Please ensure the summary is clear, coherent, and free of any unnecessary details.
+    Given the following document content, your task is to generate summary that captures the main points and key information.
+    The summary should be written in {language} with a {languaje_register} tone and a {character} style.
+    The summary should be of {extension} length.
+    ️### ADDITIONAL INSTRUCTIONS:
+    - If {include_references} is true, include a list of references used in the summary.
+    - If {include_examples} is true, provide relevant examples to illustrate key points.
+    - If {include_conclusions} is true, add a conclusion section summarizing the overall insights.
     Content:
     {content}
     """)
