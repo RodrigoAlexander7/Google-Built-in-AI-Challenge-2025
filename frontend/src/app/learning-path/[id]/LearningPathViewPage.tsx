@@ -1,45 +1,236 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
+import { ChevronDown, ChevronUp, CheckCircle2, Circle, Clock, BookOpen, Target, Trophy, Award, Brain } from 'lucide-react';
+
+// Interfaces
+interface Session {
+  id: string;
+  title: string;
+  description: string;
+  duration: string;
+  completed: boolean;
+  order: number;
+}
+
+interface Module {
+  id: string;
+  title: string;
+  description: string;
+  order: number;
+  sessions: Session[];
+  completed: boolean;
+}
 
 interface LearningPathData {
   id: string;
   title: string;
   description: string;
+  focusType: string;
+  detailLevel: number;
+  totalModules: number;
   createdAt: string;
-  // Agregar más campos según sea necesario
+  modules: Module[];
 }
 
 export default function LearningPathViewPage() {
   const params = useParams();
+  const router = useRouter();
   const [pathData, setPathData] = useState<LearningPathData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     // Simular carga de datos del learning path
-    // En el futuro, aquí se haría la llamada real a la API
     const loadLearningPath = async () => {
       setIsLoading(true);
       
       // Simular delay de carga
-      setTimeout(() => {
-        const mockData: LearningPathData = {
-          id: (params?.id as string) || 'unknown',
-          title: 'Mi Learning Path',
-          description: 'Esta es la página donde se mostrará el contenido completo del Learning Path.',
-          createdAt: new Date().toISOString()
-        };
-        
-        setPathData(mockData);
-        setIsLoading(false);
-      }, 1000);
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      // TODO: Reemplazar con llamada real a la API
+      // const response = await fetch(`/api/learning-paths/${params?.id}`);
+      // const data = await response.json();
+      
+      const mockData: LearningPathData = {
+        id: (params?.id as string) || 'unknown',
+        title: 'Fundamentos de React y TypeScript',
+        description: 'Un recorrido completo desde los conceptos básicos hasta técnicas avanzadas de desarrollo con React y TypeScript.',
+        focusType: 'Balanceado',
+        detailLevel: 3,
+        totalModules: 3,
+        createdAt: new Date().toISOString(),
+        modules: [
+          {
+            id: 'mod-1',
+            title: 'Introducción a React',
+            description: 'Conceptos fundamentales y configuración del entorno',
+            order: 1,
+            completed: true,
+            sessions: [
+              {
+                id: 'sess-1-1',
+                title: '¿Qué es React?',
+                description: 'Historia, filosofía y ecosistema de React',
+                duration: '15 min',
+                completed: true,
+                order: 1
+              },
+              {
+                id: 'sess-1-2',
+                title: 'Configuración del entorno',
+                description: 'Instalación de Node.js, npm y creación del primer proyecto',
+                duration: '20 min',
+                completed: true,
+                order: 2
+              },
+              {
+                id: 'sess-1-3',
+                title: 'JSX y componentes básicos',
+                description: 'Sintaxis JSX y creación de componentes funcionales',
+                duration: '25 min',
+                completed: true,
+                order: 3
+              }
+            ]
+          },
+          {
+            id: 'mod-2',
+            title: 'Hooks y Estado',
+            description: 'Manejo de estado y efectos secundarios',
+            order: 2,
+            completed: false,
+            sessions: [
+              {
+                id: 'sess-2-1',
+                title: 'useState Hook',
+                description: 'Gestión de estado local en componentes funcionales',
+                duration: '30 min',
+                completed: true,
+                order: 1
+              },
+              {
+                id: 'sess-2-2',
+                title: 'useEffect Hook',
+                description: 'Efectos secundarios y ciclo de vida',
+                duration: '35 min',
+                completed: false,
+                order: 2
+              },
+              {
+                id: 'sess-2-3',
+                title: 'useContext y custom hooks',
+                description: 'Compartir estado y crear hooks personalizados',
+                duration: '40 min',
+                completed: false,
+                order: 3
+              },
+              {
+                id: 'sess-2-4',
+                title: 'useReducer para estado complejo',
+                description: 'Gestión avanzada de estado con useReducer',
+                duration: '30 min',
+                completed: false,
+                order: 4
+              }
+            ]
+          },
+          {
+            id: 'mod-3',
+            title: 'TypeScript con React',
+            description: 'Tipado estático y mejores prácticas',
+            order: 3,
+            completed: false,
+            sessions: [
+              {
+                id: 'sess-3-1',
+                title: 'Introducción a TypeScript',
+                description: 'Tipos básicos y configuración con React',
+                duration: '25 min',
+                completed: false,
+                order: 1
+              },
+              {
+                id: 'sess-3-2',
+                title: 'Tipado de componentes',
+                description: 'Props, state y eventos con TypeScript',
+                duration: '30 min',
+                completed: false,
+                order: 2
+              },
+              {
+                id: 'sess-3-3',
+                title: 'Genéricos e interfaces avanzadas',
+                description: 'Patrones avanzados de tipado en React',
+                duration: '35 min',
+                completed: false,
+                order: 3
+              }
+            ]
+          }
+        ]
+      };
+      
+      setPathData(mockData);
+      setIsLoading(false);
     };
 
     if (params?.id) {
       loadLearningPath();
     }
   }, [params?.id]);
+
+  // Toggle módulo expandido/colapsado
+  const toggleModule = (moduleId: string) => {
+    const newExpanded = new Set(expandedModules);
+    if (newExpanded.has(moduleId)) {
+      newExpanded.delete(moduleId);
+    } else {
+      newExpanded.add(moduleId);
+    }
+    setExpandedModules(newExpanded);
+  };
+
+  // Navegar a sesión
+  const handleSessionClick = (moduleId: string, sessionId: string) => {
+    // TODO: Implementar navegación a la página de práctica de sesión
+    console.log(`Navegar a sesión: ${sessionId} del módulo: ${moduleId}`);
+    router.push(`/learning-path/${params?.id}/session/${sessionId}`);
+  };
+
+  // Navegar a evaluación final
+  const handleAssessmentClick = () => {
+    console.log('Navegar a evaluación final del Learning Path');
+    router.push(`/learning-path/${params?.id}/assessment`);
+  };
+
+  // Calcular progreso del learning path
+  const calculatePathProgress = () => {
+    if (!pathData) return 0;
+    const completedModules = pathData.modules.filter(m => m.completed).length;
+    return Math.round((completedModules / pathData.modules.length) * 100);
+  };
+
+  // Calcular progreso de un módulo
+  const calculateModuleProgress = (module: Module) => {
+    const completedSessions = module.sessions.filter(s => s.completed).length;
+    return Math.round((completedSessions / module.sessions.length) * 100);
+  };
+
+  // Calcular total de sesiones
+  const getTotalSessions = () => {
+    if (!pathData) return 0;
+    return pathData.modules.reduce((acc, mod) => acc + mod.sessions.length, 0);
+  };
+
+  // Calcular sesiones completadas
+  const getCompletedSessions = () => {
+    if (!pathData) return 0;
+    return pathData.modules.reduce((acc, mod) => 
+      acc + mod.sessions.filter(s => s.completed).length, 0
+    );
+  };
 
   if (isLoading) {
     return (
@@ -63,57 +254,284 @@ export default function LearningPathViewPage() {
     );
   }
 
+  const pathProgress = calculatePathProgress();
+  const totalSessions = getTotalSessions();
+  const completedSessions = getCompletedSessions();
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 py-8">
-      <div className="max-w-7xl mx-auto px-4 space-y-6">
-        {/* Header */}
-        <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-lg">
-          <div className="flex items-start justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-800 mb-2">{pathData.title}</h1>
-              <p className="text-gray-600">{pathData.description}</p>
-              <p className="text-sm text-gray-400 mt-2">
-                ID: {pathData.id} | Creado: {new Date(pathData.createdAt).toLocaleDateString()}
-              </p>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-6">
+        
+        {/* Header con información del Learning Path */}
+        <div className="bg-white border border-gray-200 rounded-2xl p-6 md:p-8 shadow-sm">
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex-1">
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">
+                {pathData.title}
+              </h1>
+              <p className="text-gray-600 text-lg mb-4">{pathData.description}</p>
+              
+              {/* Metadatos */}
+              <div className="flex flex-wrap gap-3 text-sm">
+                <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200 flex items-center gap-1">
+                  <Target className="w-4 h-4" />
+                  {pathData.focusType}
+                </span>
+                <span className="px-3 py-1 rounded-full bg-purple-50 text-purple-700 border border-purple-200 flex items-center gap-1">
+                  <BookOpen className="w-4 h-4" />
+                  {pathData.modules.length} Módulos
+                </span>
+                <span className="px-3 py-1 rounded-full bg-green-50 text-green-700 border border-green-200 flex items-center gap-1">
+                  <Clock className="w-4 h-4" />
+                  {totalSessions} Sesiones
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Progreso General del Learning Path */}
+          <div className="mt-6">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-gray-700">Progreso General</span>
+              <span className="text-sm font-bold text-gray-800">{pathProgress}%</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-blue-500 to-purple-600 rounded-full transition-all duration-500 ease-out"
+                style={{ width: `${pathProgress}%` }}
+              ></div>
+            </div>
+            <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
+              <span>{completedSessions} de {totalSessions} sesiones completadas</span>
+              {pathProgress === 100 && (
+                <span className="flex items-center gap-1 text-green-600 font-medium">
+                  <Trophy className="w-4 h-4" />
+                  ¡Completado!
+                </span>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Placeholder para contenido futuro */}
-        <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-lg">
-          <div className="text-center py-12">
-            <div className="text-6xl mb-4">🚧</div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">
-              Contenido en Desarrollo
-            </h2>
-            <p className="text-gray-600 max-w-md mx-auto">
-              Esta es la página donde se mostrará el contenido completo del Learning Path, 
-              incluyendo módulos, lecciones, ejercicios y más.
-            </p>
-          </div>
-        </div>
+        {/* Lista de Módulos */}
+        <div className="space-y-4">
+          {pathData.modules.map((module) => {
+            const isExpanded = expandedModules.has(module.id);
+            const moduleProgress = calculateModuleProgress(module);
+            
+            return (
+              <div
+                key={module.id}
+                className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden transition-all duration-300"
+              >
+                {/* Header del Módulo */}
+                <button
+                  onClick={() => toggleModule(module.id)}
+                  className="w-full px-6 py-5 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                >
+                  <div className="flex items-center gap-4 flex-1">
+                    {/* Icono de estado */}
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold text-lg ${
+                      module.completed
+                        ? 'bg-gradient-to-br from-green-500 to-emerald-600 text-white'
+                        : 'bg-gradient-to-br from-blue-500 to-purple-600 text-white'
+                    }`}>
+                      {module.order}
+                    </div>
+                    
+                    {/* Información del módulo */}
+                    <div className="flex-1 text-left">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="text-lg font-semibold text-gray-800">
+                          {module.title}
+                        </h3>
+                        {module.completed && (
+                          <CheckCircle2 className="w-5 h-5 text-green-600" />
+                        )}
+                      </div>
+                      <p className="text-sm text-gray-600">{module.description}</p>
+                      
+                      {/* Barra de progreso del módulo */}
+                      <div className="mt-3 max-w-md">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs text-gray-500">
+                            {module.sessions.filter(s => s.completed).length}/{module.sessions.length} sesiones
+                          </span>
+                          <span className="text-xs font-medium text-gray-700">{moduleProgress}%</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all duration-500 ${
+                              module.completed
+                                ? 'bg-gradient-to-r from-green-500 to-emerald-600'
+                                : 'bg-gradient-to-r from-blue-500 to-purple-600'
+                            }`}
+                            style={{ width: `${moduleProgress}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
 
-        {/* Sección de ejemplo de módulos */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1, 2, 3].map((module) => (
-            <div
-              key={module}
-              className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow"
-            >
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-xl">
-                  {module}
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-800">Módulo {module}</h3>
-                  <p className="text-xs text-gray-500">Próximamente</p>
+                  {/* Icono de expandir/colapsar */}
+                  <div className="ml-4">
+                    {isExpanded ? (
+                      <ChevronUp className="w-6 h-6 text-gray-400" />
+                    ) : (
+                      <ChevronDown className="w-6 h-6 text-gray-400" />
+                    )}
+                  </div>
+                </button>
+
+                {/* Lista de Sesiones (colapsable con animación) */}
+                <div 
+                  className={`border-t border-gray-200 bg-gray-50 overflow-hidden transition-all duration-500 ease-in-out ${
+                    isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
+                  }`}
+                >
+                  <div className="px-6 py-4 space-y-2">
+                    {module.sessions.map((session, index) => (
+                      <div
+                        key={session.id}
+                        className={`transform transition-all duration-300 ease-out ${
+                          isExpanded 
+                            ? 'translate-y-0 opacity-100' 
+                            : '-translate-y-4 opacity-0'
+                        }`}
+                        style={{ 
+                          transitionDelay: isExpanded ? `${index * 50}ms` : '0ms' 
+                        }}
+                      >
+                        <button
+                          onClick={() => handleSessionClick(module.id, session.id)}
+                          className="w-full flex items-center gap-4 p-4 bg-white rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all group"
+                        >
+                          {/* Icono de estado de sesión */}
+                          <div className="flex-shrink-0">
+                            {session.completed ? (
+                              <CheckCircle2 className="w-6 h-6 text-green-600" />
+                            ) : (
+                              <Circle className="w-6 h-6 text-gray-300 group-hover:text-blue-500 transition-colors" />
+                            )}
+                          </div>
+
+                          {/* Información de sesión */}
+                          <div className="flex-1 text-left">
+                            <h4 className={`font-medium ${
+                              session.completed ? 'text-gray-700' : 'text-gray-800'
+                            } group-hover:text-blue-600 transition-colors`}>
+                              {session.title}
+                            </h4>
+                            <p className="text-sm text-gray-500 mt-1">{session.description}</p>
+                          </div>
+
+                          {/* Duración */}
+                          <div className="flex items-center gap-2 text-sm text-gray-500">
+                            <Clock className="w-4 h-4" />
+                            <span>{session.duration}</span>
+                          </div>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
-              <p className="text-sm text-gray-600">
-                Contenido del módulo {module} se agregará próximamente.
+            );
+          })}
+        </div>
+
+        {/* Sección de Evaluación Final */}
+        <div className="bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl shadow-lg overflow-hidden">
+          <div className="p-6 md:p-8">
+            <div className="flex flex-col md:flex-row items-center gap-6">
+              {/* Icono y texto */}
+              <div className="flex-shrink-0">
+                <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+                  <Award className="w-12 h-12 text-white" />
+                </div>
+              </div>
+
+              <div className="flex-1 text-center md:text-left">
+                <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">
+                  Evalúa tus Conocimientos
+                </h3>
+                <p className="text-purple-100 text-sm md:text-base">
+                  Pon a prueba todo lo que has aprendido con una evaluación completa del Learning Path. 
+                  Demuestra tu dominio del tema y obtén tu certificación.
+                </p>
+                
+                {/* Estadísticas rápidas */}
+                <div className="flex flex-wrap gap-3 mt-4 justify-center md:justify-start">
+                  <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 py-1.5 rounded-full">
+                    <Brain className="w-4 h-4 text-purple-100" />
+                    <span className="text-sm text-white font-medium">Evaluación Integral</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 py-1.5 rounded-full">
+                    <Clock className="w-4 h-4 text-purple-100" />
+                    <span className="text-sm text-white font-medium">~30 minutos</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 py-1.5 rounded-full">
+                    <Trophy className="w-4 h-4 text-purple-100" />
+                    <span className="text-sm text-white font-medium">Certificado al aprobar</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Botón de acción */}
+              <div className="flex-shrink-0">
+                <button
+                  onClick={handleAssessmentClick}
+                  className="group relative px-8 py-4 bg-white text-purple-600 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                >
+                  <span className="relative z-10 flex items-center gap-2">
+                    Comenzar Evaluación
+                    <ChevronDown className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" />
+                  </span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                </button>
+              </div>
+            </div>
+
+            {/* Barra de progreso de preparación */}
+            <div className="mt-6 bg-white/10 backdrop-blur-sm rounded-xl p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-white">Preparación para la evaluación</span>
+                <span className="text-sm font-bold text-white">{pathProgress}%</span>
+              </div>
+              <div className="w-full bg-white/20 rounded-full h-2 overflow-hidden">
+                <div
+                  className="h-full bg-white rounded-full transition-all duration-500"
+                  style={{ width: `${pathProgress}%` }}
+                ></div>
+              </div>
+              <p className="text-xs text-purple-100 mt-2">
+                {pathProgress >= 80 
+                  ? '¡Estás listo para la evaluación! Has completado la mayor parte del contenido.' 
+                  : pathProgress >= 50
+                  ? 'Buen progreso. Completa más sesiones para estar mejor preparado.'
+                  : 'Sigue avanzando en los módulos para estar mejor preparado para la evaluación.'}
               </p>
             </div>
-          ))}
+          </div>
+        </div>
+
+        {/* Footer con estadísticas */}
+        <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">Estadísticas de Progreso</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="text-center p-4 bg-blue-50 rounded-xl border border-blue-100">
+              <div className="text-3xl font-bold text-blue-600">{pathData.modules.length}</div>
+              <div className="text-sm text-gray-600 mt-1">Módulos Totales</div>
+            </div>
+            <div className="text-center p-4 bg-purple-50 rounded-xl border border-purple-100">
+              <div className="text-3xl font-bold text-purple-600">{completedSessions}</div>
+              <div className="text-sm text-gray-600 mt-1">Sesiones Completadas</div>
+            </div>
+            <div className="text-center p-4 bg-green-50 rounded-xl border border-green-100">
+              <div className="text-3xl font-bold text-green-600">{pathProgress}%</div>
+              <div className="text-sm text-gray-600 mt-1">Progreso Total</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
