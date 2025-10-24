@@ -1,16 +1,5 @@
 import React from 'react';
-
-export interface FlashCardData {
-  id: string;
-  front: {
-    text: string;
-    color: string;
-  };
-  back: {
-    text: string;
-    color: string;
-  };
-}
+import { FlashCardData } from '@/types/FlashCardData';
 
 interface FlashCardProps {
   card: FlashCardData;

@@ -1,34 +1,20 @@
+'use client';
+
 import React, { useState } from 'react';
-import FlashCard, { FlashCardData } from './FlashCard';
+import FlashCard from './FlashCard';
 import FlashCardModal from './FlashCardModal';
 import ConfirmationModal from './ConfirmationModal';
+import { FlashCardData } from '@/types/FlashCardData';
+interface FlashCardContainerProps {
+  /** Lista inicial de cartas (puede venir desde mockFlashCards o estar vacía) */
+  initialCards?: FlashCardData[];
+}
 
-const FlashCardContainer: React.FC = () => {
-  const [cards, setCards] = useState<FlashCardData[]>([
-    {
-      id: '1',
-      front: { text: 'Fe 001', color: '#ffffff' },
-      back: { text: 'Respuesta 001', color: '#f3f4f6' }
-    },
-    {
-      id: '2',
-      front: { text: 'Fe 002', color: '#ffffff' },
-      back: { text: 'Respuesta 002', color: '#f3f4f6' }
-    },
-    {
-      id: '3',
-      front: { text: 'Fe 003', color: '#ffffff' },
-      back: { text: 'Respuesta 003', color: '#f3f4f6' }
-    },
-    {
-      id: '4',
-      front: { text: 'Fe 004', color: '#ffffff' },
-      back: { text: 'Respuesta 004', color: '#f3f4f6' }
-    }
-  ]);
-
+const FlashCardContainer: React.FC<FlashCardContainerProps> = ({ initialCards = [] }) => {
+  const [cards, setCards] = useState<FlashCardData[]>(initialCards);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
+
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -49,7 +35,7 @@ const FlashCardContainer: React.FC = () => {
   const handleCreateCard = (cardData: Omit<FlashCardData, 'id'>) => {
     const newCard: FlashCardData = {
       ...cardData,
-      id: Date.now().toString()
+      id: Date.now().toString(),
     };
     setCards([...cards, newCard]);
   };
@@ -66,10 +52,9 @@ const FlashCardContainer: React.FC = () => {
 
   const handleDeleteCard = () => {
     if (currentCard) {
-      setCards(cards.filter(card => card.id !== currentCard.id));
-      if (currentCardIndex >= cards.length - 1) {
-        setCurrentCardIndex(Math.max(0, cards.length - 2));
-      }
+      const updated = cards.filter(card => card.id !== currentCard.id);
+      setCards(updated);
+      setCurrentCardIndex((prev) => Math.max(0, prev - 1));
       setIsDeleteModalOpen(false);
     }
   };
@@ -84,96 +69,106 @@ const FlashCardContainer: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-[60vh] bg-gray-50 py-8 rounded-2xl shadow-inner">
       <div className="max-w-4xl mx-auto px-4">
-        {/* Header with actions */}
+        {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800">Flashcards</h1>
           <div className="flex space-x-3">
             <button
               onClick={openEditModal}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              disabled={!currentCard}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
             >
               Editar
             </button>
             <button
               onClick={openDeleteModal}
-              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+              disabled={!currentCard}
+              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50"
             >
               Eliminar
             </button>
             <button
               onClick={() => setIsCreateModalOpen(true)}
-              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
             >
               Crear
             </button>
           </div>
         </div>
 
-        {/* Card selector menu */}
-        <div className="flex justify-center mb-8">
-          <div className="flex space-x-2 bg-white rounded-lg shadow-sm p-2">
-            {cards.map((card, index) => (
+        {/* Selector de cartas */}
+        {cards.length > 0 ? (
+          <>
+            <div className="flex justify-center mb-8">
+              <div className="flex space-x-2 bg-white rounded-lg shadow-sm p-2">
+                {cards.map((card, index) => (
+                  <button
+                    key={card.id}
+                    onClick={() => {
+                      setCurrentCardIndex(index);
+                      setIsFlipped(false);
+                    }}
+                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                      index === currentCardIndex
+                        ? 'bg-blue-600 text-white'
+                        : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                  >
+                    {card.front.text}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Área principal */}
+            <div className="flex items-center justify-center space-x-6">
+              {/* Botón Anterior */}
               <button
-                key={card.id}
-                onClick={() => {
-                  setCurrentCardIndex(index);
-                  setIsFlipped(false);
-                }}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  index === currentCardIndex
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-600 hover:bg-gray-100'
-                }`}
+                onClick={handlePrevCard}
+                disabled={cards.length <= 1}
+                className="p-3 rounded-full bg-white shadow-md hover:shadow-lg disabled:opacity-50"
               >
-                {card.front.text}
+                <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
               </button>
-            ))}
-          </div>
-        </div>
 
-        {/* Main card area */}
-        <div className="flex items-center justify-center space-x-6">
-          {/* Previous button */}
-          <button
-            onClick={handlePrevCard}
-            className="p-3 rounded-full bg-white shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
-            disabled={cards.length <= 1}
-          >
-            <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
+              {/* FlashCard principal */}
+              {currentCard && (
+                <FlashCard
+                  card={currentCard}
+                  isFlipped={isFlipped}
+                  onFlip={() => setIsFlipped(!isFlipped)}
+                />
+              )}
 
-          {/* FlashCard */}
-          {currentCard && (
-            <FlashCard
-              card={currentCard}
-              isFlipped={isFlipped}
-              onFlip={() => setIsFlipped(!isFlipped)}
-            />
-          )}
+              {/* Botón Siguiente */}
+              <button
+                onClick={handleNextCard}
+                disabled={cards.length <= 1}
+                className="p-3 rounded-full bg-white shadow-md hover:shadow-lg disabled:opacity-50"
+              >
+                <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
 
-          {/* Next button */}
-          <button
-            onClick={handleNextCard}
-            className="p-3 rounded-full bg-white shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
-            disabled={cards.length <= 1}
-          >
-            <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        </div>
-
-        {/* Card counter */}
-        <div className="text-center mt-6 text-gray-600">
-          {currentCardIndex + 1} / {cards.length}
-        </div>
+            {/* Contador */}
+            <div className="text-center mt-6 text-gray-600">
+              {currentCardIndex + 1} / {cards.length}
+            </div>
+          </>
+        ) : (
+          <p className="text-center text-gray-500 mt-12 text-lg">
+            No hay flashcards en este grupo aún.
+          </p>
+        )}
       </div>
 
-      {/* Modals */}
+      {/* Modales */}
       <FlashCardModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
