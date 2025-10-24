@@ -1,6 +1,6 @@
 import { FlashCardGroup } from '../../types/FlashCardGroup';
 
-export const flashCardGroups: FlashCardGroup[] = [
+export const mockFlashCards: FlashCardGroup[] = [
   {
     id: 'g1',
     title: 'Lección 1 - Fundamentos de Fe',

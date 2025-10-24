@@ -5,6 +5,8 @@ import { mockSummaries } from '@/resources/files/mockSummaries';
 import { SummaryRecord } from '../../types/SummaryRecord';
 import { mockPracticePages } from '@/resources/files/mockPractice';
 import type { QuestionGroup } from '@/types/QuestionGroup';
+import { mockFlashCards } from '@/resources/files/mockFlashCards'; 
+import type { FlashCardGroup } from '@/types/FlashCardGroup';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -14,15 +16,41 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle }) => {
   const pathname = usePathname();
-  const isPractice = pathname?.startsWith('/practice') ?? false;
 
-  // Datos a mostrar según sección
-  const summariesList = isPractice
+  // Detectamos en qué sección estamos
+  const isPractice = pathname?.startsWith('/practice') ?? false;
+  const isFlashcards = pathname?.startsWith('/flashcards') ?? false;
+
+  // Determinar los datos que se muestran según la ruta
+  const summariesList = isFlashcards
+    ? mockFlashCards // 👈 Mostrar grupos de flashcards
+    : isPractice
     ? mockPracticePages
     : [...mockSummaries].sort(
         (a: SummaryRecord, b: SummaryRecord) =>
           new Date(b.date).getTime() - new Date(a.date).getTime()
       );
+
+  // Título dinámico
+  const title = isFlashcards
+    ? 'Flashcards'
+    : isPractice
+    ? 'Mis Prácticas'
+    : 'Resúmenes';
+
+  // URL base para los enlaces
+  const basePath = isFlashcards
+    ? '/flashcards'
+    : isPractice
+    ? '/practice'
+    : '/summarizer';
+
+  // Texto del botón principal
+  const newButtonText = isFlashcards
+    ? 'Nuevo Grupo'
+    : isPractice
+    ? 'Nueva Práctica'
+    : 'Nuevo Resumen';
 
   return (
     <>
@@ -67,9 +95,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle }) => {
       >
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200/50">
-          <h2 className="text-lg font-semibold text-gray-800">
-            {isPractice ? 'Mis Prácticas' : 'Resúmenes'}
-          </h2>
+          <h2 className="text-lg font-semibold text-gray-800">{title}</h2>
           <button
             onClick={onClose}
             className="lg:hidden p-2 rounded-xl hover:bg-gray-100/80 transition-all duration-300 group"
@@ -82,22 +108,22 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle }) => {
         {/* Contenido scrollable */}
         <div className="h-[calc(100vh-5rem)] overflow-y-auto">
           <div className="p-6">
-            {/* Botón Nuevo Resumen / Nueva Práctica */}
+            {/* Botón Nuevo */}
             <a
-              href={isPractice ? '/practice' : '/summarizer'}
+              href={basePath}
               className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-3.5 px-4 rounded-2xl transition-all duration-300 flex items-center justify-center gap-3 mb-8 shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-95 group"
             >
               <i className="fas fa-plus group-hover:rotate-90 transition-transform duration-300"></i>
-              <span>{isPractice ? 'Nueva Práctica' : 'Nuevo Resumen'}</span>
+              <span>{newButtonText}</span>
             </a>
 
-            {/* Lista de resúmenes / prácticas */}
+            {/* Lista de elementos */}
             <div className="space-y-1 mb-8">
               {summariesList.length > 0 ? (
-                summariesList.map((item: SummaryRecord | QuestionGroup) => (
+                summariesList.map((item: any) => (
                   <a
                     key={item.id}
-                    href={isPractice ? `/practice/${item.id}` : `/summarizer/${item.id}`}
+                    href={`${basePath}/${item.id}`}
                     onClick={onClose}
                     className="block px-4 py-3 rounded-xl text-gray-700 hover:text-blue-600 hover:bg-blue-50/80 transition-all duration-300 group relative"
                   >
@@ -120,7 +146,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle }) => {
                 ))
               ) : (
                 <p className="text-sm text-gray-500 px-4 py-2">
-                  {isPractice ? 'No hay prácticas guardadas.' : 'No hay resúmenes guardados.'}
+                  {isFlashcards
+                    ? 'No hay grupos de flashcards guardados.'
+                    : isPractice
+                    ? 'No hay prácticas guardadas.'
+                    : 'No hay resúmenes guardados.'}
                 </p>
               )}
             </div>
