@@ -12,8 +12,7 @@ class FlashCard(BaseModel):
     difficulty: Optional[str] = Field(description="Difficulty level: easy, medium, or hard.")
     
     explanation: Optional[str] = Field(description="Expanded explanation or context behind the answer.")
-    example: Optional[str] = Field(description="Optional example that illustrates the concept.")
-    
+        
     tags: List[str] = Field(default_factory=list, description="Tags or categories to help organize the flashcard.")
 
 class FlashCardSet(BaseModel):
