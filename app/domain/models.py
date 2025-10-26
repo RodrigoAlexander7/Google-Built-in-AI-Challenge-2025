@@ -21,3 +21,9 @@ class FlashcardRequest(BaseModel):
     flashcards_count: int = 5
     difficulty_level: str = 'medium'
     focus_area: str = 'key concepts'
+
+class RoadmapOptions(BaseModel):
+    topic: str
+    complexity_level: str = 'intermediate'
+    duration: str = 'Recommend a duration'
+    include_resources: bool = True
