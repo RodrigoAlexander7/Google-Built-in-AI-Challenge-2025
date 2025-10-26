@@ -5,7 +5,6 @@ from app.services.summarize_service import summarize_content
 from app.infrastructure.files.file_manager import extract_file_contents
 
 router = APIRouter(prefix="/summarize", tags=["Summaries"])
-
 class SummaryOptions(BaseModel):
     character: str = 'review'
     languaje_register: str = 'formal'
