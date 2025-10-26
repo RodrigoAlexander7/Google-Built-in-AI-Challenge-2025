@@ -1,7 +1,7 @@
-from app.integrations.ai_integrations import AIClient
+from app.integrations.summaries.client import SummarizeAIClient
 from app.domain.models import SummaryOptions
 
-ai_client = AIClient()
+ai_client = SummarizeAIClient()
 
 async def summarize_content(content: str, options: SummaryOptions) -> str:
     return await ai_client.summarize_text(content, options)
