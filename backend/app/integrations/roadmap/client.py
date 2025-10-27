@@ -6,7 +6,8 @@ from app.integrations.ai_client import AIClient
 class RoadmapAIClient(AIClient):
     async def generate_roadmap(self, options: RoadmapOptions) -> str:
         instructions = roadmap_template()
-        structured_llm = self.model.with_structured_output(Roadmap)
+        model = self.new_model()
+        structured_llm = model.with_structured_output(Roadmap)
         chain = instructions | structured_llm
         result = await chain.ainvoke({
             "topic": options.topic,

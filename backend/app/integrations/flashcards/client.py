@@ -7,9 +7,10 @@ from app.domain.models import FlashcardRequest
 class FlashcardsAIClient(AIClient):
     async def generate_flashcards(self, flashcard_request: FlashcardRequest) -> List[FlashCard]:
         instructions = flashcards_template()
-
+        # Create a model per request (no global model that open and close (that cause the vercel error))
+        model = self.new_model()
         # the result follow the model structure from FlashCardSet
-        structured_llm = self.model.with_structured_output(FlashCardSet)
+        structured_llm = model.with_structured_output(FlashCardSet)
         chain = instructions | structured_llm
         result = await chain.ainvoke({
             "content": flashcard_request.content,

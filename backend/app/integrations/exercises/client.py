@@ -29,8 +29,10 @@ class ExercisesAIClient(AIClient):
         else:
             raise ValueError(f"Unsupported exercise type: {exercises_types}")   
         
+        model = self.new_model()
+
         instructions = exercises_template()
-        structured_llm = self.model.with_structured_output(ExerciseSet)
+        structured_llm = model.with_structured_output(ExerciseSet)
         chain = instructions | structured_llm
         result = await chain.ainvoke({"content": content, "exercises_count": exercises_count, "exercises_difficulty": exercises_difficulty})
         if result:
