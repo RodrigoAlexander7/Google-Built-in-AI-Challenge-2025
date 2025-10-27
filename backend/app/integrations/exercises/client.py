@@ -29,6 +29,7 @@ class ExercisesAIClient(AIClient):
         else:
             raise ValueError(f"Unsupported exercise type: {exercises_types}")   
         
+        #model instance per req
         model = self.new_model()
 
         instructions = exercises_template()
