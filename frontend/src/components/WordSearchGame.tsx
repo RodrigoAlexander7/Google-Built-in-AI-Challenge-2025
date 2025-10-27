@@ -1,12 +1,14 @@
 'use client';
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-
-interface WordSearchProps {
-  words: string[];
-  size?: number;
-  onComplete?: () => void;
-}
+import {
+  WordSearchProps,
+  Cell,
+  Placement,
+  GameState,
+  WordItem,
+  GridPlacements
+} from '../types/WordSearchGameTypes';
 
 // Direcciones: 8 posibles (fila, columna)
 const DIRECTIONS: Array<[number, number]> = [
@@ -20,71 +22,78 @@ const DIRECTIONS: Array<[number, number]> = [
   [-1, -1] // ↖
 ];
 
-type Cell = [number, number];
-type Placement = { word: string; cells: Cell[] };
-
 export default function WordSearchGame({ words, size = 10, onComplete }: WordSearchProps) {
   const [grid, setGrid] = useState<string[][]>([]);
   const [placements, setPlacements] = useState<Placement[]>([]);
-  const [selectedCells, setSelectedCells] = useState<Cell[]>([]);
-  const [isSelecting, setIsSelecting] = useState(false);
-  const [foundIds, setFoundIds] = useState<Set<number>>(new Set());
+  const [gameState, setGameState] = useState<GameState>({
+    selectedCells: [],
+    isSelecting: false,
+    foundIds: new Set()
+  });
 
   const startCellRef = useRef<Cell | null>(null);
   const dirRef = useRef<[number, number] | null>(null);
   const completedRef = useRef(false);
 
-  // Stable key based on words content (case-insensitive). Prevents re-gen on new array refs.
+  // Stable key based on words content (case-insensitive)
   const wordsKey = useMemo(
     () => JSON.stringify(words.map(w => w.toUpperCase())),
-    // depende de 'words' pero el efecto depende del valor primitivo wordsKey
     [words]
   );
 
   // Generar grid y placements solo cuando cambie el contenido de words o el size
   useEffect(() => {
     const upperWords = words.map((w) => w.toUpperCase());
-    const { grid, placements } = generateGridWithPlacements(size, upperWords);
+    const { grid, placements }: GridPlacements = generateGridWithPlacements(size, upperWords);
     setGrid(grid);
     setPlacements(placements);
-    setSelectedCells([]);
-    setFoundIds(new Set());
+    setGameState({
+      selectedCells: [],
+      isSelecting: false,
+      foundIds: new Set()
+    });
     completedRef.current = false;
   }, [size, wordsKey]);
 
   // Conjunto de celdas encontradas para resaltar
   const foundCellSet = useMemo(() => {
     const s = new Set<string>();
-    for (const idx of foundIds) {
+    for (const idx of gameState.foundIds) {
       placements[idx]?.cells.forEach(([r, c]) => s.add(`${r},${c}`));
     }
     return s;
-  }, [foundIds, placements]);
+  }, [gameState.foundIds, placements]);
 
   // Lista de palabras, con estado encontrado
   const wordItems = useMemo(
-    () => placements.map((p, idx) => ({ word: p.word, found: foundIds.has(idx) })),
-    [placements, foundIds]
+    (): WordItem[] => placements.map((p, idx) => ({ 
+      word: p.word, 
+      found: gameState.foundIds.has(idx) 
+    })),
+    [placements, gameState.foundIds]
   );
 
   // Completar juego cuando todas las palabras estén encontradas
   useEffect(() => {
-    if (!completedRef.current && placements.length > 0 && foundIds.size === placements.length) {
+    if (!completedRef.current && placements.length > 0 && gameState.foundIds.size === placements.length) {
       completedRef.current = true;
       onComplete?.();
     }
-  }, [foundIds, placements, onComplete]);
+  }, [gameState.foundIds, placements, onComplete]);
 
   // Handlers de selección (click/drag)
   const onCellMouseDown = (r: number, c: number) => {
-    setIsSelecting(true);
+    setGameState(prev => ({
+      ...prev,
+      isSelecting: true,
+      selectedCells: [[r, c]]
+    }));
     startCellRef.current = [r, c];
     dirRef.current = null;
-    setSelectedCells([[r, c]]);
   };
 
   const onCellMouseEnter = (r: number, c: number) => {
-    if (!isSelecting || !startCellRef.current) return;
+    if (!gameState.isSelecting || !startCellRef.current) return;
     const [sr, sc] = startCellRef.current;
 
     // Determinar dirección si aún no existe
@@ -92,7 +101,7 @@ export default function WordSearchGame({ words, size = 10, onComplete }: WordSea
       const dr = Math.sign(r - sr);
       const dc = Math.sign(c - sc);
       if (dr === 0 && dc === 0) {
-        setSelectedCells([[sr, sc]]);
+        setGameState(prev => ({ ...prev, selectedCells: [[sr, sc]] }));
         return;
       }
       dirRef.current = [dr, dc];
@@ -109,12 +118,12 @@ export default function WordSearchGame({ words, size = 10, onComplete }: WordSea
       if (rr < 0 || rr >= size || cc < 0 || cc >= size) break;
       next.push([rr, cc]);
     }
-    setSelectedCells(next);
+    setGameState(prev => ({ ...prev, selectedCells: next }));
   };
 
   const onSelectionRelease = () => {
-    if (!isSelecting) return;
-    setIsSelecting(false);
+    if (!gameState.isSelecting) return;
+    setGameState(prev => ({ ...prev, isSelecting: false }));
     validateSelection();
     startCellRef.current = null;
     dirRef.current = null;
@@ -122,24 +131,27 @@ export default function WordSearchGame({ words, size = 10, onComplete }: WordSea
 
   // Evaluar selección contra placements
   const validateSelection = () => {
-    if (selectedCells.length === 0) {
-      setSelectedCells([]);
+    if (gameState.selectedCells.length === 0) {
+      setGameState(prev => ({ ...prev, selectedCells: [] }));
       return;
     }
 
     for (let i = 0; i < placements.length; i++) {
-      if (foundIds.has(i)) continue;
+      if (gameState.foundIds.has(i)) continue;
 
       const path = placements[i].cells;
-      if (samePath(selectedCells, path) || samePath(selectedCells, [...path].reverse())) {
-        setFoundIds((prev) => new Set(prev).add(i));
-        setSelectedCells([]);
+      if (samePath(gameState.selectedCells, path) || samePath(gameState.selectedCells, [...path].reverse())) {
+        setGameState(prev => ({
+          ...prev,
+          foundIds: new Set(prev.foundIds).add(i),
+          selectedCells: []
+        }));
         return;
       }
     }
 
     // No coincide con palabras colocadas
-    setSelectedCells([]);
+    setGameState(prev => ({ ...prev, selectedCells: [] }));
   };
 
   return (
@@ -149,7 +161,7 @@ export default function WordSearchGame({ words, size = 10, onComplete }: WordSea
         {grid.map((row, r) =>
           row.map((letter, c) => {
             const key = `${r}-${c}`;
-            const isSelected = selectedCells.some(([rr, cc]) => rr === r && cc === c);
+            const isSelected = gameState.selectedCells.some(([rr, cc]) => rr === r && cc === c);
             const isFound = foundCellSet.has(`${r},${c}`);
             return (
               <div
@@ -183,7 +195,7 @@ export default function WordSearchGame({ words, size = 10, onComplete }: WordSea
 /* ---------- Utilidades ---------- */
 
 // Genera grid y posiciones exactas para cada palabra
-function generateGridWithPlacements(size: number, words: string[]): { grid: string[][]; placements: Placement[] } {
+function generateGridWithPlacements(size: number, words: string[]): GridPlacements {
   const grid: string[][] = Array.from({ length: size }, () => Array.from({ length: size }, () => ''));
   const placements: Placement[] = [];
 
@@ -250,7 +262,6 @@ function tryPlaceWord(grid: string[][], size: number, word: string): Placement |
 }
 
 function randInt(min: number, max: number): number {
-  // ambos inclusivos
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
