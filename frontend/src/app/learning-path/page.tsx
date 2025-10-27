@@ -1,9 +1,10 @@
 import Template from "../../pages/Template";
-import LearningPathPage from "./LearningPathPage";
+import LearningPathCreatorPage from "./LearningPathCreatorPage";
+
 export default function Home() {
     return (
         <Template>
-            <LearningPathPage></LearningPathPage>
+            <LearningPathCreatorPage />
         </Template>
     );
 } 

@@ -9,7 +9,8 @@ import {
   FileCode, 
   File,
   FileSpreadsheet,
-  Video
+  Video,
+  Send, // added
 } from 'lucide-react';
 
 // Tipos para TypeScript
@@ -53,6 +54,9 @@ const PromptInput: React.FC<PromptInputProps> = ({
 }) => {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [message, setMessage] = useState('');
+
+  // Enable/disable send button
+  const canSend = message.trim().length > 0 || uploadedFiles.length > 0;
 
   // Función para manejar la eliminación de archivos
   const removeFile = (fileId: string) => {
@@ -184,6 +188,21 @@ const PromptInput: React.FC<PromptInputProps> = ({
             title="Adjuntar archivos"
           >
             <Paperclip className="w-5 h-5" />
+          </button>
+
+          {/* Botón de enviar */}
+          <button
+            type="button"
+            onClick={handleSend}
+            disabled={!canSend}
+            aria-label="Enviar"
+            title="Enviar"
+            className={`flex-shrink-0 p-2 rounded-lg transition-colors shadow-sm
+              ${canSend 
+                ? 'text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700' 
+                : 'text-gray-400 bg-gray-100 cursor-not-allowed'}`}
+          >
+            <Send className="w-5 h-5" />
           </button>
         </div>
       </div>
