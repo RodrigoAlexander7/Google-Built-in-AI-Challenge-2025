@@ -12,5 +12,14 @@ export interface SummaryPromptRequest extends SummaryPromptOptions {
   files: File[] | FileList;
 }
 
-// Optional minimal response type (unknown if not documented)
-export type SummaryResponse = unknown;
+// Replace the previous unknown response type with a structured type
+export interface SummaryPayload {
+  summary: string;
+  references: string[]; // can adjust to unknown[] if API returns mixed types
+  examples: string[];   // can adjust to unknown[] if API returns mixed types
+  conclusions: string;
+}
+
+export interface SummaryResponse {
+  summary: SummaryPayload;
+}

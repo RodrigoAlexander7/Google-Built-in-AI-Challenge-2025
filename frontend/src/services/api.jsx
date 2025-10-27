@@ -20,7 +20,9 @@ function buildSummaryFormData(payload) {
 
   if (payload.character) form.append('character', payload.character);
   if (payload.languaje_register) form.append('languaje_register', payload.languaje_register);
-  if (payload.language) form.append('language', payload.language);
+  if (payload.language) {
+    form.append('language', payload.language);
+  }
   if (payload.extension) form.append('extension', payload.extension);
 
   if (payload.include_references !== undefined) {
