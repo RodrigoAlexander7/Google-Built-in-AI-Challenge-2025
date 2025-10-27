@@ -215,7 +215,10 @@ export default function SummarizerPage({
         />
       )}
 
-      <SummaryOptions value={options} onChange={setOptions} />
+      {/* Hide options when there is a response */}
+      {!hasResponse && (
+        <SummaryOptions value={options} onChange={setOptions} />
+      )}
     </div>
   );
 }
