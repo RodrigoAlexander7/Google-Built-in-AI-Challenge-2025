@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-
+import { GameOne, GameTwo, GameThree, GameFour } from '@/components/ReactGameComponents';
 interface CategoryMenuProps {
   title: string;
   options: string[];

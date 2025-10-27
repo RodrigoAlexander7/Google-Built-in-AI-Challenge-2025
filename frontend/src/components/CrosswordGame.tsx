@@ -2,26 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 
-interface CrosswordWord {
-  id: number;
-  word: string;
-  clue: string;
-}
-
-interface Placement {
-  id: number;
-  word: string;
-  row: number;
-  col: number;
-  direction: 'across' | 'down';
-}
-
-interface CrosswordGameProps {
-  words: CrosswordWord[];
-  size?: number;
-  onComplete?: () => void;
-}
-
+import { CrosswordWord, Placement, CrosswordGameProps } from '../types/CrossWordGameData';
 export default function CrosswordGame({
   words,
   size = 12,
