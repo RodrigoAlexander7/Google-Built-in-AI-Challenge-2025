@@ -18,27 +18,9 @@ import Sidebar from '@/components/layout/Sidebar';
 import PracticeQuestionBox from '@/components/layout/PracticeQuestionBox';
 import FlashCard from '@/components/layout/FlashCard';
 import type { QuestionData } from '@/components/layout/PracticeQuestionBox';
-import type { FlashCardData } from '@/components/layout/FlashCard';
-import mockData from '@/data/mockSessionData.json';
-
-// Interfaces
-interface Topic {
-  id: string;
-  title: string;
-  content: string;
-  completed: boolean;
-  estimatedMinutes: number;
-}
-
-interface SessionData {
-  id: string;
-  title: string;
-  moduleTitle: string;
-  topics: Topic[];
-  hasFlashcards: boolean;
-  hasQuestions: boolean;
-  hasGames: boolean;
-}
+import type { FlashCardData as FlashCardComponentData } from '@/components/layout/FlashCard';
+import { getSessionById } from '@/resources/files/mockLearningPaths';
+import type { Session, Topic } from '@/types/LearningPath';
 
 // Componente para renderizar el contenido markdown
 const TopicContent: React.FC<{ content: string }> = ({ content }) => {
@@ -95,14 +77,111 @@ export default function SessionViewPage() {
   const [isFlashcardFlipped, setIsFlashcardFlipped] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  // Cargar datos desde JSON
-  const sessionData: SessionData = mockData.session as SessionData;
-  const flashcards: FlashCardData[] = mockData.flashcards as FlashCardData[];
-  const questions: QuestionData[] = mockData.questions as QuestionData[];
+  // Obtener sessionId de los parámetros
+  const sessionId = params?.sessionId as string;
+  
+  // Cargar datos desde mock
+  const session = getSessionById(sessionId);
+  
+  if (!session) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Sesión no encontrada</h2>
+          <p className="text-gray-600">La sesión que buscas no existe</p>
+          <button
+            onClick={() => router.push('/learning-path')}
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Volver al inicio
+          </button>
+        </div>
+      </div>
+    );
+  }
 
-  const currentTopic = sessionData.topics[currentTopicIndex];
-  const totalTopics = sessionData.topics.length;
+  // Validar que la sesión tenga topics
+  if (!session.topics || session.topics.length === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Sesión sin contenido</h2>
+          <p className="text-gray-600">Esta sesión aún no tiene topics disponibles</p>
+          <button
+            onClick={() => router.push(`/learning-path/${params?.id}`)}
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Volver al Learning Path
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const currentTopic = session.topics[currentTopicIndex];
+  const totalTopics = session.topics.length;
   const progressPercentage = ((currentTopicIndex + 1) / totalTopics) * 100;
+  
+  // Preparar flashcards para el componente (convertir formato)
+  const flashcards: FlashCardComponentData[] = currentTopic?.flashcards.map(fc => ({
+    id: fc.id,
+    front: { text: fc.question, color: '#ffffff' },
+    back: { text: fc.answer, color: '#f3f4f6' }
+  })) || [];
+  
+  // Preparar questions para el componente (convertir formato)
+  const questions: QuestionData[] = currentTopic?.practice.map(q => {
+    if (q.type === 'multiple-choice') {
+      return {
+        id: q.id,
+        type: 'multiple-choice',
+        question: q.question,
+        options: q.options || [],
+        correctAnswer: typeof q.correctAnswer === 'string' 
+          ? (q.options?.indexOf(q.correctAnswer) ?? 0)
+          : q.correctAnswer,
+        points: 5
+      };
+    }
+    if (q.type === 'true-false') {
+      return {
+        id: q.id,
+        type: 'true-false',
+        question: q.question,
+        correctAnswer: q.correctAnswer === 'true',
+        points: 3
+      };
+    }
+    if (q.type === 'fill-blank') {
+      return {
+        id: q.id,
+        type: 'fill-blank',
+        question: q.question,
+        blanks: 1,
+        correctAnswers: Array.isArray(q.correctAnswer) ? q.correctAnswer : [q.correctAnswer],
+        points: 4
+      };
+    }
+    if (q.type === 'relationship' && q.pairs) {
+      return {
+        id: q.id,
+        type: 'relationship',
+        question: q.question,
+        items: q.pairs.map(p => p.left),
+        concepts: q.pairs.map(p => p.right),
+        correctPairs: q.pairs.map((_, idx) => [idx, idx]),
+        points: 8
+      };
+    }
+    // Default fallback para short-answer o justification
+    return {
+      id: q.id,
+      type: 'short-answer',
+      question: q.question,
+      expectedKeywords: [],
+      points: 6
+    };
+  }) || [];
 
   const handleNextTopic = () => {
     if (currentTopicIndex < totalTopics - 1) {
@@ -179,10 +258,10 @@ export default function SessionViewPage() {
                     className="flex items-center space-x-1 hover:text-blue-600 transition-colors group"
                   >
                     <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
-                    <span>{sessionData.moduleTitle}</span>
+                    <span>Learning Path</span>
                   </button>
                   <span>/</span>
-                  <span className="text-gray-900 font-medium">{sessionData.title}</span>
+                  <span className="text-gray-900 font-medium">{session.name}</span>
                 </div>
                 
                 {/* Botón de volver al Learning Path */}
@@ -245,24 +324,18 @@ export default function SessionViewPage() {
 
           {/* Selector de topics */}
           <div className="flex items-center space-x-2 overflow-x-auto pb-2 scrollbar-hide">
-            {sessionData.topics.map((topic, index) => (
+            {session.topics.map((topic, index) => (
               <button
                 key={topic.id}
                 onClick={() => handleTopicSelect(index)}
                 className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                   currentTopicIndex === index && !showPractice
                     ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-md'
-                    : topic.completed
-                    ? 'bg-green-100 text-green-700 border border-green-300'
                     : 'bg-white text-gray-700 border border-gray-200 hover:border-blue-300'
                 }`}
               >
                 <div className="flex items-center space-x-2">
-                  {topic.completed ? (
-                    <CheckCircle2 className="w-4 h-4" />
-                  ) : (
-                    <Circle className="w-4 h-4" />
-                  )}
+                  <Circle className="w-4 h-4" />
                   <span>Tema {index + 1}</span>
                 </div>
               </button>
@@ -313,7 +386,7 @@ export default function SessionViewPage() {
 
             {/* Contenido del topic */}
             <div className="px-8 py-8">
-              <TopicContent content={currentTopic.content} />
+              <TopicContent content={currentTopic.theory} />
             </div>
 
             {/* Footer con navegación */}
@@ -369,7 +442,7 @@ export default function SessionViewPage() {
             </div>
 
             {/* Sección de Flashcards */}
-            {sessionData.hasFlashcards && (
+            {flashcards.length > 0 && (
               <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
                 <div className="flex items-center space-x-3 mb-6">
                   <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
@@ -417,7 +490,7 @@ export default function SessionViewPage() {
             )}
 
             {/* Sección de Preguntas */}
-            {sessionData.hasQuestions && (
+            {questions.length > 0 && (
               <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
                 <div className="flex items-center space-x-3 mb-6">
                   <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-600 rounded-lg flex items-center justify-center">
@@ -441,7 +514,7 @@ export default function SessionViewPage() {
             )}
 
             {/* Sección de Juegos (placeholder) */}
-            {sessionData.hasGames && (
+            {false && (
               <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
                 <div className="flex items-center space-x-3 mb-6">
                   <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg flex items-center justify-center">

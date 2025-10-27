@@ -3,204 +3,37 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ChevronDown, ChevronUp, CheckCircle2, Circle, Clock, BookOpen, Target, Trophy, Award, Brain } from 'lucide-react';
-
-// Interfaces
-interface Session {
-  id: string;
-  title: string;
-  description: string;
-  duration: string;
-  completed: boolean;
-  order: number;
-  totalTopics: number;
-  completedTopics: number;
-}
-
-interface Module {
-  id: string;
-  title: string;
-  description: string;
-  order: number;
-  sessions: Session[];
-  completed: boolean;
-}
-
-interface LearningPathData {
-  id: string;
-  title: string;
-  description: string;
-  focusType: string;
-  detailLevel: number;
-  totalModules: number;
-  createdAt: string;
-  modules: Module[];
-}
+import { getLearningPathById } from '@/resources/files/mockLearningPaths';
+import type { LearningPath, Module, Session } from '@/types/LearningPath';
 
 export default function LearningPathViewPage() {
   const params = useParams();
   const router = useRouter();
-  const [pathData, setPathData] = useState<LearningPathData | null>(null);
+  const [pathData, setPathData] = useState<LearningPath | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    // Simular carga de datos del learning path
+    // Cargar learning path desde mock data
     const loadLearningPath = async () => {
       setIsLoading(true);
       
       // Simular delay de carga
       await new Promise(resolve => setTimeout(resolve, 800));
       
-      // TODO: Reemplazar con llamada real a la API
-      // const response = await fetch(`/api/learning-paths/${params?.id}`);
-      // const data = await response.json();
+      const pathId = params?.id as string;
+      const data = getLearningPathById(pathId);
       
-      const mockData: LearningPathData = {
-        id: (params?.id as string) || 'unknown',
-        title: 'Fundamentos de React y TypeScript',
-        description: 'Un recorrido completo desde los conceptos básicos hasta técnicas avanzadas de desarrollo con React y TypeScript.',
-        focusType: 'Balanceado',
-        detailLevel: 3,
-        totalModules: 3,
-        createdAt: new Date().toISOString(),
-        modules: [
-          {
-            id: 'mod-1',
-            title: 'Introducción a React',
-            description: 'Conceptos fundamentales y configuración del entorno',
-            order: 1,
-            completed: true,
-            sessions: [
-              {
-                id: 'sess-1-1',
-                title: '¿Qué es React?',
-                description: 'Historia, filosofía y ecosistema de React',
-                duration: '15 min',
-                completed: true,
-                order: 1,
-                totalTopics: 5,
-                completedTopics: 5
-              },
-              {
-                id: 'sess-1-2',
-                title: 'Configuración del entorno',
-                description: 'Instalación de Node.js, npm y creación del primer proyecto',
-                duration: '20 min',
-                completed: true,
-                order: 2,
-                totalTopics: 4,
-                completedTopics: 4
-              },
-              {
-                id: 'sess-1-3',
-                title: 'JSX y componentes básicos',
-                description: 'Sintaxis JSX y creación de componentes funcionales',
-                duration: '25 min',
-                completed: true,
-                order: 3,
-                totalTopics: 6,
-                completedTopics: 6
-              }
-            ]
-          },
-          {
-            id: 'mod-2',
-            title: 'Hooks y Estado',
-            description: 'Manejo de estado y efectos secundarios',
-            order: 2,
-            completed: false,
-            sessions: [
-              {
-                id: 'sess-2-1',
-                title: 'useState Hook',
-                description: 'Gestión de estado local en componentes funcionales',
-                duration: '30 min',
-                completed: true,
-                order: 1,
-                totalTopics: 7,
-                completedTopics: 7
-              },
-              {
-                id: 'sess-2-2',
-                title: 'useEffect Hook',
-                description: 'Efectos secundarios y ciclo de vida',
-                duration: '35 min',
-                completed: false,
-                order: 2,
-                totalTopics: 8,
-                completedTopics: 3
-              },
-              {
-                id: 'sess-2-3',
-                title: 'useContext y custom hooks',
-                description: 'Compartir estado y crear hooks personalizados',
-                duration: '40 min',
-                completed: false,
-                order: 3,
-                totalTopics: 6,
-                completedTopics: 0
-              },
-              {
-                id: 'sess-2-4',
-                title: 'useReducer para estado complejo',
-                description: 'Gestión avanzada de estado con useReducer',
-                duration: '30 min',
-                completed: false,
-                order: 4,
-                totalTopics: 5,
-                completedTopics: 0
-              }
-            ]
-          },
-          {
-            id: 'mod-3',
-            title: 'TypeScript con React',
-            description: 'Tipado estático y mejores prácticas',
-            order: 3,
-            completed: false,
-            sessions: [
-              {
-                id: 'sess-3-1',
-                title: 'Introducción a TypeScript',
-                description: 'Tipos básicos y configuración con React',
-                duration: '25 min',
-                completed: false,
-                order: 1,
-                totalTopics: 5,
-                completedTopics: 0
-              },
-              {
-                id: 'sess-3-2',
-                title: 'Tipado de componentes',
-                description: 'Props, state y eventos con TypeScript',
-                duration: '30 min',
-                completed: false,
-                order: 2,
-                totalTopics: 7,
-                completedTopics: 0
-              },
-              {
-                id: 'sess-3-3',
-                title: 'Genéricos e interfaces avanzadas',
-                description: 'Patrones avanzados de tipado en React',
-                duration: '35 min',
-                completed: false,
-                order: 3,
-                totalTopics: 6,
-                completedTopics: 0
-              }
-            ]
-          }
-        ]
-      };
+      if (data) {
+        setPathData(data);
+        // Expandir el primer módulo por defecto
+        setExpandedModules(new Set([data.modules[0]?.id]));
+      }
       
-      setPathData(mockData);
       setIsLoading(false);
     };
 
-    if (params?.id) {
-      loadLearningPath();
-    }
+    loadLearningPath();
   }, [params?.id]);
 
   // Toggle módulo expandido/colapsado
@@ -230,14 +63,19 @@ export default function LearningPathViewPage() {
   // Calcular progreso del learning path
   const calculatePathProgress = () => {
     if (!pathData) return 0;
-    const completedModules = pathData.modules.filter(m => m.completed).length;
-    return Math.round((completedModules / pathData.modules.length) * 100);
+    const totalSessions = pathData.modules.reduce((acc, m) => acc + m.sessions.length, 0);
+    if (totalSessions === 0) return 0;
+    const sessionsWithContent = pathData.modules.reduce((acc, m) => 
+      acc + m.sessions.filter(s => s.topics.length > 0).length, 0
+    );
+    return Math.round((sessionsWithContent / totalSessions) * 100);
   };
 
   // Calcular progreso de un módulo
   const calculateModuleProgress = (module: Module) => {
-    const completedSessions = module.sessions.filter(s => s.completed).length;
-    return Math.round((completedSessions / module.sessions.length) * 100);
+    if (module.sessions.length === 0) return 0;
+    const sessionsWithContent = module.sessions.filter(s => s.topics.length > 0).length;
+    return Math.round((sessionsWithContent / module.sessions.length) * 100);
   };
 
   // Calcular total de sesiones
@@ -249,8 +87,8 @@ export default function LearningPathViewPage() {
   // Calcular sesiones completadas
   const getCompletedSessions = () => {
     if (!pathData) return 0;
-    return pathData.modules.reduce((acc, mod) => 
-      acc + mod.sessions.filter(s => s.completed).length, 0
+    return pathData.modules.reduce((acc: number, mod: Module) => 
+      acc + mod.sessions.filter((s: Session) => s.topics.length > 0).length, 0
     );
   };
 
@@ -352,22 +190,26 @@ export default function LearningPathViewPage() {
                   className="w-full px-6 py-5 flex items-center justify-between hover:bg-gray-50 transition-colors"
                 >
                   <div className="flex items-center gap-4 flex-1">
-                    {/* Icono de estado */}
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold text-lg ${
-                      module.completed
+                    {/* Icono de estado con ícono de libro */}
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                      moduleProgress === 100
                         ? 'bg-gradient-to-br from-green-500 to-emerald-600 text-white'
                         : 'bg-gradient-to-br from-blue-500 to-purple-600 text-white'
                     }`}>
-                      {module.order}
+                      {moduleProgress === 100 ? (
+                        <Trophy className="w-6 h-6" />
+                      ) : (
+                        <BookOpen className="w-6 h-6" />
+                      )}
                     </div>
                     
                     {/* Información del módulo */}
                     <div className="flex-1 text-left">
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="text-lg font-semibold text-gray-800">
-                          {module.title}
+                          {module.name}
                         </h3>
-                        {module.completed && (
+                        {moduleProgress === 100 && (
                           <CheckCircle2 className="w-5 h-5 text-green-600" />
                         )}
                       </div>
@@ -430,7 +272,7 @@ export default function LearningPathViewPage() {
                         >
                           {/* Icono de estado de sesión */}
                           <div className="flex-shrink-0">
-                            {session.completed ? (
+                            {session.topics.length > 0 ? (
                               <CheckCircle2 className="w-6 h-6 text-green-600" />
                             ) : (
                               <Circle className="w-6 h-6 text-gray-300 group-hover:text-blue-500 transition-colors" />
@@ -440,29 +282,21 @@ export default function LearningPathViewPage() {
                           {/* Información de sesión */}
                           <div className="flex-1 text-left">
                             <h4 className={`font-medium ${
-                              session.completed ? 'text-gray-700' : 'text-gray-800'
+                              session.topics.length > 0 ? 'text-gray-700' : 'text-gray-800'
                             } group-hover:text-blue-600 transition-colors`}>
-                              {session.title}
+                              {session.name}
                             </h4>
                             <p className="text-sm text-gray-500 mt-1">{session.description}</p>
                             
                             {/* Contador de temas */}
-                            <div className="flex items-center gap-2 mt-2">
-                              <div className="flex items-center gap-1 text-xs text-gray-600">
-                                <BookOpen className="w-3.5 h-3.5" />
-                                <span className="font-medium">{session.completedTopics}/{session.totalTopics} temas</span>
-                              </div>
-                              {session.completedTopics > 0 && session.completedTopics < session.totalTopics && (
-                                <div className="flex-1 max-w-[120px]">
-                                  <div className="w-full bg-gray-200 rounded-full h-1.5">
-                                    <div 
-                                      className="bg-blue-500 h-1.5 rounded-full transition-all duration-300"
-                                      style={{ width: `${(session.completedTopics / session.totalTopics) * 100}%` }}
-                                    />
-                                  </div>
+                            {session.topics.length > 0 && (
+                              <div className="flex items-center gap-2 mt-2">
+                                <div className="flex items-center gap-1 text-xs text-gray-600">
+                                  <BookOpen className="w-3.5 h-3.5" />
+                                  <span className="font-medium">{session.topics.length} temas</span>
                                 </div>
-                              )}
-                            </div>
+                              </div>
+                            )}
                           </div>
 
                           {/* Duración */}

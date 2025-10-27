@@ -97,8 +97,8 @@ export default function LearningPathCreatorPage() {
     // const { id } = await response.json();
     // router.push(`/learning-path/${id}`);
     
-    // Temporal: usar timestamp como ID único
-    const mockLearningPathId = 'lp-' + Date.now();
+    // Temporal: usar ID del mock data existente
+    const mockLearningPathId = '1'; // ID del mockLearningPaths
     console.log('Learning Path creado con ID:', mockLearningPathId);
     
     // Redirigir a la página del learning path
