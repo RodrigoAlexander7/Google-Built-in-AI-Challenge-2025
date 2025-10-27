@@ -9,7 +9,7 @@ def exercises_template():
     - Read the provided topic or document content carefully.
     - Generate {exercises_count} exercises related to the main ideas.
     - You only must to generate multiple choice exercises.
-    - Assign a difficulty level ("easy", "medium", "hard").
+    - Assign a difficulty level {exercises_difficulty}.
     - For each exercise, provide:
         - A clear question.
         - If applicable, 3-5 answer choices (mark which one is correct).

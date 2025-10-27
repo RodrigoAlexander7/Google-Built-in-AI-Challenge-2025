@@ -9,24 +9,26 @@ router = APIRouter(prefix="/generate-exercises", tags=["Generate Exercises"])
 class ExercisesByTopicRequest(BaseModel):
     topic: str
     exercises_count: int = 5
+    exercises_difficulty: str = "medium"
 
 @router.post("/", response_model=dict)
 async def exercises(
     files: List[UploadFile] = File(default=[], description="Files to be summarized"),
     exercises_count: int = 5,
+    exercises_difficulty: str = "medium"
 ):
     # Content extraction
     data = await extract_file_contents(files)
     joined_content = "\n\n".join("\n\n".join(page for page in file_content) for file_content in data)
 
     # Exercises Generation
-    exercises = await generate_exercises(joined_content, exercises_count)
+    exercises = await generate_exercises(joined_content, exercises_count, exercises_difficulty)
 
     return {"exercises": exercises}
 
 @router.post("/by_topic", response_model=dict)
 async def exercises_by_topic(request: ExercisesByTopicRequest):
     # Exercises Generation
-    exercises = await generate_exercises(request.topic, request.exercises_count)
+    exercises = await generate_exercises(request.topic, request.exercises_count, request.exercises_difficulty)
 
     return {"exercises": exercises}
