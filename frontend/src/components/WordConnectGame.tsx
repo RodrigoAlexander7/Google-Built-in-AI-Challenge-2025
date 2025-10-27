@@ -1,77 +1,69 @@
 'use client';
 
 import React, { useState, useMemo, useRef } from 'react';
+import { WordConnectGameProps, Position, GameState } from '../types/WordConnectGameTypes';
 
-interface WordConnectGameProps {
-  words: string[]; // Palabras válidas
-  onComplete?: () => void; // callback cuando se encuentren todas
-}
-
-/**
- * Juego tipo "Word Connect": letras en círculo, conecta para formar palabras.
- */
 export default function WordConnectGame({ words, onComplete }: WordConnectGameProps) {
   const allLetters = useMemo(() => {
-    // Crear conjunto único de letras a partir de todas las palabras
     const set = new Set(words.join('').toUpperCase().split(''));
     return Array.from(set);
   }, [words]);
 
-  const [current, setCurrent] = useState<string>(''); // palabra formada actualmente
-  const [found, setFound] = useState<string[]>([]);
-  const [isDragging, setIsDragging] = useState(false);
+  const [gameState, setGameState] = useState<GameState>({
+    current: '',
+    found: [],
+    isDragging: false
+  });
+  
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Posiciones circulares de las letras
   const radius = 120;
-  const center = { x: 150, y: 150 };
+  const center: Position = { x: 150, y: 150 };
+  
   const positions = useMemo(() => {
     const step = (2 * Math.PI) / allLetters.length;
-    return allLetters.map((_, i) => ({
+    return allLetters.map((_, i): Position => ({
       x: center.x + radius * Math.cos(i * step - Math.PI / 2),
       y: center.y + radius * Math.sin(i * step - Math.PI / 2),
     }));
   }, [allLetters]);
 
-  /** Iniciar arrastre */
   function handleMouseDown(letter: string) {
-    setIsDragging(true);
-    setCurrent(letter);
+    setGameState(prev => ({ ...prev, isDragging: true, current: letter }));
     drawLines([letter]);
   }
 
-  /** Seguir arrastre */
   function handleMouseEnter(letter: string) {
-    if (!isDragging) return;
-    setCurrent((prev) => {
-      if (prev.includes(letter)) return prev; // no repetir
-      const next = prev + letter;
+    if (!gameState.isDragging) return;
+    setGameState(prev => {
+      if (prev.current.includes(letter)) return prev;
+      const next = prev.current + letter;
       drawLines(next.split(''));
-      return next;
+      return { ...prev, current: next };
     });
   }
 
-  /** Soltar arrastre: evaluar palabra */
   function handleMouseUp() {
-    if (!isDragging) return;
-    setIsDragging(false);
-    evaluateWord(current);
-    setCurrent('');
+    if (!gameState.isDragging) return;
+    setGameState(prev => {
+      evaluateWord(prev.current);
+      return { ...prev, isDragging: false, current: '' };
+    });
     clearCanvas();
   }
 
-  /** Evaluar palabra */
   function evaluateWord(word: string) {
     const w = word.toUpperCase();
-    if (words.includes(w) && !found.includes(w)) {
-      setFound((f) => [...f, w]);
-    }
-    if (found.length + 1 === words.length) {
-      onComplete?.();
+    if (words.includes(w) && !gameState.found.includes(w)) {
+      const newFound = [...gameState.found, w];
+      setGameState(prev => ({ ...prev, found: newFound }));
+      
+      if (newFound.length === words.length) {
+        onComplete?.();
+      }
     }
   }
 
-  /** Dibuja líneas entre letras conectadas */
   function drawLines(sequence: string[]) {
     const ctx = canvasRef.current?.getContext('2d');
     if (!ctx) return;
@@ -105,10 +97,9 @@ export default function WordConnectGame({ words, onComplete }: WordConnectGamePr
           className="absolute top-0 left-0 pointer-events-none"
         />
 
-        {/* Letras en círculo */}
         {allLetters.map((letter, i) => {
           const pos = positions[i];
-          const foundColor = found.some((w) => w.includes(letter));
+          const foundColor = gameState.found.some((w) => w.includes(letter));
           return (
             <div
               key={letter}
@@ -130,13 +121,12 @@ export default function WordConnectGame({ words, onComplete }: WordConnectGamePr
         })}
       </div>
 
-      {/* Palabras por encontrar */}
       <div className="grid grid-cols-2 gap-3 text-center">
         {words.map((w) => (
           <div
             key={w}
             className={`text-lg font-semibold ${
-              found.includes(w) ? 'line-through text-green-600' : 'text-gray-600'
+              gameState.found.includes(w) ? 'line-through text-green-600' : 'text-gray-600'
             }`}
           >
             {w}
@@ -144,9 +134,8 @@ export default function WordConnectGame({ words, onComplete }: WordConnectGamePr
         ))}
       </div>
 
-      {/* palabra actual (visual feedback) */}
-      {isDragging && (
-        <div className="text-2xl font-bold text-indigo-600 tracking-widest">{current}</div>
+      {gameState.isDragging && (
+        <div className="text-2xl font-bold text-indigo-600 tracking-widest">{gameState.current}</div>
       )}
     </div>
   );
