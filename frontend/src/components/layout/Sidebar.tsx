@@ -16,6 +16,7 @@ interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
   onToggle: () => void;
+  onGameSelect?: (type: string, id: number) => void;
 }
 
 interface GameItem {
@@ -26,7 +27,7 @@ interface GameItem {
   category: string;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle }) => {
+const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle, onGameSelect }) => {
   const pathname = usePathname();
 
   // Detectamos en qué sección estamos
@@ -122,6 +123,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle }) => {
     explainit: '💡 Explícalo'
   };
 
+  const handleGameClick = (type: string, id: number) => {
+    onClose();
+    if (onGameSelect) {
+      onGameSelect(type, id);
+    }
+  };
+
   return (
     <>
       {/* Botón flotante para abrir el sidebar en móvil */}
@@ -197,11 +205,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle }) => {
                     </h3>
                     <div className="space-y-1">
                       {games.map((game) => (
-                        <a
+                        <button
                           key={`${type}-${game.id}`}
-                          href={`${basePath}/${type}/${game.id}`}
-                          onClick={onClose}
-                          className="block px-4 py-3 rounded-xl text-gray-700 hover:text-blue-600 hover:bg-blue-50/80 transition-all duration-300 group relative"
+                          onClick={() => handleGameClick(type, game.id)}
+                          className="w-full text-left block px-4 py-3 rounded-xl text-gray-700 hover:text-blue-600 hover:bg-blue-50/80 transition-all duration-300 group relative"
                         >
                           <div className="flex flex-col">
                             <span className="font-medium truncate">{game.title}</span>
@@ -217,7 +224,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle }) => {
                             </span>
                           </div>
                           <div className="absolute bottom-0 left-4 right-4 h-0.5 bg-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
-                        </a>
+                        </button>
                       ))}
                     </div>
                   </div>

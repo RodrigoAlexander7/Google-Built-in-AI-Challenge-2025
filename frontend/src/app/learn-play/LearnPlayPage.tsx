@@ -1,8 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { GameOne, GameTwo, GameThree, GameFour } from '@/components/ReactGameComponents';
-import PromptInput from '@/components/layout/PromptInput';
+import { crosswordGames } from '../../resources/files/mockCrossword';
+import { wordSearchGames } from '@/resources/files/mockSearchWord';
+import { wordConnectGames } from '@/resources/files/mockWordConnect';
+import { explainItGames } from '@/resources/files/mockExplainIt';
+
 interface CategoryMenuProps {
   title: string;
   options: string[];
@@ -39,7 +42,11 @@ function CategoryMenu({ title, options, onSelect, selectedOption }: CategoryMenu
   );
 }
 
-export default function LearnPlayPage() {
+interface LearnPlayPageProps {
+  onGameSelect: (type: string, id: number) => void;
+}
+
+export default function LearnPlayPage({ onGameSelect }: LearnPlayPageProps) {
   const menuData = [
     {
       title: '🎮 Juegos de vocabulario',
@@ -53,21 +60,54 @@ export default function LearnPlayPage() {
 
   const [selectedOption, setSelectedOption] = useState<string>('Sopa de letras');
 
+  const gameTypeMap = {
+    'Sopa de letras': 'wordsearch',
+    'Conecta letras': 'wordconnect',
+    'Explicalo!': 'explainit',
+    'Crucigrama': 'crossword'
+  };
+
+  const handleStartGame = () => {
+    const gameType = gameTypeMap[selectedOption as keyof typeof gameTypeMap];
+    
+    let randomId = 1;
+    switch (gameType) {
+      case 'crossword':
+        randomId = Math.floor(Math.random() * crosswordGames.length) + 1;
+        break;
+      case 'wordsearch':
+        randomId = Math.floor(Math.random() * wordSearchGames.length) + 1;
+        break;
+      case 'wordconnect':
+        randomId = Math.floor(Math.random() * wordConnectGames.length) + 1;
+        break;
+      case 'explainit':
+        randomId = Math.floor(Math.random() * explainItGames.length) + 1;
+        break;
+    }
+
+    onGameSelect(gameType, randomId);
+  };
+
+  const handleSelectOption = (option: string) => {
+    setSelectedOption(option);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       <div className="max-w-4xl mx-auto px-6 py-16">
-        {/* Header Section */}
         <div className="text-center mb-16">
           <div className="inline-block mb-4">
             <span className="text-6xl">🎯</span>
           </div>
-          <PromptInput></PromptInput>
+          <h1 className="text-5xl font-black text-gray-900 mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            Learning Path
+          </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
             Descubre tu próxima aventura de aprendizaje. Selecciona tu juego preferido y comienza a divertirte mientras aprendes.
           </p>
         </div>
 
-        {/* Selection Indicator */}
         <div className="bg-white rounded-2xl p-6 mb-12 shadow-lg border border-gray-100">
           <div className="flex items-center justify-between">
             <div>
@@ -76,13 +116,15 @@ export default function LearnPlayPage() {
                 {selectedOption}
               </span>
             </div>
-            <button className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+            <button 
+              onClick={handleStartGame}
+              className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+            >
               ¡Comenzar!
             </button>
           </div>
         </div>
 
-        {/* Game Categories */}
         <div className="space-y-16">
           {menuData.map((category) => (
             <CategoryMenu
@@ -90,12 +132,11 @@ export default function LearnPlayPage() {
               title={category.title}
               options={category.options}
               selectedOption={selectedOption}
-              onSelect={setSelectedOption}
+              onSelect={handleSelectOption}
             />
           ))}
         </div>
 
-        {/* Footer CTA */}
         <div className="text-center mt-20">
           <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
             <h3 className="text-2xl font-bold text-gray-900 mb-4">
@@ -104,7 +145,10 @@ export default function LearnPlayPage() {
             <p className="text-gray-600 mb-6">
               Presiona el botón para iniciar tu experiencia de aprendizaje con <span className="font-semibold text-blue-600">{selectedOption}</span>
             </p>
-            <button className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-12 py-4 rounded-2xl font-bold text-lg shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all duration-300">
+            <button 
+              onClick={handleStartGame}
+              className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-12 py-4 rounded-2xl font-bold text-lg shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all duration-300"
+            >
               🚀 Empezar a Jugar
             </button>
           </div>
