@@ -9,7 +9,7 @@ class SummaryResponse(BaseModel):
 
 class SummaryOptions(BaseModel):
     character: str = 'review'
-    languaje_register: str = 'formal'
+    language_register: str = 'formal'
     language: str = 'English'
     extension: str = 'medium'
     include_references: bool = False

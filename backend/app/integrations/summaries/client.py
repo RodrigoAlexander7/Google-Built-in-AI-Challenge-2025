@@ -4,14 +4,18 @@ from app.integrations.summaries.structures import Summary
 from app.integrations.ai_client import AIClient
 
 class SummarizeAIClient(AIClient):
-    async def summarize_text(self, content: str, options: SummaryOptions) -> str:
+    async def summarize_text(self, content: str, options: SummaryOptions) -> dict:
         instructions = summarize_template()
-        structured_llm = self.model.with_structured_output(Summary)
+
+        # Create a model per request (no global model that open and close (that cause the vercel error))
+        model = self.new_model()
+
+        structured_llm = model.with_structured_output(Summary)
         chain = instructions | structured_llm
         result = await chain.ainvoke({
             "content": content,
             "character": options.character,
-            "languaje_register": options.languaje_register,
+            "language_register": options.language_register,
             "language": options.language,
             "extension": options.extension,
             "include_references": options.include_references,
@@ -20,5 +24,5 @@ class SummarizeAIClient(AIClient):
         })
 
         if not result:
-            return "No summary could be generated."
+            return {"error": "No summary could be generated."}
         return result.model_dump()
