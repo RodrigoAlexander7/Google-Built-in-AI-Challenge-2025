@@ -1,23 +1,14 @@
 'use client';
 
 import React, { useState } from 'react';
-
-interface ExplainItProps {
-  question?: string;
-}
+import { ExplainItProps, EvaluationResults } from '../types/ExplainItGameType';
 
 export default function ExplainIt({
   question = '¿Puedes explicar sobre la fotosíntesis?',
 }: ExplainItProps) {
   const [answer, setAnswer] = useState('');
   const [submitted, setSubmitted] = useState(false);
-  const [results, setResults] = useState<{
-    points: number;
-    errors: string[];
-    missing: string[];
-    aiResponse: string;
-    feedback: string;
-  } | null>(null);
+  const [results, setResults] = useState<EvaluationResults | null>(null);
 
   function handleSubmit() {
     if (!answer.trim()) return;

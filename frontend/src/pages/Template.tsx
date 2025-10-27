@@ -7,9 +7,10 @@ import Sidebar from '../components/layout/Sidebar';
 
 interface TemplateProps {
   children: React.ReactNode;
+  onGameSelect?: (type: string, id: number) => void;
 }
 
-const Template: React.FC<TemplateProps> = ({ children }) => {
+const Template: React.FC<TemplateProps> = ({ children, onGameSelect }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const toggleSidebar = () => {
@@ -29,6 +30,7 @@ const Template: React.FC<TemplateProps> = ({ children }) => {
           isOpen={isSidebarOpen} 
           onClose={closeSidebar}
           onToggle={toggleSidebar}
+          onGameSelect={onGameSelect}
         />
 
         {isSidebarOpen && (
