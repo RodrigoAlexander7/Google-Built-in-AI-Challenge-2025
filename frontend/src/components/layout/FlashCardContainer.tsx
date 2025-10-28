@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import FlashCard from './FlashCard';
 import FlashCardModal from './FlashCardModal';
 import ConfirmationModal from './ConfirmationModal';
@@ -19,6 +19,13 @@ const FlashCardContainer: React.FC<FlashCardContainerProps> = ({ initialCards = 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [cardToEdit, setCardToEdit] = useState<FlashCardData | null>(null);
+
+  // Keep internal state in sync with prop updates from parent
+  useEffect(() => {
+    setCards(initialCards ?? []);
+    setCurrentCardIndex(0);
+    setIsFlipped(false);
+  }, [initialCards]);
 
   const currentCard = cards[currentCardIndex];
 

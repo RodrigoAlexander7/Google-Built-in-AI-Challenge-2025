@@ -24,13 +24,25 @@ export default function FlashCardPage() {
   const [cards, setCards] = useState<FlashCardData[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Helper: map API array to FlashCardData[]
+  // Pastel palette and helpers
+  const pastel = ['#FEF3C7','#DBEAFE','#FCE7F3','#DCFCE7','#E0E7FF','#F3E8FF','#FDE68A','#E5E7EB','#FAE8FF','#D1FAE5'];
+  const randomColor = () => pastel[Math.floor(Math.random() * pastel.length)];
+
+  // Helper: map any API array to FlashCardData[] robustly
   const mapApiToCards = (arr: any[]): FlashCardData[] => {
-    return (arr ?? []).map((it, idx) => ({
-      id: String(idx + 1),
-      front: { text: it.question ?? 'Pregunta', color: '#ffffff' },
-      back: { text: it.answer ?? 'Respuesta', color: '#f3f4f6' },
-    }));
+    if (!Array.isArray(arr)) return [];
+    return arr.map((it, idx) => {
+      // Accept multiple shapes
+      const q = it?.question ?? it?.prompt ?? it?.front?.text ?? it?.q ?? `Tarjeta ${idx+1}`;
+      const a = it?.answer ?? it?.back?.text ?? it?.a ?? 'Respuesta';
+      const frontColor = it?.front?.color || randomColor();
+      const backColor = it?.back?.color || randomColor();
+      return {
+        id: String(it?.id ?? idx + 1),
+        front: { text: String(q), color: frontColor },
+        back: { text: String(a), color: backColor },
+      } as FlashCardData;
+    });
   };
 
   // Tour state
@@ -129,7 +141,9 @@ export default function FlashCardPage() {
                     const resp = await Api.flashcardsFromFiles(payload);
                     console.log('FC - response /api/flashcard/:', resp);
                     const fc = (resp && resp.flashcards) ? resp.flashcards : Array.isArray(resp) ? resp : [];
-                    setCards(mapApiToCards(fc));
+                    const mapped = mapApiToCards(fc);
+                    console.log('FC - mapped cards length:', mapped.length);
+                    setCards(mapped);
                   } else {
                     const jsonPayload = {
                       topic: (message && message.trim()) ? message.trim() : 'general',
@@ -141,10 +155,18 @@ export default function FlashCardPage() {
                     const resp = await Api.flashcardsByTopic(jsonPayload);
                     console.log('FC - response /api/flashcard/by_topic:', resp);
                     const fc = (resp && resp.flashcards) ? resp.flashcards : Array.isArray(resp) ? resp : [];
-                    setCards(mapApiToCards(fc));
+                    const mapped = mapApiToCards(fc);
+                    console.log('FC - mapped cards length:', mapped.length);
+                    setCards(mapped);
                   }
                 } catch (err) {
                   console.error('FC - error:', err);
+                  // Fallback local sample so UI is testable
+                  const fallback = mapApiToCards([
+                    { question: '¿Qué es una función en JS?', answer: 'Un bloque reutilizable de código.' },
+                    { question: '¿Qué es React?', answer: 'Una biblioteca para construir interfaces.' },
+                  ]);
+                  setCards(fallback);
                 } finally {
                   setLoading(false);
                 }
