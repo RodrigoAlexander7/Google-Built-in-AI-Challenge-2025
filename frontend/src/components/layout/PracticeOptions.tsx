@@ -53,7 +53,7 @@ const PracticeOptions: React.FC<PracticeOptionsProps> = ({ value, onChange }) =>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Número de ejercicios */}
-        <div>
+        <div id="pr-opt-exercises">
           <label className="block text-sm font-medium text-gray-700 mb-2">Número de ejercicios</label>
           <div className="grid grid-cols-4 gap-2">
             {exerciseOptions.map((n) => {
@@ -74,7 +74,7 @@ const PracticeOptions: React.FC<PracticeOptionsProps> = ({ value, onChange }) =>
         </div>
 
         {/* Nivel de dificultad */}
-        <div>
+        <div id="pr-opt-difficulty">
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Nivel de dificultad: <span className="font-semibold text-gray-900">{difficultyLabels[value.difficulty]}</span>
           </label>
@@ -98,7 +98,7 @@ const PracticeOptions: React.FC<PracticeOptionsProps> = ({ value, onChange }) =>
         </div>
 
         {/* Área de enfoque */}
-        <div className="lg:col-span-1">
+        <div id="pr-opt-focus" className="lg:col-span-1">
           <label className="block text-sm font-medium text-gray-700 mb-2">Área de enfoque</label>
           <ListBox
             items={focusAreaItems}
@@ -111,7 +111,7 @@ const PracticeOptions: React.FC<PracticeOptionsProps> = ({ value, onChange }) =>
         </div>
 
         {/* Tipo de pregunta (selección única) */}
-        <div className="lg:col-span-1">
+        <div id="pr-opt-question" className="lg:col-span-1">
           <label className="block text-sm font-medium text-gray-700 mb-2">Tipo de pregunta</label>
           <CheckBox
             items={questionTypeItems}
