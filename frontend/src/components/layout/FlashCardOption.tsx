@@ -53,6 +53,7 @@ const FlashCardOption: React.FC<FlashCardOptionProps> = ({ value, onChange, clas
 
   return (
     <div
+      id="fc-options"
       className={[
         'bg-white/95 backdrop-blur-xl border border-gray-200/60 rounded-2xl shadow-2xl',
         'transition-all duration-300 hover:shadow-[0_10px_40px_rgba(2,132,199,0.12)]',
@@ -77,7 +78,7 @@ const FlashCardOption: React.FC<FlashCardOptionProps> = ({ value, onChange, clas
       {/* Content */}
       <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Cantidad (selección única) */}
-        <div className="col-span-1">
+        <div className="col-span-1" id="fc-opt-count">
           <div className="mb-3">
             <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
               Número de flashcards
@@ -96,7 +97,7 @@ const FlashCardOption: React.FC<FlashCardOptionProps> = ({ value, onChange, clas
         </div>
 
         {/* Complejidad (slider 1-3) */}
-        <div className="col-span-1">
+        <div className="col-span-1" id="fc-opt-complexity">
           <div className="mb-3 flex items-center justify-between">
             <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
               Nivel de complejidad
@@ -125,7 +126,7 @@ const FlashCardOption: React.FC<FlashCardOptionProps> = ({ value, onChange, clas
         </div>
 
         {/* Enfoque (selección múltiple) */}
-        <div className="col-span-1">
+        <div className="col-span-1" id="fc-opt-focus">
           <div className="mb-3">
             <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
               Enfoque de la carta

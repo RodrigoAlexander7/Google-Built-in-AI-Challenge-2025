@@ -69,7 +69,7 @@ const FlashCardContainer: React.FC<FlashCardContainerProps> = ({ initialCards = 
   };
 
   return (
-    <div className="min-h-[60vh] bg-gray-50 py-8 rounded-2xl shadow-inner">
+    <div id="fc-container" className="min-h-[60vh] bg-gray-50 py-8 rounded-2xl shadow-inner">
       <div className="max-w-4xl mx-auto px-4">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
