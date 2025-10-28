@@ -61,7 +61,10 @@ export default function SummarizerPage({
   const [isLoading, setIsLoading] = useState(false);
   const [showPromptStep, setShowPromptStep] = useState(false);
   const [focusRect, setFocusRect] = useState<{ x: number; y: number; w: number; h: number } | null>(null);
-  const [promptTypingReset, setPromptTypingReset] = useState(0);
+  // Tour state
+  const [tourOpen, setTourOpen] = useState(false);
+  const [tourIndex, setTourIndex] = useState(0);
+  const [typingReset, setTypingReset] = useState(0);
 
   // First-visit alert only
   useEffect(() => {
@@ -76,51 +79,93 @@ export default function SummarizerPage({
     }
   }, []);
 
-  // Prompt step: only once
+  // Define tour steps (in order)
+  const tourSteps = useMemo(
+    () => [
+      { key: 'prompt', selector: '#sp-input', text: 'Este es el área de entrada. Escribe tu texto o arrastra archivos para resumirlos.' },
+      { key: 'type', selector: '#sp-opt-type', text: 'Elige el tipo de resumen: informativo, descriptivo, investigación, sinopsis o review.' },
+      { key: 'register', selector: '#sp-opt-register', text: 'Selecciona el registro de lenguaje: formal, neutral, informal, técnico, creativo o persuasivo.' },
+      { key: 'language', selector: '#sp-opt-language', text: 'Define el idioma final del resumen: español, inglés, portugués, etc.' },
+      { key: 'detail', selector: '#sp-opt-detail', text: 'Ajusta el nivel de detalle: corto, medio o largo.' },
+      { key: 'content', selector: '#sp-opt-content', text: 'Enfoca el contenido: palabras clave, temas principales y puntos clave.' },
+      { key: 'attributes', selector: '#sp-opt-attributes', text: 'Activa atributos del resumen: conclusiones, citas/referencias, métricas, múltiples fuentes, análisis.' },
+      { key: 'visualizer', selector: '#sp-visualizer', text: 'Aquí verás el resultado del resumen con formato y herramientas útiles.' },
+      { key: 'navbar', selector: '#sp-navbar', text: 'En el encabezado verás datos del resumen y accesos del módulo.' },
+    ],
+    []
+  );
+
+  // Start tour on first visit
   useEffect(() => {
     try {
-      const key = 'tour:prompt:v1';
+      const key = 'tour:summarizer:v1';
       const seen = window.localStorage.getItem(key);
       if (!seen) {
-        setShowPromptStep(true);
-        console.log('[tour:prompt] open');
+        setTourOpen(true);
+        setTourIndex(0);
+        console.log('[tour] start');
       }
     } catch {}
   }, []);
 
-  // Recompute rect on open/resize/scroll
+  // Recompute rect and manage scroll for current step
   useEffect(() => {
-    if (!showPromptStep) return;
+    if (!tourOpen) return;
+    const step = tourSteps[tourIndex];
+    if (!step) return;
+
     const compute = () => {
-      const el = document.querySelector('#sp-input') as HTMLElement | null;
-      if (!el) return;
+      const el = document.querySelector(step.selector) as HTMLElement | null;
+      if (!el) {
+        console.warn('[tour] target not found', step.selector);
+        return;
+      }
       const r = el.getBoundingClientRect();
       const pad = 12;
       const rect = { x: Math.max(0, r.left - pad), y: Math.max(0, r.top - pad), w: r.width + pad * 2, h: r.height + pad * 2 };
       setFocusRect(rect);
-      console.log('[tour:prompt] rect', rect);
+      console.log('[tour] rect', step.key, rect);
     };
+
+    // Scroll to the element to center it
+    const el2 = document.querySelector(step.selector) as HTMLElement | null;
+    if (el2) {
+      try {
+        el2.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+      } catch {}
+    }
+
     compute();
-    const on = () => { console.log('[tour:prompt] recalc'); compute(); };
+    const on = () => { console.log('[tour] recalc', step.key); compute(); };
     window.addEventListener('resize', on);
     window.addEventListener('scroll', on, true);
-    // Restart typing on wheel
-    const onWheel = () => {
-      setPromptTypingReset((n) => n + 1);
-      console.log('[tour:prompt] wheel -> restart typing');
-    };
+    const onWheel = () => { setTypingReset((n) => n + 1); console.log('[tour] wheel -> restart typing'); };
     window.addEventListener('wheel', onWheel, { passive: true });
+
     return () => {
       window.removeEventListener('resize', on);
       window.removeEventListener('scroll', on, true);
       window.removeEventListener('wheel', onWheel as any);
     };
-  }, [showPromptStep]);
+  }, [tourOpen, tourIndex, tourSteps]);
 
-  const closePromptStep = () => {
-    try { window.localStorage.setItem('tour:prompt:v1', '1'); } catch {}
-    console.log('[tour:prompt] close');
-    setShowPromptStep(false);
+  const finishTour = () => {
+    try { window.localStorage.setItem('tour:summarizer:v1', 'done'); } catch {}
+    console.log('[tour] done');
+    setTourOpen(false);
+  };
+
+  const nextStep = () => {
+    setTypingReset((n) => n + 1);
+    setTourIndex((i) => {
+      const next = i + 1;
+      if (next >= tourSteps.length) {
+        finishTour();
+        return i;
+      }
+      console.log('[tour] next ->', tourSteps[next].key);
+      return next;
+    });
   };
 
   // Flag to know if we should hide the PromptInput
@@ -269,29 +314,29 @@ export default function SummarizerPage({
 
   return (
     <>
-      {/* Prompt-focus overlay */}
-      {showPromptStep && focusRect && (
+      {/* Guided tour overlay */}
+      {tourOpen && focusRect && (
         <div className="fixed inset-0 z-[9999]" style={{ pointerEvents: 'auto' }}>
           {/* Exterior overlays with blur (top, left, right, bottom) */}
           <div
             className="absolute left-0 top-0 w-full"
             style={{ height: focusRect.y, background: 'rgba(2,6,23,0.75)', backdropFilter: 'blur(4px)' }}
-            onClick={closePromptStep}
+            onClick={finishTour}
           />
           <div
             className="absolute left-0"
             style={{ top: focusRect.y, width: focusRect.x, height: focusRect.h, background: 'rgba(2,6,23,0.75)', backdropFilter: 'blur(4px)' }}
-            onClick={closePromptStep}
+            onClick={finishTour}
           />
           <div
             className="absolute"
             style={{ top: focusRect.y, left: focusRect.x + focusRect.w, right: 0, height: focusRect.h, background: 'rgba(2,6,23,0.75)', backdropFilter: 'blur(4px)' }}
-            onClick={closePromptStep}
+            onClick={finishTour}
           />
           <div
             className="absolute left-0"
             style={{ top: focusRect.y + focusRect.h, bottom: 0, width: '100%', background: 'rgba(2,6,23,0.75)', backdropFilter: 'blur(4px)' }}
-            onClick={closePromptStep}
+            onClick={finishTour}
           />
 
           {/* Highlight rectangle border */}
@@ -306,36 +351,42 @@ export default function SummarizerPage({
             }}
           />
 
-          {/* Tooltip bubble below the target */}
+          {/* Tooltip bubble near the target */}
           <div
             className="absolute max-w-sm p-4 rounded-xl bg-slate-900 text-slate-100 border border-cyan-400/30 shadow-2xl"
             style={{
               left: Math.max(16, Math.min(window.innerWidth - 16 - 320, focusRect.x)),
-              top: Math.min(window.innerHeight - 120, focusRect.y + focusRect.h + 12),
+              top: Math.min(window.innerHeight - 140, focusRect.y + focusRect.h + 12),
             }}
           >
             <div className="text-sm leading-relaxed">
               <TypingText
-                key={promptTypingReset}
-                text="Este es el área de entrada. Escribe tu texto o arrastra archivos para resumirlos."
+                key={typingReset + tourIndex * 1000}
+                text={tourSteps[tourIndex]?.text ?? ''}
                 speed={16}
-                onStep={(i, ch) => console.log('[tour:prompt] typing', { i, ch })}
-                onDone={() => console.log('[tour:prompt] typing done')}
+                onStep={(i, ch) => console.log('[tour] typing', { step: tourSteps[tourIndex]?.key, i, ch })}
+                onDone={() => console.log('[tour] typing done', tourSteps[tourIndex]?.key)}
               />
             </div>
-            <div className="mt-3 flex items-center justify-end gap-2">
+            <div className="mt-3 flex items-center justify-between gap-2">
               <button
-                onClick={closePromptStep}
+                onClick={finishTour}
+                className="inline-flex items-center gap-2 rounded-md text-slate-300 hover:text-white px-3 py-1.5"
+              >
+                Saltar
+              </button>
+              <button
+                onClick={nextStep}
                 className="inline-flex items-center gap-2 rounded-md bg-gradient-to-r from-cyan-400 to-sky-500 text-slate-900 font-semibold px-3 py-1.5 shadow ring-1 ring-white/10 hover:from-cyan-300 hover:to-sky-400"
               >
-                Entendido
+                {tourIndex < tourSteps.length - 1 ? 'Siguiente' : 'Entendido'}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+      <div id="sp-navbar" className="flex flex-col md:flex-row md:items-center md:justify-between">
         <h1 id="sp-title" className="text-2xl font-bold mb-2">{title}</h1>
         {date && <p className="text-sm text-gray-500">{new Date(date).toLocaleString('es-ES')}</p>}
       </div>
