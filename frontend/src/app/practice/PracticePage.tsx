@@ -54,9 +54,20 @@ export default function PracticePage() {
   useEffect(() => {
     if (!tourOpen) return;
     const step = steps[tourIndex]; if (!step) return;
+    let skipTimer: number | null = null;
     const compute = () => {
       const el = document.querySelector(step.selector) as HTMLElement | null;
-      if (!el) { console.warn('[practice-tour] target not found', step.selector); return; }
+      if (!el) {
+        console.warn('[practice-tour] target not found', step.selector);
+        if (skipTimer == null) {
+          skipTimer = window.setTimeout(() => {
+            console.warn('[practice-tour] auto-skip step', step.key);
+            setTourIndex((i)=>Math.min(i+1, steps.length-1));
+          }, 400);
+        }
+        return;
+      }
+      if (skipTimer) { clearTimeout(skipTimer); skipTimer = null; }
       const r = el.getBoundingClientRect(); const pad = 12;
       setFocusRect({ x: Math.max(0, r.left - pad), y: Math.max(0, r.top - pad), w: r.width + pad*2, h: r.height + pad*2 });
       console.log('[practice-tour] rect', step.key);
@@ -67,7 +78,13 @@ export default function PracticePage() {
     window.addEventListener('resize', on); window.addEventListener('scroll', on, true);
     const onWheel = () => { setTypingReset(n=>n+1); console.log('[practice-tour] wheel -> restart typing'); };
     window.addEventListener('wheel', onWheel, { passive:true });
-    return () => { window.removeEventListener('resize', on); window.removeEventListener('scroll', on, true); window.removeEventListener('wheel', onWheel as any); };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight' || e.key === 'Enter') { e.preventDefault(); console.log('[practice-tour] key next'); next(); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); console.log('[practice-tour] key prev'); prev(); }
+      else if (e.key === 'Escape') { e.preventDefault(); console.log('[practice-tour] key skip'); skip(); }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => { if (skipTimer) clearTimeout(skipTimer); window.removeEventListener('resize', on); window.removeEventListener('scroll', on, true); window.removeEventListener('wheel', onWheel as any); window.removeEventListener('keydown', onKey); };
   }, [tourOpen, tourIndex, steps]);
 
   const next = () => { setTypingReset(n=>n+1); setTourIndex(i => { const nx = i+1; if (nx >= steps.length) { try{localStorage.setItem('tour:practice:v1','done');}catch{} setTourOpen(false); console.log('[practice-tour] done'); return i; } console.log('[practice-tour] next ->', steps[nx].key); return nx; }); };
