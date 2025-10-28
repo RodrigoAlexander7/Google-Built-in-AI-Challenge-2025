@@ -114,11 +114,23 @@ export default function SummarizerPage({
     const step = tourSteps[tourIndex];
     if (!step) return;
 
+    let skipTimer: number | null = null;
+
     const compute = () => {
       const el = document.querySelector(step.selector) as HTMLElement | null;
       if (!el) {
         console.warn('[tour] target not found', step.selector);
+        if (skipTimer == null) {
+          skipTimer = window.setTimeout(() => {
+            console.warn('[tour] auto-skip step', step.key);
+            setTourIndex((i) => Math.min(i + 1, tourSteps.length - 1));
+          }, 400);
+        }
         return;
+      }
+      if (skipTimer) {
+        clearTimeout(skipTimer);
+        skipTimer = null;
       }
       const r = el.getBoundingClientRect();
       const pad = 12;
@@ -142,10 +154,19 @@ export default function SummarizerPage({
     const onWheel = () => { setTypingReset((n) => n + 1); console.log('[tour] wheel -> restart typing'); };
     window.addEventListener('wheel', onWheel, { passive: true });
 
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight' || e.key === 'Enter') { e.preventDefault(); setTypingReset((n)=>n+1); nextStep(); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); setTypingReset((n)=>n+1); setTourIndex((i)=>Math.max(0, i-1)); }
+      else if (e.key === 'Escape') { e.preventDefault(); finishTour(); }
+    };
+    window.addEventListener('keydown', onKey);
+
     return () => {
+      if (skipTimer) clearTimeout(skipTimer);
       window.removeEventListener('resize', on);
       window.removeEventListener('scroll', on, true);
       window.removeEventListener('wheel', onWheel as any);
+      window.removeEventListener('keydown', onKey);
     };
   }, [tourOpen, tourIndex, tourSteps]);
 
@@ -359,6 +380,7 @@ export default function SummarizerPage({
               top: Math.min(window.innerHeight - 140, focusRect.y + focusRect.h + 12),
             }}
           >
+            <div className="text-xs text-cyan-300 mb-1">Paso {tourIndex + 1} de {tourSteps.length}</div>
             <div className="text-sm leading-relaxed">
               <TypingText
                 key={typingReset + tourIndex * 1000}
@@ -370,17 +392,26 @@ export default function SummarizerPage({
             </div>
             <div className="mt-3 flex items-center justify-between gap-2">
               <button
-                onClick={finishTour}
+                onClick={() => setTourIndex((i)=>Math.max(0, i-1))}
                 className="inline-flex items-center gap-2 rounded-md text-slate-300 hover:text-white px-3 py-1.5"
+                disabled={tourIndex === 0}
               >
-                Saltar
+                Atrás
               </button>
-              <button
-                onClick={nextStep}
-                className="inline-flex items-center gap-2 rounded-md bg-gradient-to-r from-cyan-400 to-sky-500 text-slate-900 font-semibold px-3 py-1.5 shadow ring-1 ring-white/10 hover:from-cyan-300 hover:to-sky-400"
-              >
-                {tourIndex < tourSteps.length - 1 ? 'Siguiente' : 'Entendido'}
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={finishTour}
+                  className="inline-flex items-center gap-2 rounded-md text-slate-300 hover:text-white px-3 py-1.5"
+                >
+                  Saltar
+                </button>
+                <button
+                  onClick={nextStep}
+                  className="inline-flex items-center gap-2 rounded-md bg-gradient-to-r from-cyan-400 to-sky-500 text-slate-900 font-semibold px-3 py-1.5 shadow ring-1 ring-white/10 hover:from-cyan-300 hover:to-sky-400"
+                >
+                  {tourIndex < tourSteps.length - 1 ? 'Siguiente' : 'Entendido'}
+                </button>
+              </div>
             </div>
           </div>
         </div>
