@@ -39,6 +39,22 @@ function buildSummaryFormData(payload) {
 }
 
 /**
+ * Build FormData for flashcards endpoint /api/flashcard/
+ * @param {{ files: File[]; flashcards_count: number; difficulty_level: string; focus_area: string }} payload
+ */
+function buildFlashcardsFormData(payload) {
+  const form = new FormData();
+  const files = Array.from(payload.files ?? []);
+  for (const f of files) {
+    form.append('files', f, f.name);
+  }
+  form.append('flashcards_count', String(payload.flashcards_count));
+  form.append('difficulty_level', payload.difficulty_level);
+  form.append('focus_area', payload.focus_area);
+  return form;
+}
+
+/**
  * POST /api/summarize/
  * @param {SummaryPromptRequest} payload
  * @param {{ baseUrl?: string, signal?: AbortSignal }=} options
@@ -75,9 +91,67 @@ async function summarize(payload, options = {}) {
   }
 }
 
+/**
+ * POST /api/flashcard/ with FormData
+ * @param {{ files: File[]; flashcards_count: number; difficulty_level: string; focus_area: string }} payload
+ * @param {{ baseUrl?: string, signal?: AbortSignal }=} options
+ */
+async function flashcardsFromFiles(payload, options = {}) {
+  const base = options.baseUrl ?? BASE_URL;
+  const url = `${base}/api/flashcard/`;
+  const form = buildFlashcardsFormData(payload);
+
+  console.log('FC - POST URL:', url);
+  console.log('FC - FormData entries:');
+  form.forEach((v, k) => {
+    if (v instanceof File) {
+      console.log('  -', k, { name: v.name, size: v.size, type: v.type });
+    } else {
+      console.log('  -', k, v);
+    }
+  });
+
+  const res = await fetch(url, { method: 'POST', body: form, signal: options.signal });
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(text || `Error ${res.status} al llamar ${url}`);
+  }
+  const ct = res.headers.get('content-type') || '';
+  return ct.includes('application/json') ? res.json() : res.text();
+}
+
+/**
+ * POST /api/flashcard/by_topic with JSON
+ * @param {{ topic: string; flashcards_count: number; difficulty_level: string; focus_area: string }} payload
+ * @param {{ baseUrl?: string, signal?: AbortSignal }=} options
+ */
+async function flashcardsByTopic(payload, options = {}) {
+  const base = options.baseUrl ?? BASE_URL;
+  const url = `${base}/api/flashcard/by_topic`;
+
+  console.log('FC - POST URL:', url);
+  console.log('FC - JSON payload:', payload);
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+    signal: options.signal,
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(text || `Error ${res.status} al llamar ${url}`);
+  }
+  const ct = res.headers.get('content-type') || '';
+  return ct.includes('application/json') ? res.json() : res.text();
+}
+
 export const BASE_URL = 'https://learngo-plum.vercel.app'; // e.g.
 
 export const Api = {
   summarize,
   buildSummaryFormData,
+  flashcardsFromFiles,
+  flashcardsByTopic,
+  buildFlashcardsFormData,
 };
