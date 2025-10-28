@@ -145,7 +145,7 @@ const SummaryOptions: React.FC<SummaryOptionsProps> = ({ value, onChange, classN
       {/* Top grid: Type, Register, Language */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Summary Type */}
-        <section className="bg-white border border-gray-200 rounded-2xl p-5 md:p-6 shadow-sm">
+        <section id="sp-opt-type" className="bg-white border border-gray-200 rounded-2xl p-5 md:p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">Tipo de resumen</h2>
           <CheckBox
             items={summaryTypeItems}
@@ -157,7 +157,7 @@ const SummaryOptions: React.FC<SummaryOptionsProps> = ({ value, onChange, classN
         </section>
 
         {/* Language Register */}
-        <section className="bg-white border border-gray-200 rounded-2xl p-5 md:p-6 shadow-sm">
+        <section id="sp-opt-register" className="bg-white border border-gray-200 rounded-2xl p-5 md:p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">Registro de lenguaje</h2>
           <CheckBox
             items={languageRegisterItems}
@@ -169,7 +169,7 @@ const SummaryOptions: React.FC<SummaryOptionsProps> = ({ value, onChange, classN
         </section>
 
         {/* Language */}
-        <section className="bg-white border border-gray-200 rounded-2xl p-5 md:p-6 shadow-sm">
+        <section id="sp-opt-language" className="bg-white border border-gray-200 rounded-2xl p-5 md:p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">Idioma</h2>
           <ComboBox
             items={languageItems}
@@ -201,7 +201,7 @@ const SummaryOptions: React.FC<SummaryOptionsProps> = ({ value, onChange, classN
       </div>
 
       {/* Detail Level */}
-      <section className="bg-white border border-gray-200 rounded-2xl p-5 md:p-6 shadow-sm">
+      <section id="sp-opt-detail" className="bg-white border border-gray-200 rounded-2xl p-5 md:p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-gray-800 mb-4">Nivel de detalle</h2>
         <div className="max-w-xl">
           <Slider
@@ -242,7 +242,7 @@ const SummaryOptions: React.FC<SummaryOptionsProps> = ({ value, onChange, classN
         <h2 className="text-lg font-semibold text-gray-800 mb-4">Contenido / Estructura</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Content focus */}
-          <div>
+          <div id="sp-opt-content">
             <h3 className="text-base font-medium text-gray-700 mb-3">Enfocar en</h3>
             <ListBox
               items={contentFocusItemsBase}
@@ -254,7 +254,7 @@ const SummaryOptions: React.FC<SummaryOptionsProps> = ({ value, onChange, classN
           </div>
 
           {/* Structure attributes */}
-          <div>
+          <div id="sp-opt-attributes">
             <h3 className="text-base font-medium text-gray-700 mb-3">Atributos del resumen</h3>
             <ListBox
               items={structureItems}
