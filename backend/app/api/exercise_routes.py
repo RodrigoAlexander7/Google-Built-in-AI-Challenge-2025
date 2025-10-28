@@ -3,7 +3,7 @@ from typing import List
 from pydantic import BaseModel
 from app.services.exercise_generation_service import generate_exercises
 from app.infrastructure.files.file_manager import extract_file_contents
-from app.domain.exercises_models import ExercisesByTopicRequest
+from app.domain.exercises_models import ExercisesByTopicRequest, ExerciseType
 
 router = APIRouter(prefix="/generate-exercises", tags=["Generate Exercises"])
 
@@ -13,6 +13,7 @@ async def exercises(
     files: List[UploadFile] = File(default=[], description="Files to be summarized"),
     exercises_count: int = 5,
     exercises_difficulty: str = "medium",
+    exercises_types: ExerciseType = ExerciseType.multiple_choice,
 ):
     # Content extraction
     data = await extract_file_contents(files)
@@ -22,7 +23,7 @@ async def exercises(
 
     # Exercises Generation
     exercises = await generate_exercises(
-        joined_content, exercises_count, exercises_difficulty
+        joined_content, exercises_count, exercises_difficulty, exercises_types
     )
 
     return {"exercises": exercises}
