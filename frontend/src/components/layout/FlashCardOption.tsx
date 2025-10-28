@@ -125,7 +125,7 @@ const FlashCardOption: React.FC<FlashCardOptionProps> = ({ value, onChange, clas
           </div>
         </div>
 
-        {/* Enfoque (selección múltiple) */}
+        {/* Enfoque (selección única) */}
         <div className="col-span-1" id="fc-opt-focus">
           <div className="mb-3">
             <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
@@ -134,9 +134,9 @@ const FlashCardOption: React.FC<FlashCardOptionProps> = ({ value, onChange, clas
           </div>
           <CheckBox
             items={FOCUS_ITEMS}
-            selectionMode="multiple"
-            selectedIds={internal.focuses}
-            onSelectionChange={(ids) => setInternal((prev) => ({ ...prev, focuses: ids }))}
+            selectionMode="single"
+            selectedIds={internal.focuses.length ? [internal.focuses[0]] : []}
+            onSelectionChange={(ids) => setInternal((prev) => ({ ...prev, focuses: ids.length ? [ids[0]] : [] }))}
             className="space-y-2"
           />
         </div>

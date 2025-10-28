@@ -5,6 +5,7 @@ import FlashCardContainer from "../../components/layout/FlashCardContainer";
 import PromptInput from "../../components/layout/PromptInput";
 import FlashCardOption, { FlashCardOptionsValue } from "../../components/layout/FlashCardOption";
 import { Api, BASE_URL } from '../../services/api';
+import type { FlashCardData } from '../../types/FlashCardData';
 
 // Typing effect reused
 const TypingText: React.FC<{ text: string; speed?: number; onStep?: (i:number,ch:string)=>void }> = ({ text, speed = 16, onStep }) => {
@@ -19,6 +20,18 @@ export default function FlashCardPage() {
     complexity: 2,
     focuses: ['conceptos', 'definiciones']
   });
+
+  const [cards, setCards] = useState<FlashCardData[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  // Helper: map API array to FlashCardData[]
+  const mapApiToCards = (arr: any[]): FlashCardData[] => {
+    return (arr ?? []).map((it, idx) => ({
+      id: String(idx + 1),
+      front: { text: it.question ?? 'Pregunta', color: '#ffffff' },
+      back: { text: it.answer ?? 'Respuesta', color: '#f3f4f6' },
+    }));
+  };
 
   // Tour state
   const [tourOpen, setTourOpen] = useState(false);
@@ -87,52 +100,70 @@ export default function FlashCardPage() {
 
       <div className="max-w-6xl mx-auto px-4 space-y-8">
         {/* Visualizador de Flashcards */}
-        <FlashCardContainer />
+        <FlashCardContainer initialCards={cards} />
 
-        {/* Prompt Input */}
-        <div className="bg-white/95 backdrop-blur-xl border border-gray-200/60 rounded-2xl shadow-2xl p-4" id="fc-prompt">
-          <PromptInput
-            placeholder="Describe el tipo de tarjetas que quieres generar..."
-            onSendMessage={async (message, uploaded) => {
-              try {
-                const hasFiles = Array.isArray(uploaded) && uploaded.length > 0;
-                console.log('FC - BASE_URL:', BASE_URL);
-                console.log('FC - options (UI):', options);
-                if (hasFiles) {
-                  const payload = {
-                    files: uploaded.map(f => f.file),
-                    flashcards_count: options.count,
-                    difficulty_level: options.complexity === 1 ? 'basic' : options.complexity === 2 ? 'medium' : 'advanced',
-                    focus_area: (options.focuses[0] ?? 'key concepts'),
-                  } as const;
-                  console.log('FC - sending FormData payload -> /api/flashcard/', {
-                    flashcards_count: payload.flashcards_count,
-                    difficulty_level: payload.difficulty_level,
-                    focus_area: payload.focus_area,
-                    files: payload.files.map(f => ({ name: f.name, size: f.size, type: f.type }))
-                  });
-                  const resp = await Api.flashcardsFromFiles(payload);
-                  console.log('FC - response /api/flashcard/:', resp);
-                } else {
-                  const jsonPayload = {
-                    topic: (message && message.trim()) ? message.trim() : 'general',
-                    flashcards_count: options.count,
-                    difficulty_level: options.complexity === 1 ? 'basic' : options.complexity === 2 ? 'medium' : 'advanced',
-                    focus_area: (options.focuses[0] ?? 'key concepts'),
-                  } as const;
-                  console.log('FC - sending JSON payload -> /api/flashcard/by_topic', jsonPayload);
-                  const resp = await Api.flashcardsByTopic(jsonPayload);
-                  console.log('FC - response /api/flashcard/by_topic:', resp);
+        {/* Prompt Input (hidden when cards exist) */}
+        {cards.length === 0 && (
+          <div className="bg-white/95 backdrop-blur-xl border border-gray-200/60 rounded-2xl shadow-2xl p-4" id="fc-prompt">
+            <PromptInput
+              placeholder="Describe el tipo de tarjetas que quieres generar..."
+              onSendMessage={async (message, uploaded) => {
+                try {
+                  setLoading(true);
+                  const hasFiles = Array.isArray(uploaded) && uploaded.length > 0;
+                  console.log('FC - BASE_URL:', BASE_URL);
+                  console.log('FC - options (UI):', options);
+                  if (hasFiles) {
+                    const payload = {
+                      files: uploaded.map(f => f.file),
+                      flashcards_count: options.count,
+                      difficulty_level: options.complexity === 1 ? 'basic' : options.complexity === 2 ? 'medium' : 'advanced',
+                      focus_area: (options.focuses[0] ?? 'key concepts'),
+                    } as const;
+                    console.log('FC - sending FormData payload -> /api/flashcard/', {
+                      flashcards_count: payload.flashcards_count,
+                      difficulty_level: payload.difficulty_level,
+                      focus_area: payload.focus_area,
+                      files: payload.files.map(f => ({ name: f.name, size: f.size, type: f.type }))
+                    });
+                    const resp = await Api.flashcardsFromFiles(payload);
+                    console.log('FC - response /api/flashcard/:', resp);
+                    const fc = (resp && resp.flashcards) ? resp.flashcards : Array.isArray(resp) ? resp : [];
+                    setCards(mapApiToCards(fc));
+                  } else {
+                    const jsonPayload = {
+                      topic: (message && message.trim()) ? message.trim() : 'general',
+                      flashcards_count: options.count,
+                      difficulty_level: options.complexity === 1 ? 'basic' : options.complexity === 2 ? 'medium' : 'advanced',
+                      focus_area: (options.focuses[0] ?? 'key concepts'),
+                    } as const;
+                    console.log('FC - sending JSON payload -> /api/flashcard/by_topic', jsonPayload);
+                    const resp = await Api.flashcardsByTopic(jsonPayload);
+                    console.log('FC - response /api/flashcard/by_topic:', resp);
+                    const fc = (resp && resp.flashcards) ? resp.flashcards : Array.isArray(resp) ? resp : [];
+                    setCards(mapApiToCards(fc));
+                  }
+                } catch (err) {
+                  console.error('FC - error:', err);
+                } finally {
+                  setLoading(false);
                 }
-              } catch (err) {
-                console.error('FC - error:', err);
-              }
-            }}
-          />
-        </div>
+              }}
+            />
+          </div>
+        )}
 
-        {/* Opciones de configuración */}
-        <FlashCardOption value={options} onChange={setOptions} />
+        {/* Opciones de configuración (hidden when cards exist) */}
+        {cards.length === 0 && (
+          <FlashCardOption value={options} onChange={setOptions} />
+        )}
+
+        {/* Loading indicator */}
+        {loading && (
+          <div className="flex items-center justify-center py-10">
+            <div className="animate-spin rounded-full h-10 w-10 border-4 border-blue-500 border-t-transparent" />
+          </div>
+        )}
       </div>
     </div>
   );
