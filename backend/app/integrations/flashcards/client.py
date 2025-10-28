@@ -12,12 +12,13 @@ class FlashcardsAIClient(AIClient):
         # the result follow the model structure from FlashCardSet
         structured_llm = model.with_structured_output(FlashCardSet)
         chain = instructions | structured_llm
-        result = await chain.ainvoke({
+        payload = {
             "content": flashcard_request.content,
             "flashcards_count": flashcard_request.flashcards_count,
             "difficulty_level": flashcard_request.difficulty_level,
             "focus_area": flashcard_request.focus_area
-        })
+        }
+        result = await chain.ainvoke(payload)
         if result:
             return result.flashcards
         return []

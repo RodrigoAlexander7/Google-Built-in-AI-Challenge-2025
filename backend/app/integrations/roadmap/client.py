@@ -9,12 +9,14 @@ class RoadmapAIClient(AIClient):
         model = self.new_model()
         structured_llm = model.with_structured_output(Roadmap)
         chain = instructions | structured_llm
-        result = await chain.ainvoke({
+        payload = {
             "topic": options.topic,
             "complexity_level": options.complexity_level,
             "duration": options.duration,
             "include_resources": options.include_resources
-        })
+        }
+        result = await chain.ainvoke(payload)   
+        
 
         if not result:
             return "No roadmap could be generated."
