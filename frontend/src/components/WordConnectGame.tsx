@@ -4,10 +4,24 @@ import React, { useState, useMemo, useRef } from 'react';
 import { WordConnectGameProps, Position, GameState } from '../types/WordConnectGameTypes';
 
 export default function WordConnectGame({ words, onComplete }: WordConnectGameProps) {
-  const allLetters = useMemo(() => {
-    const set = new Set(words.join('').toUpperCase().split(''));
-    return Array.from(set);
-  }, [words]);
+  const upperWords = useMemo(() => words.map(w => w.toUpperCase()), [words]);
+
+  // Build letter multiset: each letter appears as many times as its maximum count across a single word
+  const nodes = useMemo(() => {
+    const freqMax: Record<string, number> = {};
+    for (const w of upperWords) {
+      const local: Record<string, number> = {};
+      for (const ch of w) local[ch] = (local[ch] || 0) + 1;
+      for (const [ch, n] of Object.entries(local)) {
+        freqMax[ch] = Math.max(freqMax[ch] || 0, n);
+      }
+    }
+    const bag: string[] = [];
+    Object.entries(freqMax).forEach(([ch, n]) => {
+      for (let i = 0; i < n; i++) bag.push(ch);
+    });
+    return bag;
+  }, [upperWords]);
 
   const [gameState, setGameState] = useState<GameState>({
     current: '',
@@ -21,26 +35,30 @@ export default function WordConnectGame({ words, onComplete }: WordConnectGamePr
   const center: Position = { x: 150, y: 150 };
   
   const positions = useMemo(() => {
-    const step = (2 * Math.PI) / allLetters.length;
-    return allLetters.map((_, i): Position => ({
+    const step = (2 * Math.PI) / Math.max(1, nodes.length);
+    return nodes.map((_, i): Position => ({
       x: center.x + radius * Math.cos(i * step - Math.PI / 2),
       y: center.y + radius * Math.sin(i * step - Math.PI / 2),
     }));
-  }, [allLetters]);
+  }, [nodes]);
 
-  function handleMouseDown(letter: string) {
+  const selectedIndicesRef = useRef<number[]>([]);
+
+  function handleMouseDown(index: number) {
+    const letter = nodes[index];
+    selectedIndicesRef.current = [index];
     setGameState(prev => ({ ...prev, isDragging: true, current: letter }));
-    drawLines([letter]);
+    drawLines(selectedIndicesRef.current);
   }
 
-  function handleMouseEnter(letter: string) {
+  function handleMouseEnter(index: number) {
     if (!gameState.isDragging) return;
-    setGameState(prev => {
-      if (prev.current.includes(letter)) return prev;
-      const next = prev.current + letter;
-      drawLines(next.split(''));
-      return { ...prev, current: next };
-    });
+    // Prevent reusing same node in the same word
+    if (selectedIndicesRef.current.includes(index)) return;
+    selectedIndicesRef.current = [...selectedIndicesRef.current, index];
+    const nextWord = selectedIndicesRef.current.map(i => nodes[i]).join('');
+    setGameState(prev => ({ ...prev, current: nextWord }));
+    drawLines(selectedIndicesRef.current);
   }
 
   function handleMouseUp() {
@@ -49,6 +67,7 @@ export default function WordConnectGame({ words, onComplete }: WordConnectGamePr
       evaluateWord(prev.current);
       return { ...prev, isDragging: false, current: '' };
     });
+    selectedIndicesRef.current = [];
     clearCanvas();
   }
 
@@ -64,19 +83,16 @@ export default function WordConnectGame({ words, onComplete }: WordConnectGamePr
     }
   }
 
-  function drawLines(sequence: string[]) {
+  function drawLines(indices: number[]) {
     const ctx = canvasRef.current?.getContext('2d');
     if (!ctx) return;
     clearCanvas();
     ctx.strokeStyle = '#6366f1';
     ctx.lineWidth = 4;
     ctx.beginPath();
-    sequence.forEach((letter, i) => {
-      const index = allLetters.indexOf(letter);
-      if (index === -1) return;
-      const { x, y } = positions[index];
-      if (i === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
+    indices.forEach((idx, i) => {
+      const { x, y } = positions[idx];
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
     });
     ctx.stroke();
   }
@@ -97,17 +113,18 @@ export default function WordConnectGame({ words, onComplete }: WordConnectGamePr
           className="absolute top-0 left-0 pointer-events-none"
         />
 
-        {allLetters.map((letter, i) => {
+        {nodes.map((letter, i) => {
           const pos = positions[i];
           const foundColor = gameState.found.some((w) => w.includes(letter));
+          const isSelected = selectedIndicesRef.current.includes(i) && gameState.isDragging;
           return (
             <div
-              key={letter}
-              onMouseDown={() => handleMouseDown(letter)}
-              onMouseEnter={() => handleMouseEnter(letter)}
+              key={`${letter}-${i}`}
+              onMouseDown={() => handleMouseDown(i)}
+              onMouseEnter={() => handleMouseEnter(i)}
               onMouseUp={handleMouseUp}
-              className={`absolute flex items-center justify-center w-12 h-12 rounded-full text-xl font-bold cursor-pointer select-none transition-colors
-                ${foundColor ? 'bg-green-400 text-white' : 'bg-indigo-100 hover:bg-indigo-300'}
+              className={`absolute flex items-center justify-center w-12 h-12 rounded-full text-xl font-bold cursor-pointer select-none transition-all
+                ${foundColor ? 'bg-green-500 text-white shadow-lg' : isSelected ? 'bg-indigo-400 text-white shadow-lg scale-105' : 'bg-indigo-100 hover:bg-indigo-300'}
               `}
               style={{
                 left: pos.x - 24,
@@ -122,7 +139,7 @@ export default function WordConnectGame({ words, onComplete }: WordConnectGamePr
       </div>
 
       <div className="grid grid-cols-2 gap-3 text-center">
-        {words.map((w) => (
+        {upperWords.map((w) => (
           <div
             key={w}
             className={`text-lg font-semibold ${
@@ -135,7 +152,7 @@ export default function WordConnectGame({ words, onComplete }: WordConnectGamePr
       </div>
 
       {gameState.isDragging && (
-        <div className="text-2xl font-bold text-indigo-600 tracking-widest">{gameState.current}</div>
+        <div className="text-2xl font-extrabold text-indigo-700 tracking-widest drop-shadow">{gameState.current}</div>
       )}
     </div>
   );

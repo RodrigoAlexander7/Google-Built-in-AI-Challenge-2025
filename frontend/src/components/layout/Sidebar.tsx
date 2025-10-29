@@ -1,16 +1,8 @@
 'use client';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { mockSummaries } from '@/resources/files/mockSummaries';
-import { SummaryRecord } from '../../types/SummaryRecord';
-import { mockPracticePages } from '@/resources/files/mockPractice';
-import type { QuestionGroup } from '@/types/QuestionGroup';
-import { mockFlashCards } from '@/resources/files/mockFlashCards'; 
-import type { FlashCardGroup } from '@/types/FlashCardGroup';
-import { crosswordGames } from '@/resources/files/mockCrossword';
-import { wordSearchGames } from '@/resources/files/mockSearchWord';
-import { wordConnectGames } from '@/resources/files/mockWordConnect';
-import { explainItGames } from '@/resources/files/mockExplainIt';
+// Replaced mocks with local archive
+import LocalArchive from '@/services/localArchive';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -19,13 +11,7 @@ interface SidebarProps {
   onGameSelect?: (type: string, id: number) => void;
 }
 
-interface GameItem {
-  id: number;
-  title: string;
-  date: string;
-  type: 'crossword' | 'wordsearch' | 'wordconnect' | 'explainit';
-  category: string;
-}
+interface GameItem { id: number; title: string; date: string; type: 'crossword' | 'wordsearch' | 'wordconnect' | 'explainit'; category: string; }
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle, onGameSelect }) => {
   const pathname = usePathname();
@@ -35,37 +21,57 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle, onGameSele
   const isFlashcards = pathname?.startsWith('/flashcards') ?? false;
   const isLearnPlay = pathname?.startsWith('/learn-play') ?? false;
 
-  // Para la página de juegos, combinamos todos los juegos
-  const allGames: GameItem[] = isLearnPlay ? [
-    ...crosswordGames.map(game => ({
-      id: game.id,
-      title: game.title,
-      date: game.date,
-      type: 'crossword' as const,
-      category: game.category
-    })),
-    ...wordSearchGames.map(game => ({
-      id: game.id,
-      title: game.title,
-      date: game.date,
-      type: 'wordsearch' as const,
-      category: game.category
-    })),
-    ...wordConnectGames.map(game => ({
-      id: game.id,
-      title: game.title,
-      date: game.date,
-      type: 'wordconnect' as const,
-      category: game.category
-    })),
-    ...explainItGames.map(game => ({
-      id: game.id,
-      title: game.question,
-      date: game.date,
-      type: 'explainit' as const,
-      category: game.category
-    }))
-  ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()) : [];
+  // Avoid hydration mismatch: compute client-side after mount
+  const [mounted, setMounted] = useState(false);
+  const [savedGames, setSavedGames] = useState<GameItem[]>([]);
+  const [savedList, setSavedList] = useState<any[]>([]);
+
+  useEffect(() => { setMounted(true); }, []);
+
+  useEffect(() => {
+    // Load games when on learn-play
+    if (isLearnPlay) {
+      try {
+        const games = LocalArchive.listGames().map(g => ({ id: g.id, title: g.title, date: g.dateISO, type: g.gameType, category: g.category }))
+          .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        setSavedGames(games);
+      } catch { setSavedGames([]); }
+    }
+  }, [isLearnPlay, pathname]);
+
+  useEffect(() => {
+    // Load lists for other sections
+    if (!isLearnPlay) {
+      try {
+        if (isFlashcards) setSavedList(LocalArchive.listByKind('flashcards'));
+        else if (isPractice) setSavedList(LocalArchive.listByKind('practice'));
+        else setSavedList(LocalArchive.listByKind('summary'));
+      } catch { setSavedList([]); }
+    }
+  }, [isLearnPlay, isFlashcards, isPractice, pathname]);
+
+  // Refresh lists on archive updates
+  useEffect(() => {
+    const onUpdate = () => {
+      if (isLearnPlay) {
+        try {
+          const games = LocalArchive.listGames().map(g => ({ id: g.id, title: g.title, date: g.dateISO, type: g.gameType, category: g.category }))
+            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+          setSavedGames(games);
+        } catch { setSavedGames([]); }
+      } else {
+        try {
+          if (isFlashcards) setSavedList(LocalArchive.listByKind('flashcards'));
+          else if (isPractice) setSavedList(LocalArchive.listByKind('practice'));
+          else setSavedList(LocalArchive.listByKind('summary'));
+        } catch { setSavedList([]); }
+      }
+    };
+    window.addEventListener('archive:update', onUpdate as any);
+    return () => window.removeEventListener('archive:update', onUpdate as any);
+  }, [isLearnPlay, isFlashcards, isPractice]);
+
+  const allGames: GameItem[] = isLearnPlay ? (mounted ? savedGames : []) : [];
 
   // Agrupar juegos por tipo
   const gamesByType = allGames.reduce((acc, game) => {
@@ -76,35 +82,21 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle, onGameSele
     return acc;
   }, {} as Record<string, GameItem[]>);
 
-  // Determinar los datos que se muestran según la ruta
-  const summariesList = isLearnPlay
-    ? [] // Los juegos se muestran en la sección agrupada
-    : isFlashcards
-    ? mockFlashCards
-    : isPractice
-    ? mockPracticePages
-    : [...mockSummaries].sort(
-        (a: SummaryRecord, b: SummaryRecord) =>
-          new Date(b.date).getTime() - new Date(a.date).getTime()
-      );
+  // Determinar los datos que se muestran según la ruta (usar LocalArchive)
+  const summariesList = isLearnPlay ? [] : (mounted ? savedList : []);
 
-  // Título dinámico
+  // Título dinámico con emoji
+  const sectionEmoji = isLearnPlay ? '🎮' : isFlashcards ? '🃏' : isPractice ? '🧠' : '📝';
   const title = isLearnPlay
-    ? 'Mis Juegos'
+    ? `${sectionEmoji} Mis Juegos`
     : isFlashcards
-    ? 'Flashcards'
+    ? `${sectionEmoji} Flashcards`
     : isPractice
-    ? 'Mis Prácticas'
-    : 'Resúmenes';
+    ? `${sectionEmoji} Mis Prácticas`
+    : `${sectionEmoji} Resúmenes`;
 
   // URL base para los enlaces
-  const basePath = isLearnPlay
-    ? '/learn-play'
-    : isFlashcards
-    ? '/flashcards'
-    : isPractice
-    ? '/practice'
-    : '/summarizer';
+  const basePath = isLearnPlay ? '/learn-play' : isFlashcards ? '/flashcards' : isPractice ? '/practice' : '/summarizer';
 
   // Texto del botón principal
   const newButtonText = isLearnPlay
@@ -121,6 +113,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle, onGameSele
     wordsearch: '🔍 Sopas de Letras',
     wordconnect: '🔗 Conecta Palabras',
     explainit: '💡 Explícalo'
+  };
+  const gameTypeEmoji: Record<string, string> = {
+    crossword: '🧩',
+    wordsearch: '🔍',
+    wordconnect: '🔗',
+    explainit: '💡'
   };
 
   const handleGameClick = (type: string, id: number) => {
@@ -211,7 +209,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle, onGameSele
                           className="w-full text-left block px-4 py-3 rounded-xl text-gray-700 hover:text-blue-600 hover:bg-blue-50/80 transition-all duration-300 group relative"
                         >
                           <div className="flex flex-col">
-                            <span className="font-medium truncate">{game.title}</span>
+                            <span className="font-medium truncate flex items-center gap-2">
+                              <span aria-hidden>{gameTypeEmoji[game.type] ?? '🎮'}</span>
+                              {game.title}
+                            </span>
                             <span className="text-xs text-gray-500 mt-1">
                               {new Date(game.date).toLocaleDateString('es-ES', {
                                 day: '2-digit',
@@ -233,37 +234,32 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle, onGameSele
             ) : (
               /* Para otras páginas: mostrar lista normal */
               <div className="space-y-1 mb-8">
-                {summariesList.length > 0 ? (
+                {mounted && summariesList.length > 0 ? (
                   summariesList.map((item: any) => (
-                    <a
+                    <button
+                      type="button"
+                      onClick={() => { onClose(); window.location.href = `${basePath}/${item.id}`; }}
                       key={item.id}
-                      href={`${basePath}/${item.id}`}
-                      onClick={onClose}
-                      className="block px-4 py-3 rounded-xl text-gray-700 hover:text-blue-600 hover:bg-blue-50/80 transition-all duration-300 group relative"
+                      className="w-full text-left px-4 py-3 rounded-xl text-gray-700 bg-white/70 hover:bg-blue-50/80 transition-all duration-300 group relative border border-gray-200/60"
                     >
                       <div className="flex flex-col">
-                        <span className="font-medium truncate">{item.title}</span>
-                        {'date' in item && (
+                        <span className="font-medium truncate flex items-center gap-2">
+                          <span aria-hidden>{sectionEmoji}</span>
+                          {item.title}
+                        </span>
+                        {item.dateISO && (
                           <span className="text-xs text-gray-500 mt-1">
-                            {new Date(item.date).toLocaleDateString('es-ES', {
-                              day: '2-digit',
-                              month: 'short',
-                              year: 'numeric',
-                            })}
+                            {new Date(item.dateISO).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
                           </span>
                         )}
+                        {item.category && (
+                          <span className="text-[11px] text-blue-600 mt-1">{item.category}</span>
+                        )}
                       </div>
-                      <div className="absolute bottom-0 left-4 right-4 h-0.5 bg-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
-                    </a>
+                    </button>
                   ))
                 ) : (
-                  <p className="text-sm text-gray-500 px-4 py-2">
-                    {isFlashcards
-                      ? 'No hay grupos de flashcards guardados.'
-                      : isPractice
-                      ? 'No hay prácticas guardadas.'
-                      : 'No hay resúmenes guardados.'}
-                  </p>
+                  <p className="text-sm text-gray-500 px-4 py-2">{mounted ? (isFlashcards ? 'No hay grupos de flashcards guardados.' : isPractice ? 'No hay prácticas guardadas.' : 'No hay resúmenes guardados.') : 'Cargando…'}</p>
                 )}
               </div>
             )}

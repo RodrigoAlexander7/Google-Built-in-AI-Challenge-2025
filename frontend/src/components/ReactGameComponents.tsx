@@ -3,6 +3,7 @@ import WordSearchGame from './WordSearchGame';
 import WordConnectGame from './WordConnectGame';
 import CrosswordGame from './CrosswordGame';
 import ExplainIt from './ExplainIt';
+import { Api } from '@/services/api';
 
 /* ---------- Types ---------- */
 export type Difficulty = 'easy' | 'medium' | 'hard';
@@ -32,7 +33,20 @@ function computeScore(stats: GameStats): number {
 }
 
 /* ---------- ModalVictory ---------- */
-function ModalVictory({ stats, onClose }: { stats: GameStats; onClose: () => void }) {
+function difficultyToEs(d: Difficulty): string {
+  switch (d) {
+    case 'easy':
+      return 'fácil';
+    case 'medium':
+      return 'medio';
+    case 'hard':
+      return 'difícil';
+    default:
+      return String(d);
+  }
+}
+
+function ModalVictory({ stats, onClose, wordsCount }: { stats: GameStats; onClose: () => void; wordsCount?: number }) {
   const score = computeScore(stats);
 
   return (
@@ -44,7 +58,7 @@ function ModalVictory({ stats, onClose }: { stats: GameStats; onClose: () => voi
         <div className="grid grid-cols-2 gap-3 mb-4">
           <div>
             <p className="text-xs text-gray-500">Dificultad</p>
-            <p className="font-medium">{stats.difficulty}</p>
+            <p className="font-medium">{difficultyToEs(stats.difficulty)}</p>
           </div>
           <div>
             <p className="text-xs text-gray-500">Estado</p>
@@ -58,6 +72,12 @@ function ModalVictory({ stats, onClose }: { stats: GameStats; onClose: () => voi
             <p className="text-xs text-gray-500">Pistas usadas</p>
             <p className="font-medium">{stats.hintsUsed}</p>
           </div>
+          {typeof wordsCount === 'number' && (
+            <div className="col-span-2">
+              <p className="text-xs text-gray-500">Palabras</p>
+              <p className="font-medium">{wordsCount}</p>
+            </div>
+          )}
         </div>
         <div className="border-t pt-4">
           <p className="text-sm text-gray-500">Score calculado</p>
@@ -82,6 +102,7 @@ export function GameShell({
   defaultParams,
   renderGameContent,
   onFinish,
+  summaryWordsCount,
 }: {
   title: string;
   defaultParams?: GameParams;
@@ -93,6 +114,7 @@ export function GameShell({
     ticks: number;
   }) => React.ReactNode;
   onFinish?: (stats: GameStats) => void;
+  summaryWordsCount?: number;
 }) {
   const [params, setParams] = useState<GameParams>(
     defaultParams ?? { timeSeconds: 60, difficulty: 'medium', hints: 3 }
@@ -187,61 +209,48 @@ export function GameShell({
 
   return (
     <div className="max-w-4xl mx-auto p-4">
-      <div className="bg-white rounded-2xl shadow-md p-4">
+      <div className="bg-gradient-to-br from-white via-indigo-50 to-blue-50 rounded-2xl shadow-xl p-4 border border-indigo-100">
         <header className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-xl font-bold">{title}</h1>
-            <p className="text-sm text-gray-500">Configura el juego antes de empezar</p>
+            <h1 className="text-2xl font-extrabold bg-gradient-to-r from-indigo-700 to-fuchsia-600 bg-clip-text text-transparent tracking-tight">{title}</h1>
+            <p className="text-sm text-gray-600">Configura el juego antes de empezar</p>
           </div>
 
-          {!started && (
-            <div className="flex gap-2 items-center">
-              <div className="flex items-center gap-2">
-                <label className="text-xs text-gray-600">Tiempo (s)</label>
-                <input
-                  type="number"
-                  value={params.timeSeconds}
-                  onChange={(e) =>
-                    setParams((p) => ({ ...p, timeSeconds: Math.max(5, Number(e.target.value) || 5) }))
-                  }
-                  className="w-20 px-2 py-1 border rounded-lg text-sm"
-                />
+          <div className="flex gap-3 items-center">
+            {started && (
+              <div className="hidden sm:flex items-center gap-2">
+                <span className="text-xs text-gray-500">Tiempo</span>
+                <span className="px-3 py-1 rounded-full bg-black text-white text-sm font-mono shadow">
+                  {Math.max(0, Math.floor(timeLeft))}s
+                </span>
               </div>
+            )}
+            {!started && (
+              <div className="flex gap-2 items-center">
+                <div className="flex items-center gap-2">
+                  <label className="text-xs text-gray-600">Tiempo (s)</label>
+                  <input
+                    type="number"
+                    value={params.timeSeconds}
+                    onChange={(e) =>
+                      setParams((p) => ({ ...p, timeSeconds: Math.max(5, Number(e.target.value) || 5) }))
+                    }
+                    className="w-24 px-3 py-1.5 border border-indigo-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-400 focus:outline-none bg-white"
+                  />
+                </div>
 
-              <div className="flex items-center gap-2">
-                <label className="text-xs text-gray-600">Dificultad</label>
-                <select
-                  value={params.difficulty}
-                  onChange={(e) => setParams((p) => ({ ...p, difficulty: e.target.value as Difficulty }))}
-                  className="px-2 py-1 border rounded-lg text-sm"
+                <button
+                  onClick={startGame}
+                  className="ml-2 px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 text-white font-semibold shadow hover:shadow-lg hover:scale-[1.02] transition"
                 >
-                  <option value="easy">Fácil</option>
-                  <option value="medium">Medio</option>
-                  <option value="hard">Difícil</option>
-                </select>
+                  Jugar
+                </button>
               </div>
-
-              <div className="flex items-center gap-2">
-                <label className="text-xs text-gray-600">Pistas</label>
-                <input
-                  type="number"
-                  value={params.hints}
-                  onChange={(e) => setParams((p) => ({ ...p, hints: Math.max(0, Number(e.target.value) || 0) }))}
-                  className="w-16 px-2 py-1 border rounded-lg text-sm"
-                />
-              </div>
-
-              <button
-                onClick={startGame}
-                className="ml-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-              >
-                Jugar
-              </button>
-            </div>
-          )}
+            )}
+          </div>
         </header>
 
-        <main className="min-h-[240px] bg-gray-50 rounded-lg p-4 flex flex-col">
+        <main className="min-h-[260px] bg-white rounded-xl p-4 flex flex-col border border-gray-100 shadow-inner">
           {renderGameContent({
             started,
             params,
@@ -249,33 +258,19 @@ export function GameShell({
             endGame: endGameCallback,
             ticks,
           })}
-
-          <div className="mt-auto flex items-center justify-center relative">
-            <div className="absolute left-1/2 -translate-x-1/2 bottom-4 flex items-center gap-3">
-              <button
-                onClick={() => useHint()}
-                className="px-4 py-2 border rounded-lg bg-white shadow-sm"
-              >
-                Pista ({hintsLeft})
-              </button>
-
-              <button
-                onClick={() => endGameCallback(false)}
-                className="px-4 py-2 border rounded-lg bg-red-500 text-white hover:bg-red-600"
-              >
-                Terminar juego
-              </button>
-            </div>
-
-            <div className="absolute right-4 bottom-4 flex items-center gap-2">
-              <div className="text-xs text-gray-500">{title}</div>
-              <div className="px-3 py-1 bg-black text-white rounded-md text-sm font-mono">
-                {Math.max(0, Math.floor(timeLeft))}s
-              </div>
-            </div>
-          </div>
         </main>
       </div>
+
+      {started && (
+        <div className="mt-4 flex items-center justify-center">
+          <button
+            onClick={() => endGameCallback(false)}
+            className="px-6 py-3 rounded-xl bg-gradient-to-r from-rose-500 to-red-600 text-white font-semibold shadow-lg hover:shadow-xl hover:scale-[1.02] transition"
+          >
+            Terminar juego
+          </button>
+        </div>
+      )}
 
       {showModal && (
         <ModalVictory
@@ -287,6 +282,7 @@ export function GameShell({
             difficulty: params.difficulty,
             won,
           }}
+          wordsCount={summaryWordsCount}
           onClose={() => setShowModal(false)}
         />
       )}
@@ -297,24 +293,29 @@ export function GameShell({
 /* ---------- Game Components ---------- */
 
 // GameOne - WordSearch
-export function GameOne({ words, size = 12, onComplete }: { words: string[]; size?: number; onComplete?: () => void }) {
+export function GameOne({ words, size = 12, onComplete, difficulty = 'medium' }: { words: string[]; size?: number; onComplete?: () => void; difficulty?: Difficulty }) {
+  const [wsLanguage, setWsLanguage] = useState<string>('Spanish');
+
   return (
     <GameShell
       title="Sopa de Letras"
-      defaultParams={{ timeSeconds: 90, difficulty: 'medium', hints: 2 }}
+      defaultParams={{ timeSeconds: 90, difficulty, hints: 2 }}
+      summaryWordsCount={words.length}
       renderGameContent={({ started, endGame }) => (
         <div className="p-4">
           {!started ? (
             <p className="text-gray-500">Ajusta los parámetros y pulsa Jugar para iniciar la sopa de letras.</p>
           ) : (
-            <WordSearchGame
-              words={words}
-              size={size}
-              onComplete={() => {
-                endGame(true);
-                onComplete?.();
-              }}
-            />
+            <>
+              <WordSearchGame
+                words={words}
+                size={size}
+                onComplete={() => {
+                  endGame(true);
+                  onComplete?.();
+                }}
+              />
+            </>
           )}
         </div>
       )}
@@ -323,11 +324,12 @@ export function GameOne({ words, size = 12, onComplete }: { words: string[]; siz
 }
 
 // GameTwo - WordConnect
-export function GameTwo({ words, onComplete }: { words: string[]; onComplete?: () => void }) {
+export function GameTwo({ words, onComplete, difficulty = 'medium' }: { words: string[]; onComplete?: () => void; difficulty?: Difficulty }) {
   return (
     <GameShell
       title="Conecta las Letras"
-      defaultParams={{ timeSeconds: 60, difficulty: 'medium', hints: 2 }}
+      defaultParams={{ timeSeconds: 60, difficulty, hints: 2 }}
+      summaryWordsCount={words.length}
       renderGameContent={({ started, endGame }) => (
         <div className="p-4">
           {!started ? (
@@ -348,11 +350,12 @@ export function GameTwo({ words, onComplete }: { words: string[]; onComplete?: (
 }
 
 // GameThree - Crossword
-export function GameThree({ words, size = 12, onComplete }: { words: { id: number; word: string; clue: string }[]; size?: number; onComplete?: () => void }) {
+export function GameThree({ words, size = 12, onComplete, difficulty = 'medium' }: { words: { id: number; word: string; clue: string }[]; size?: number; onComplete?: () => void; difficulty?: Difficulty }) {
   return (
     <GameShell
       title="Crucigrama"
-      defaultParams={{ timeSeconds: 90, difficulty: 'medium', hints: 2 }}
+      defaultParams={{ timeSeconds: 90, difficulty, hints: 2 }}
+      summaryWordsCount={words.length}
       renderGameContent={({ started, endGame }) => (
         <div className="p-4">
           {!started ? (

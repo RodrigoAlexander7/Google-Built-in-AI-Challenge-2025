@@ -1,18 +1,38 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import { mockSummaries } from '@/resources/files/mockSummaries';
-import { SummaryRecord } from '../../../types/SummaryRecord';
+import React from 'react';
+import LocalArchive from '@/services/localArchive';
 import Template from '@/pages/Template';
 import SummarizerPage from '../SummarizerPage';
-import React from 'react';
+import DeleteFloatingButton from '@/components/ui/DeleteFloatingButton';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 export default function SummaryDetailPage() {
   const params = useParams();
-  const id = params?.id as string;
+  const router = useRouter();
+  const idParam = params?.id as string;
+  const id = Number(idParam);
+  const [loaded, setLoaded] = React.useState(false);
+  const [summary, setSummary] = React.useState<any | null>(null);
 
-  // Buscar el resumen correspondiente
-  const summary: SummaryRecord | undefined = mockSummaries.find((s) => s.id === id);
+  React.useEffect(() => {
+    if (Number.isFinite(id)) {
+      try { setSummary(LocalArchive.getById('summary', id) as any ?? null); } catch { setSummary(null); }
+    } else {
+      setSummary(null);
+    }
+    setLoaded(true);
+  }, [id]);
+
+  if (!loaded) {
+    return (
+      <Template>
+        <div className="p-8 text-center text-gray-600">Cargando…</div>
+      </Template>
+    );
+  }
 
   if (!summary) {
     return (
@@ -27,11 +47,20 @@ export default function SummaryDetailPage() {
 
   return (
     <Template>
+      <DeleteFloatingButton
+        onDelete={() => {
+          if (Number.isFinite(id)) {
+            const ok = LocalArchive.remove('summary', id);
+            if (ok) { toast.success('Resumen eliminado'); try { window.dispatchEvent(new CustomEvent('archive:update')); } catch {} router.push('/summarizer'); }
+            else { toast.error('No se pudo eliminar'); }
+          }
+        }}
+      />
       <SummarizerPage
-        initialResponse={summary.response}
-        title={summary.title}
-        date={summary.date}
-        files={summary.files}
+        initialResponse={summary?.payload?.content || ''}
+        title={summary?.title || 'Resumen'}
+        date={summary?.dateISO}
+        readonly
       />
     </Template>
   );

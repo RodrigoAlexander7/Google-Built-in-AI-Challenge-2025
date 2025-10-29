@@ -16,6 +16,8 @@ export default function CrosswordGame({
   );
   const [placements, setPlacements] = useState<Placement[]>([]);
   const [completed, setCompleted] = useState<number[]>([]);
+  // End markers map: for each cell, whether it's the end of a word across or down
+  const [endMarkers, setEndMarkers] = useState<Record<string, { right?: boolean; bottom?: boolean }>>({});
 
   // =====================
   // Generador de crucigrama con cruces
@@ -154,6 +156,17 @@ export default function CrosswordGame({
     setGrid(newGrid);
     setPlacements(placements);
     setInputGrid(Array.from({ length: size }, () => Array(size).fill('')));
+    // Compute end markers for visual cues
+    const ends: Record<string, { right?: boolean; bottom?: boolean }> = {};
+    placements.forEach((p) => {
+      const len = p.word.length;
+      const endR = p.direction === 'across' ? p.row : p.row + len - 1;
+      const endC = p.direction === 'across' ? p.col + len - 1 : p.col;
+      const key = `${endR},${endC}`;
+      if (!ends[key]) ends[key] = {};
+      if (p.direction === 'across') ends[key].right = true; else ends[key].bottom = true;
+    });
+    setEndMarkers(ends);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -196,8 +209,8 @@ export default function CrosswordGame({
     <div className="flex flex-col items-center gap-6">
       {/* Tablero */}
       <div
-        className="grid bg-gray-200 p-2 rounded-xl shadow"
-        style={{ gridTemplateColumns: `repeat(${size}, 32px)` }}
+        className="grid bg-gradient-to-br from-slate-200 to-slate-300 p-2 rounded-2xl shadow-inner"
+        style={{ gridTemplateColumns: `repeat(${size}, 36px)` }}
       >
         {grid.map((row, r) =>
           row.map((cell, c) => {
@@ -205,12 +218,14 @@ export default function CrosswordGame({
               (p) => p.row === r && p.col === c
             );
             const isStart = placements.some((p) => p.row === r && p.col === c);
+            const endKey = `${r},${c}`;
+            const endInfo = endMarkers[endKey];
             return (
               <div
                 key={`${r}-${c}`}
-                className={`relative w-8 h-8 border border-gray-400 flex items-center justify-center ${
+                className={`relative w-9 h-9 border border-gray-400 flex items-center justify-center ${
                   cell ? 'bg-white' : 'bg-gray-300'
-                }`}
+                } rounded-md shadow-sm`}
               >
                 {cell ? (
                   <>
@@ -227,7 +242,7 @@ export default function CrosswordGame({
                       value={inputGrid[r][c]}
                       onChange={(e) => handleChange(r, c, e.target.value)}
                       maxLength={1}
-                      className={`w-full h-full text-center text-sm font-semibold uppercase focus:outline-none ${
+                      className={`w-full h-full text-center text-sm font-semibold uppercase focus:outline-none rounded-md ${
                         completed.some(
                           (id) =>
                             placements.find(
@@ -238,6 +253,14 @@ export default function CrosswordGame({
                           : 'bg-transparent'
                       }`}
                     />
+
+                    {/* End-of-word markers */}
+                    {endInfo?.right && (
+                      <div className="absolute right-0 top-0 h-full w-[3px] bg-indigo-400/80 rounded-full shadow hover:bg-indigo-500 transition" />
+                    )}
+                    {endInfo?.bottom && (
+                      <div className="absolute bottom-0 left-0 w-full h-[3px] bg-indigo-400/80 rounded-full shadow hover:bg-indigo-500 transition" />
+                    )}
                   </>
                 ) : null}
               </div>
@@ -247,8 +270,8 @@ export default function CrosswordGame({
       </div>
 
       {/* Definiciones */}
-      <div className="w-full max-w-md bg-white rounded-xl shadow p-4">
-        <h2 className="text-lg font-bold text-indigo-600 mb-3">Definiciones</h2>
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-4 border border-indigo-100">
+        <h2 className="text-lg font-extrabold bg-gradient-to-r from-indigo-700 to-fuchsia-600 bg-clip-text text-transparent mb-3">Definiciones</h2>
         <div className="space-y-2">
           {words.map((w) => (
             <div

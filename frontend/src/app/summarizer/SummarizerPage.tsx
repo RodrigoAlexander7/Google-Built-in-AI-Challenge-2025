@@ -6,6 +6,9 @@ import PromptInput from '../../components/layout/PromptInput';
 import ResponseVisualizer from '../../components/layout/ResponseVisualizer';
 import { Api, BASE_URL } from '../../services/api';
 import type { SummaryPromptRequest, SummaryPromptOptions, SummaryResponse } from '../../types/SummaryPromptType';
+import LoadingOverlay from '../../components/ui/LoadingOverlay';
+import SaveFloatingButton from '../../components/ui/SaveFloatingButton';
+import LocalArchive from '../../services/localArchive';
 
 // Small typing effect component for RPG-like feel
 const TypingText: React.FC<{ text: string; speed?: number; onStep?: (i: number, ch: string) => void; onDone?: () => void }> = ({ text, speed = 18, onStep, onDone }) => {
@@ -46,7 +49,8 @@ export default function SummarizerPage({
   title = 'Nuevo Resumen',
   date,
   files = [],
-}: SummarizerPageProps) {
+  readonly = false,
+}: SummarizerPageProps & { readonly?: boolean }) {
   const [options, setOptions] = useState<SummaryOptionsData>({
     summaryType: null,
     languageRegister: null,
@@ -335,6 +339,18 @@ export default function SummarizerPage({
 
   return (
     <>
+      <LoadingOverlay open={isLoading} title="Generando tu resumen" subtitle="Analizando y sintetizando tu contenido…" />
+      {/* Save button when there is a generated response */}
+      <SaveFloatingButton
+        visible={hasResponse && !readonly}
+        defaultTitle={title || 'Resumen'}
+        defaultCategory={'Resumenes'}
+        onSave={({ title: t, category }) => {
+          LocalArchive.addSummary({ title: t, category, content: response, options });
+          try { window.dispatchEvent(new CustomEvent('archive:update')); } catch {}
+          try { const { toast } = require('sonner'); toast.success('Resumen guardado'); } catch {}
+        }}
+      />
       {/* Guided tour overlay */}
       {tourOpen && focusRect && (
         <div className="fixed inset-0 z-[9999]" style={{ pointerEvents: 'auto' }}>
@@ -417,9 +433,14 @@ export default function SummarizerPage({
         </div>
       )}
 
-      <div id="sp-navbar" className="flex flex-col md:flex-row md:items-center md:justify-between">
-        <h1 id="sp-title" className="text-2xl font-bold mb-2">{title}</h1>
-        {date && <p className="text-sm text-gray-500">{new Date(date).toLocaleString('es-ES')}</p>}
+      <div id="sp-navbar" className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <span className="text-3xl md:text-4xl">📝</span>
+          <h1 id="sp-title" className="text-3xl md:text-4xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            {title}
+          </h1>
+        </div>
+        {date && <p className="text-sm text-gray-500 mt-2 md:mt-0">{new Date(date).toLocaleString('es-ES')}</p>}
       </div>
 
       <div id="sp-visualizer">

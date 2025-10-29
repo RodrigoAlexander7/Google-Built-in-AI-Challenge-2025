@@ -32,15 +32,8 @@ const questionTypeItems: CheckBoxItemData[] = [
   { id: 'fill-blank', title: 'Espacio en blanco', description: 'Completa la oración' },
   { id: 'short-answer', title: 'Respuesta corta', description: 'Escribe una breve respuesta' },
   { id: 'relationship', title: 'Relacionar', description: 'Une conceptos con definiciones' },
-  { id: 'justification', title: 'Justificación', description: 'Responde y justifica' },
 ];
 
-const focusAreaItems: ListBoxItemData[] = [
-  { id: 'vocabulario', title: 'Vocabulario', description: 'Evalúa términos clave' },
-  { id: 'analisis', title: 'Análisis', description: 'Interpreta y razona' },
-  { id: 'comprension', title: 'Comprensión', description: 'Entiende el contenido' },
-  { id: 'resumen', title: 'Resumen', description: 'Sintetiza ideas principales' },
-];
 
 const exerciseOptions = [1, 4, 8, 12];
 
@@ -53,7 +46,7 @@ const PracticeOptions: React.FC<PracticeOptionsProps> = ({ value, onChange }) =>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Número de ejercicios */}
-        <div>
+        <div id="pr-opt-exercises">
           <label className="block text-sm font-medium text-gray-700 mb-2">Número de ejercicios</label>
           <div className="grid grid-cols-4 gap-2">
             {exerciseOptions.map((n) => {
@@ -74,7 +67,7 @@ const PracticeOptions: React.FC<PracticeOptionsProps> = ({ value, onChange }) =>
         </div>
 
         {/* Nivel de dificultad */}
-        <div>
+        <div id="pr-opt-difficulty">
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Nivel de dificultad: <span className="font-semibold text-gray-900">{difficultyLabels[value.difficulty]}</span>
           </label>
@@ -97,21 +90,9 @@ const PracticeOptions: React.FC<PracticeOptionsProps> = ({ value, onChange }) =>
           </div>
         </div>
 
-        {/* Área de enfoque */}
-        <div className="lg:col-span-1">
-          <label className="block text-sm font-medium text-gray-700 mb-2">Área de enfoque</label>
-          <ListBox
-            items={focusAreaItems}
-            selectionMode="multiple"
-            searchable={false}
-            selectedIds={value.focusAreas}
-            onSelectionChange={(ids) => setValue({ focusAreas: ids })}
-            className="bg-white"
-          />
-        </div>
 
         {/* Tipo de pregunta (selección única) */}
-        <div className="lg:col-span-1">
+        <div id="pr-opt-question" className="lg:col-span-1">
           <label className="block text-sm font-medium text-gray-700 mb-2">Tipo de pregunta</label>
           <CheckBox
             items={questionTypeItems}
