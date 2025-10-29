@@ -1,18 +1,16 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import { mockSummaries } from '@/resources/files/mockSummaries';
-import { SummaryRecord } from '../../../types/SummaryRecord';
+import LocalArchive from '@/services/localArchive';
 import Template from '@/pages/Template';
 import SummarizerPage from '../SummarizerPage';
 import React from 'react';
 
 export default function SummaryDetailPage() {
   const params = useParams();
-  const id = params?.id as string;
-
-  // Buscar el resumen correspondiente
-  const summary: SummaryRecord | undefined = mockSummaries.find((s) => s.id === id);
+  const idParam = params?.id as string;
+  const id = Number(idParam);
+  const summary = Number.isFinite(id) ? LocalArchive.getById('summary', id) as any : undefined;
 
   if (!summary) {
     return (
@@ -28,10 +26,9 @@ export default function SummaryDetailPage() {
   return (
     <Template>
       <SummarizerPage
-        initialResponse={summary.response}
-        title={summary.title}
-        date={summary.date}
-        files={summary.files}
+        initialResponse={summary?.payload?.content || ''}
+        title={summary?.title || 'Resumen'}
+        date={summary?.dateISO}
       />
     </Template>
   );

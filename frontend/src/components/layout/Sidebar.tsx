@@ -205,9 +205,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle, onGameSele
               <div className="space-y-1 mb-8">
                 {mounted && summariesList.length > 0 ? (
                   summariesList.map((item: any) => (
-                    <div
+                    <button
+                      type="button"
+                      onClick={() => { onClose(); window.location.href = `${basePath}/${item.id}`; }}
                       key={item.id}
-                      className="px-4 py-3 rounded-xl text-gray-700 bg-white/70 hover:bg-blue-50/80 transition-all duration-300 group relative border border-gray-200/60"
+                      className="w-full text-left px-4 py-3 rounded-xl text-gray-700 bg-white/70 hover:bg-blue-50/80 transition-all duration-300 group relative border border-gray-200/60"
                     >
                       <div className="flex flex-col">
                         <span className="font-medium truncate">{item.title}</span>
@@ -220,7 +222,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle, onGameSele
                           <span className="text-[11px] text-blue-600 mt-1">{item.category}</span>
                         )}
                       </div>
-                    </div>
+                    </button>
                   ))
                 ) : (
                   <p className="text-sm text-gray-500 px-4 py-2">{mounted ? (isFlashcards ? 'No hay grupos de flashcards guardados.' : isPractice ? 'No hay prácticas guardadas.' : 'No hay resúmenes guardados.') : 'Cargando…'}</p>

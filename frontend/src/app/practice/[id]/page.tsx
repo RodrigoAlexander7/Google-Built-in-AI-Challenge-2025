@@ -1,14 +1,15 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import { mockPracticePages } from '../../../resources/files/mockPractice';
+import LocalArchive from '@/services/localArchive';
 import PracticeQuestionBox from '@/components/layout/PracticeQuestionBox';
 import Template from '@/pages/Template';
 
 export default function PracticeDetailPage() {
   const params = useParams();
-  const id = typeof params?.id === 'string' ? params.id : undefined;
-  const practice = mockPracticePages.find((p) => p.id === id);
+  const idStr = typeof params?.id === 'string' ? params.id : undefined;
+  const id = idStr ? Number(idStr) : NaN;
+  const practice = Number.isFinite(id) ? (LocalArchive.getById('practice', id) as any) : undefined;
 
   if (!practice) {
     return (
@@ -25,7 +26,7 @@ export default function PracticeDetailPage() {
       <div className="text-center">
         <h1 className="text-3xl font-bold text-gray-800 mb-2">{practice.title}</h1>
         <p className="text-gray-500">
-          {new Date(practice.date).toLocaleDateString('es-ES', {
+          {new Date(practice.dateISO).toLocaleDateString('es-ES', {
             day: '2-digit',
             month: 'short',
             year: 'numeric',
@@ -34,8 +35,8 @@ export default function PracticeDetailPage() {
       </div>
 
       <div className="space-y-6">
-        {practice.questions.map((question) => (
-          <PracticeQuestionBox key={question.id} question={question} />
+        {(practice?.payload?.questions ?? []).map((question: any, idx: number) => (
+          <PracticeQuestionBox key={question.id ?? idx} question={question} />
         ))}
       </div>
     </div>
