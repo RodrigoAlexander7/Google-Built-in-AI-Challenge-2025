@@ -193,6 +193,7 @@ export const Api = {
   flashcardsByTopic,
   buildFlashcardsFormData,
   createWordSearchGame,
+  createCrosswordGame,
   // Exercises
   generateExercisesFromFiles,
   generateExercisesByTopic,
@@ -200,7 +201,7 @@ export const Api = {
 };
 
 // Export nombrado adicional para evitar shape-mismatch al importar
-export { createWordSearchGame };
+export { createWordSearchGame, createCrosswordGame };
 
 /**
  * Build FormData for exercises endpoint /api/generate-exercises/
@@ -271,4 +272,42 @@ async function generateExercisesByTopic(payload, options = {}) {
   }
   const ct = res.headers.get('content-type') || '';
   return ct.includes('application/json') ? res.json() : res.text();
+}
+
+/**
+ * POST /api/games/ (crossword)
+ * @param {{ topic: string; language: string }} payload
+ * @param {{ baseUrl?: string, signal?: AbortSignal }=} options
+ * @returns {Promise<any>}
+ */
+async function createCrosswordGame(payload, options = {}) {
+  const base = options.baseUrl ?? BASE_URL;
+  const url = `${base}/api/games/`;
+  const body = {
+    topic: payload.topic,
+    game_type: 'crossword',
+    language: payload.language,
+  };
+
+  console.log('CW - POST URL:', url);
+  console.log('CW - JSON payload:', body);
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+    signal: options.signal,
+  });
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    console.error('CW - Error response:', text || res.status);
+    throw new Error(text || `Error ${res.status} al llamar ${url}`);
+  }
+
+  const ct = res.headers.get('content-type') || '';
+  const data = ct.includes('application/json') ? await res.json() : await res.text();
+
+  console.log('CW - Response:', data);
+  return data;
 }

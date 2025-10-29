@@ -33,7 +33,20 @@ function computeScore(stats: GameStats): number {
 }
 
 /* ---------- ModalVictory ---------- */
-function ModalVictory({ stats, onClose }: { stats: GameStats; onClose: () => void }) {
+function difficultyToEs(d: Difficulty): string {
+  switch (d) {
+    case 'easy':
+      return 'fácil';
+    case 'medium':
+      return 'medio';
+    case 'hard':
+      return 'difícil';
+    default:
+      return String(d);
+  }
+}
+
+function ModalVictory({ stats, onClose, wordsCount }: { stats: GameStats; onClose: () => void; wordsCount?: number }) {
   const score = computeScore(stats);
 
   return (
@@ -45,7 +58,7 @@ function ModalVictory({ stats, onClose }: { stats: GameStats; onClose: () => voi
         <div className="grid grid-cols-2 gap-3 mb-4">
           <div>
             <p className="text-xs text-gray-500">Dificultad</p>
-            <p className="font-medium">{stats.difficulty}</p>
+            <p className="font-medium">{difficultyToEs(stats.difficulty)}</p>
           </div>
           <div>
             <p className="text-xs text-gray-500">Estado</p>
@@ -59,6 +72,12 @@ function ModalVictory({ stats, onClose }: { stats: GameStats; onClose: () => voi
             <p className="text-xs text-gray-500">Pistas usadas</p>
             <p className="font-medium">{stats.hintsUsed}</p>
           </div>
+          {typeof wordsCount === 'number' && (
+            <div className="col-span-2">
+              <p className="text-xs text-gray-500">Palabras</p>
+              <p className="font-medium">{wordsCount}</p>
+            </div>
+          )}
         </div>
         <div className="border-t pt-4">
           <p className="text-sm text-gray-500">Score calculado</p>
@@ -83,6 +102,7 @@ export function GameShell({
   defaultParams,
   renderGameContent,
   onFinish,
+  summaryWordsCount,
 }: {
   title: string;
   defaultParams?: GameParams;
@@ -94,6 +114,7 @@ export function GameShell({
     ticks: number;
   }) => React.ReactNode;
   onFinish?: (stats: GameStats) => void;
+  summaryWordsCount?: number;
 }) {
   const [params, setParams] = useState<GameParams>(
     defaultParams ?? { timeSeconds: 60, difficulty: 'medium', hints: 3 }
@@ -258,6 +279,7 @@ export function GameShell({
             difficulty: params.difficulty,
             won,
           }}
+          wordsCount={summaryWordsCount}
           onClose={() => setShowModal(false)}
         />
       )}
@@ -268,13 +290,14 @@ export function GameShell({
 /* ---------- Game Components ---------- */
 
 // GameOne - WordSearch
-export function GameOne({ words, size = 12, onComplete }: { words: string[]; size?: number; onComplete?: () => void }) {
+export function GameOne({ words, size = 12, onComplete, difficulty = 'medium' }: { words: string[]; size?: number; onComplete?: () => void; difficulty?: Difficulty }) {
   const [wsLanguage, setWsLanguage] = useState<string>('Spanish');
 
   return (
     <GameShell
       title="Sopa de Letras"
-      defaultParams={{ timeSeconds: 90, difficulty: 'medium', hints: 2 }}
+      defaultParams={{ timeSeconds: 90, difficulty, hints: 2 }}
+      summaryWordsCount={words.length}
       renderGameContent={({ started, endGame }) => (
         <div className="p-4">
           {!started ? (
@@ -298,11 +321,12 @@ export function GameOne({ words, size = 12, onComplete }: { words: string[]; siz
 }
 
 // GameTwo - WordConnect
-export function GameTwo({ words, onComplete }: { words: string[]; onComplete?: () => void }) {
+export function GameTwo({ words, onComplete, difficulty = 'medium' }: { words: string[]; onComplete?: () => void; difficulty?: Difficulty }) {
   return (
     <GameShell
       title="Conecta las Letras"
-      defaultParams={{ timeSeconds: 60, difficulty: 'medium', hints: 2 }}
+      defaultParams={{ timeSeconds: 60, difficulty, hints: 2 }}
+      summaryWordsCount={words.length}
       renderGameContent={({ started, endGame }) => (
         <div className="p-4">
           {!started ? (
@@ -323,11 +347,12 @@ export function GameTwo({ words, onComplete }: { words: string[]; onComplete?: (
 }
 
 // GameThree - Crossword
-export function GameThree({ words, size = 12, onComplete }: { words: { id: number; word: string; clue: string }[]; size?: number; onComplete?: () => void }) {
+export function GameThree({ words, size = 12, onComplete, difficulty = 'medium' }: { words: { id: number; word: string; clue: string }[]; size?: number; onComplete?: () => void; difficulty?: Difficulty }) {
   return (
     <GameShell
       title="Crucigrama"
-      defaultParams={{ timeSeconds: 90, difficulty: 'medium', hints: 2 }}
+      defaultParams={{ timeSeconds: 90, difficulty, hints: 2 }}
+      summaryWordsCount={words.length}
       renderGameContent={({ started, endGame }) => (
         <div className="p-4">
           {!started ? (

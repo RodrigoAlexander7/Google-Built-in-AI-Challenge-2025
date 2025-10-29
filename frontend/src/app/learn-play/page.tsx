@@ -4,46 +4,30 @@ import React, { useState } from 'react';
 import Template from "../../pages/Template";
 import LearnPlayPage from "./LearnPlayPage";
 import { GameOne, GameTwo, GameThree, GameFour } from '@/components/ReactGameComponents';
-import { crosswordGames } from '@/resources/files/mockCrossword';
-import { wordSearchGames } from '@/resources/files/mockSearchWord';
-import { wordConnectGames } from '@/resources/files/mockWordConnect';
 import { explainItGames } from '@/resources/files/mockExplainIt';
 
-interface SelectedGame {
-  type: 'crossword' | 'wordsearch' | 'wordconnect' | 'explainit';
-  id: number;
-  title: string;
-}
+type Difficulty = 'easy' | 'medium' | 'hard';
+
+type SelectedGame =
+  | { type: 'wordsearch' | 'wordconnect'; title: string; words: string[]; difficulty: Difficulty }
+  | { type: 'crossword'; title: string; words: { word: string; clue: string }[]; difficulty: Difficulty }
+  | { type: 'explainit'; id: number; title: string };
 
 export default function Home() {
   const [selectedGame, setSelectedGame] = useState<SelectedGame | null>(null);
 
-  const handleGameSelect = (type: string, id: number) => {
-    let gameData;
-    
-    switch (type) {
-      case 'crossword':
-        gameData = crosswordGames.find(g => g.id === id);
-        break;
-      case 'wordsearch':
-        gameData = wordSearchGames.find(g => g.id === id);
-        break;
-      case 'wordconnect':
-        gameData = wordConnectGames.find(g => g.id === id);
-        break;
-      case 'explainit':
-        gameData = explainItGames.find(g => g.id === id);
-        break;
-      default:
-        return;
-    }
+  // New handler: called by LearnPlayPage after API returns data
+  const handleGameSelectFromAPI = (game: SelectedGame) => {
+    setSelectedGame(game);
+  };
 
-    if (gameData) {
-      setSelectedGame({
-        type: type as any,
-        id,
-        title: 'title' in gameData ? gameData.title : gameData.question
-      });
+  // Legacy handler for Sidebar (mock-based)
+  const handleGameSelectFromSidebar = (type: string, id: number) => {
+    if (type === 'explainit') {
+      const gameData = explainItGames.find(g => g.id === id);
+      if (gameData) {
+        setSelectedGame({ type: 'explainit', id, title: gameData.question });
+      }
     }
   };
 
@@ -55,36 +39,37 @@ export default function Home() {
     if (!selectedGame) return null;
 
     switch (selectedGame.type) {
-      case 'crossword':
-        const crosswordGame = crosswordGames.find(g => g.id === selectedGame.id);
-        return crosswordGame ? (
+      case 'crossword': {
+        const wordsWithId = selectedGame.words.map((w, idx) => ({ id: idx + 1, word: w.word, clue: w.clue }));
+        return (
           <GameThree 
-            words={crosswordGame.words}
-            size={crosswordGame.size}
+            words={wordsWithId}
+            size={12}
+            difficulty={selectedGame.difficulty}
             onComplete={() => console.log('Crucigrama completado!')}
           />
-        ) : null;
-
-      case 'wordsearch':
-        const wordSearchGame = wordSearchGames.find(g => g.id === selectedGame.id);
-        return wordSearchGame ? (
+        );
+      }
+      case 'wordsearch': {
+        return (
           <GameOne 
-            words={wordSearchGame.words}
-            size={wordSearchGame.size}
+            words={selectedGame.words}
+            size={12}
+            difficulty={selectedGame.difficulty}
             onComplete={() => console.log('Sopa de letras completada!')}
           />
-        ) : null;
-
-      case 'wordconnect':
-        const wordConnectGame = wordConnectGames.find(g => g.id === selectedGame.id);
-        return wordConnectGame ? (
+        );
+      }
+      case 'wordconnect': {
+        return (
           <GameTwo 
-            words={wordConnectGame.words}
+            words={selectedGame.words}
+            difficulty={selectedGame.difficulty}
             onComplete={() => console.log('Conecta palabras completado!')}
           />
-        ) : null;
-
-      case 'explainit':
+        );
+      }
+      case 'explainit': {
         const explainItGame = explainItGames.find(g => g.id === selectedGame.id);
         return explainItGame ? (
           <GameFour 
@@ -92,14 +77,14 @@ export default function Home() {
             onComplete={() => console.log('Explícalo completado!')}
           />
         ) : null;
-
+      }
       default:
         return null;
     }
   };
 
   return (
-    <Template onGameSelect={handleGameSelect}>
+    <Template onGameSelect={handleGameSelectFromSidebar}>
       {selectedGame ? (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
           <div className="max-w-6xl mx-auto px-6 py-8">
@@ -122,7 +107,7 @@ export default function Home() {
           </div>
         </div>
       ) : (
-        <LearnPlayPage onGameSelect={handleGameSelect} />
+        <LearnPlayPage onGameSelect={handleGameSelectFromAPI} />
       )}
     </Template>
   );

@@ -1,14 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { crosswordGames } from '../../resources/files/mockCrossword';
-import { wordSearchGames } from '@/resources/files/mockSearchWord';
-import { wordConnectGames } from '@/resources/files/mockWordConnect';
 import { explainItGames } from '@/resources/files/mockExplainIt';
 import PromptInput from '@/components/layout/PromptInput';
 import ListBox from '@/components/ui/ListBox/ListBox';
 import Slider from '@/components/ui/Slider/Slider';
-import { Api, createWordSearchGame } from '@/services/api';
+import { Api, createWordSearchGame, createCrosswordGame } from '@/services/api';
 
 interface CategoryMenuProps {
   title: string;
@@ -46,8 +43,15 @@ function CategoryMenu({ title, options, onSelect, selectedOption }: CategoryMenu
   );
 }
 
+type Difficulty = 'easy' | 'medium' | 'hard';
+
+type SelectedGamePayload =
+  | { type: 'wordsearch' | 'wordconnect'; title: string; words: string[]; difficulty: Difficulty }
+  | { type: 'crossword'; title: string; words: { word: string; clue: string }[]; difficulty: Difficulty }
+  | { type: 'explainit'; id: number; title: string };
+
 interface LearnPlayPageProps {
-  onGameSelect: (type: string, id: number) => void;
+  onGameSelect: (game: SelectedGamePayload) => void;
 }
 
 export default function LearnPlayPage({ onGameSelect }: LearnPlayPageProps) {
@@ -66,6 +70,8 @@ export default function LearnPlayPage({ onGameSelect }: LearnPlayPageProps) {
   const [topic, setTopic] = useState<string>('');
   const [language, setLanguage] = useState<string>('Spanish');
   const [difficulty, setDifficulty] = useState<number>(2);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Map numeric difficulty to text label
   const difficultyLabels: Record<number, string> = { 1: 'fácil', 2: 'medio', 3: 'difícil' };
@@ -91,34 +97,78 @@ export default function LearnPlayPage({ onGameSelect }: LearnPlayPageProps) {
 
     // Build final topic including textual difficulty
     const finalTopic = `${(topic || 'General').trim()} - dificultad ${difficultyText}`;
+    const difficultyCode: Difficulty = difficulty === 1 ? 'easy' : difficulty === 3 ? 'hard' : 'medium';
 
-    if (gameType === 'wordsearch') {
-      const payload = { topic: finalTopic, language };
-      console.log('WS - Start payload:', { ...payload, game_type: 'word_search' });
-      try {
-        await createWordSearchGame(payload);
-      } catch (err) {
-        console.error('WS - Fetch error:', err);
+    setError(null);
+    setLoading(true);
+
+    try {
+      if (gameType === 'wordsearch') {
+        const payload = { topic: finalTopic, language };
+        console.log('WS - Start payload:', { ...payload, game_type: 'word_search' });
+        const data = await createWordSearchGame(payload);
+
+        const words: string[] = Array.isArray(data?.words)
+          ? data.words.map((w: any) => String(w).toUpperCase())
+          : [];
+
+        onGameSelect({
+          type: 'wordsearch',
+          title: data?.title || 'Sopa de Letras',
+          words,
+          difficulty: difficultyCode,
+        });
+        return;
       }
-    }
 
-    let randomId = 1;
-    switch (gameType) {
-      case 'crossword':
-        randomId = Math.floor(Math.random() * crosswordGames.length) + 1;
-        break;
-      case 'wordsearch':
-        randomId = Math.floor(Math.random() * wordSearchGames.length) + 1;
-        break;
-      case 'wordconnect':
-        randomId = Math.floor(Math.random() * wordConnectGames.length) + 1;
-        break;
-      case 'explainit':
-        randomId = Math.floor(Math.random() * explainItGames.length) + 1;
-        break;
-    }
+      if (gameType === 'wordconnect') {
+        const topicPrefixed = `Word connect de ${finalTopic}`;
+        const payload = { topic: topicPrefixed, language };
+        console.log('WC - Start payload (uses word_search):', { ...payload, game_type: 'word_search' });
+        const data = await createWordSearchGame(payload);
+        const words: string[] = Array.isArray(data?.words)
+          ? data.words.map((w: any) => String(w).toUpperCase())
+          : [];
 
-    onGameSelect(gameType, randomId);
+        onGameSelect({
+          type: 'wordconnect',
+          title: `Word connect de ${data?.title || (topic || 'General')}`,
+          words,
+          difficulty: difficultyCode,
+        });
+        return;
+      }
+
+      if (gameType === 'crossword') {
+        const payload = { topic: finalTopic, language };
+        console.log('CW - Start payload:', { ...payload, game_type: 'crossword' });
+        const data = await createCrosswordGame(payload);
+        const words: { word: string; clue: string }[] = Array.isArray(data?.words)
+          ? data.words.map((w: any) => ({ word: String(w.word).toUpperCase(), clue: String(w.clue) }))
+          : [];
+
+        onGameSelect({
+          type: 'crossword',
+          title: data?.title || 'Crucigrama',
+          words,
+          difficulty: difficultyCode,
+        });
+        return;
+      }
+
+      // Fallback for explainit (no API integration now)
+      if (gameType === 'explainit') {
+        const randomId = Math.floor(Math.random() * explainItGames.length) + 1;
+        const item = explainItGames.find((g) => g.id === randomId);
+        onGameSelect({ type: 'explainit', id: randomId, title: item ? item.question : 'Explícalo' });
+        return;
+      }
+    } catch (err: any) {
+      console.error('Game start error:', err);
+      setError(err?.message || 'No se pudo iniciar el juego.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSelectOption = (option: string) => {
@@ -150,9 +200,10 @@ export default function LearnPlayPage({ onGameSelect }: LearnPlayPageProps) {
             </div>
             <button 
               onClick={handleStartGame}
-              className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+              disabled={loading}
+              className={`bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transform transition-all duration-300 ${loading ? 'opacity-60 cursor-not-allowed' : 'hover:scale-105'}`}
             >
-              ¡Comenzar!
+              {loading ? 'Cargando…' : '¡Comenzar!'}
             </button>
           </div>
 
@@ -190,6 +241,9 @@ export default function LearnPlayPage({ onGameSelect }: LearnPlayPageProps) {
                 showMinMaxLabels
               />
               <p className="text-xs text-gray-500 mt-1">Se concatenará al tópico como: "{(topic || 'General').trim()} - dificultad {difficultyText}"</p>
+              {error && (
+                <p className="text-xs mt-2 text-red-600">{error}</p>
+              )}
             </div>
           </div>
         </div>
@@ -216,9 +270,10 @@ export default function LearnPlayPage({ onGameSelect }: LearnPlayPageProps) {
             </p>
             <button 
               onClick={handleStartGame}
-              className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-12 py-4 rounded-2xl font-bold text-lg shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all duration-300"
+              disabled={loading}
+              className={`bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-12 py-4 rounded-2xl font-bold text-lg shadow-2xl transform transition-all duration-300 ${loading ? 'opacity-60 cursor-not-allowed' : 'hover:shadow-3xl hover:scale-110'}`}
             >
-              🚀 Empezar a Jugar
+              {loading ? 'Generando…' : '🚀 Empezar a Jugar'}
             </button>
           </div>
         </div>
