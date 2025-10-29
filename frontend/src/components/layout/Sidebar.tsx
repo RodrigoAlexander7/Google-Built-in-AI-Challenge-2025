@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 // Replaced mocks with local archive
 import LocalArchive from '@/services/localArchive';
@@ -21,16 +21,36 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle, onGameSele
   const isFlashcards = pathname?.startsWith('/flashcards') ?? false;
   const isLearnPlay = pathname?.startsWith('/learn-play') ?? false;
 
-  // Para la página de juegos, cargar desde localStorage
-  const allGames: GameItem[] = isLearnPlay ? (
-    LocalArchive.listGames().map(g => ({
-      id: g.id,
-      title: g.title,
-      date: g.dateISO,
-      type: g.gameType,
-      category: g.category
-    }))
-  ).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()) : [];
+  // Avoid hydration mismatch: compute client-side after mount
+  const [mounted, setMounted] = useState(false);
+  const [savedGames, setSavedGames] = useState<GameItem[]>([]);
+  const [savedList, setSavedList] = useState<any[]>([]);
+
+  useEffect(() => { setMounted(true); }, []);
+
+  useEffect(() => {
+    // Load games when on learn-play
+    if (isLearnPlay) {
+      try {
+        const games = LocalArchive.listGames().map(g => ({ id: g.id, title: g.title, date: g.dateISO, type: g.gameType, category: g.category }))
+          .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        setSavedGames(games);
+      } catch { setSavedGames([]); }
+    }
+  }, [isLearnPlay, pathname]);
+
+  useEffect(() => {
+    // Load lists for other sections
+    if (!isLearnPlay) {
+      try {
+        if (isFlashcards) setSavedList(LocalArchive.listByKind('flashcards'));
+        else if (isPractice) setSavedList(LocalArchive.listByKind('practice'));
+        else setSavedList(LocalArchive.listByKind('summary'));
+      } catch { setSavedList([]); }
+    }
+  }, [isLearnPlay, isFlashcards, isPractice, pathname]);
+
+  const allGames: GameItem[] = isLearnPlay ? (mounted ? savedGames : []) : [];
 
   // Agrupar juegos por tipo
   const gamesByType = allGames.reduce((acc, game) => {
@@ -42,13 +62,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle, onGameSele
   }, {} as Record<string, GameItem[]>);
 
   // Determinar los datos que se muestran según la ruta (usar LocalArchive)
-  const summariesList = isLearnPlay
-    ? [] // Juegos se listan agrupados aparte
-    : isFlashcards
-    ? LocalArchive.listByKind('flashcards')
-    : isPractice
-    ? LocalArchive.listByKind('practice')
-    : LocalArchive.listByKind('summary');
+  const summariesList = isLearnPlay ? [] : (mounted ? savedList : []);
 
   // Título dinámico
   const title = isLearnPlay
@@ -189,7 +203,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle, onGameSele
             ) : (
               /* Para otras páginas: mostrar lista normal */
               <div className="space-y-1 mb-8">
-                {summariesList.length > 0 ? (
+                {mounted && summariesList.length > 0 ? (
                   summariesList.map((item: any) => (
                     <div
                       key={item.id}
@@ -197,9 +211,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle, onGameSele
                     >
                       <div className="flex flex-col">
                         <span className="font-medium truncate">{item.title}</span>
-                        <span className="text-xs text-gray-500 mt-1">
-                          {new Date(item.dateISO).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
-                        </span>
+                        {item.dateISO && (
+                          <span className="text-xs text-gray-500 mt-1">
+                            {new Date(item.dateISO).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
+                          </span>
+                        )}
                         {item.category && (
                           <span className="text-[11px] text-blue-600 mt-1">{item.category}</span>
                         )}
@@ -207,9 +223,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle, onGameSele
                     </div>
                   ))
                 ) : (
-                  <p className="text-sm text-gray-500 px-4 py-2">
-                    {isFlashcards ? 'No hay grupos de flashcards guardados.' : isPractice ? 'No hay prácticas guardadas.' : 'No hay resúmenes guardados.'}
-                  </p>
+                  <p className="text-sm text-gray-500 px-4 py-2">{mounted ? (isFlashcards ? 'No hay grupos de flashcards guardados.' : isPractice ? 'No hay prácticas guardadas.' : 'No hay resúmenes guardados.') : 'Cargando…'}</p>
                 )}
               </div>
             )}
