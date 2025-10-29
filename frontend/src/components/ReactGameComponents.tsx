@@ -209,38 +209,48 @@ export function GameShell({
 
   return (
     <div className="max-w-4xl mx-auto p-4">
-      <div className="bg-white rounded-2xl shadow-md p-4">
+      <div className="bg-gradient-to-br from-white via-indigo-50 to-blue-50 rounded-2xl shadow-xl p-4 border border-indigo-100">
         <header className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-xl font-bold">{title}</h1>
-            <p className="text-sm text-gray-500">Configura el juego antes de empezar</p>
+            <h1 className="text-2xl font-extrabold bg-gradient-to-r from-indigo-700 to-fuchsia-600 bg-clip-text text-transparent tracking-tight">{title}</h1>
+            <p className="text-sm text-gray-600">Configura el juego antes de empezar</p>
           </div>
 
-          {!started && (
-            <div className="flex gap-2 items-center">
-              <div className="flex items-center gap-2">
-                <label className="text-xs text-gray-600">Tiempo (s)</label>
-                <input
-                  type="number"
-                  value={params.timeSeconds}
-                  onChange={(e) =>
-                    setParams((p) => ({ ...p, timeSeconds: Math.max(5, Number(e.target.value) || 5) }))
-                  }
-                  className="w-20 px-2 py-1 border rounded-lg text-sm"
-                />
+          <div className="flex gap-3 items-center">
+            {started && (
+              <div className="hidden sm:flex items-center gap-2">
+                <span className="text-xs text-gray-500">Tiempo</span>
+                <span className="px-3 py-1 rounded-full bg-black text-white text-sm font-mono shadow">
+                  {Math.max(0, Math.floor(timeLeft))}s
+                </span>
               </div>
+            )}
+            {!started && (
+              <div className="flex gap-2 items-center">
+                <div className="flex items-center gap-2">
+                  <label className="text-xs text-gray-600">Tiempo (s)</label>
+                  <input
+                    type="number"
+                    value={params.timeSeconds}
+                    onChange={(e) =>
+                      setParams((p) => ({ ...p, timeSeconds: Math.max(5, Number(e.target.value) || 5) }))
+                    }
+                    className="w-24 px-3 py-1.5 border border-indigo-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-400 focus:outline-none bg-white"
+                  />
+                </div>
 
-              <button
-                onClick={startGame}
-                className="ml-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-              >
-                Jugar
-              </button>
-            </div>
-          )}
+                <button
+                  onClick={startGame}
+                  className="ml-2 px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 text-white font-semibold shadow hover:shadow-lg hover:scale-[1.02] transition"
+                >
+                  Jugar
+                </button>
+              </div>
+            )}
+          </div>
         </header>
 
-        <main className="min-h-[240px] bg-gray-50 rounded-lg p-4 flex flex-col">
+        <main className="min-h-[260px] bg-white rounded-xl p-4 flex flex-col border border-gray-100 shadow-inner">
           {renderGameContent({
             started,
             params,
@@ -248,26 +258,19 @@ export function GameShell({
             endGame: endGameCallback,
             ticks,
           })}
-
-          <div className="mt-auto flex items-center justify-center relative">
-            <div className="absolute left-1/2 -translate-x-1/2 bottom-4 flex items-center gap-3">
-              <button
-                onClick={() => endGameCallback(false)}
-                className="px-4 py-2 border rounded-lg bg-red-500 text-white hover:bg-red-600"
-              >
-                Terminar juego
-              </button>
-            </div>
-
-            <div className="absolute right-4 bottom-4 flex items-center gap-2">
-              <div className="text-xs text-gray-500">{title}</div>
-              <div className="px-3 py-1 bg-black text-white rounded-md text-sm font-mono">
-                {Math.max(0, Math.floor(timeLeft))}s
-              </div>
-            </div>
-          </div>
         </main>
       </div>
+
+      {started && (
+        <div className="mt-4 flex items-center justify-center">
+          <button
+            onClick={() => endGameCallback(false)}
+            className="px-6 py-3 rounded-xl bg-gradient-to-r from-rose-500 to-red-600 text-white font-semibold shadow-lg hover:shadow-xl hover:scale-[1.02] transition"
+          >
+            Terminar juego
+          </button>
+        </div>
+      )}
 
       {showModal && (
         <ModalVictory
