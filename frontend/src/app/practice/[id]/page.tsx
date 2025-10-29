@@ -1,6 +1,7 @@
 'use client';
 
 import { useParams } from 'next/navigation';
+import React from 'react';
 import LocalArchive from '@/services/localArchive';
 import PracticeQuestionBox from '@/components/layout/PracticeQuestionBox';
 import Template from '@/pages/Template';
@@ -9,14 +10,34 @@ export default function PracticeDetailPage() {
   const params = useParams();
   const idStr = typeof params?.id === 'string' ? params.id : undefined;
   const id = idStr ? Number(idStr) : NaN;
-  const practice = Number.isFinite(id) ? (LocalArchive.getById('practice', id) as any) : undefined;
+  const [loaded, setLoaded] = React.useState(false);
+  const [practice, setPractice] = React.useState<any | null>(null);
+
+  React.useEffect(() => {
+    if (Number.isFinite(id)) {
+      try { setPractice(LocalArchive.getById('practice', id) as any ?? null); } catch { setPractice(null); }
+    } else {
+      setPractice(null);
+    }
+    setLoaded(true);
+  }, [id]);
+
+  if (!loaded) {
+    return (
+      <Template>
+        <div className="p-8 text-center text-gray-600">Cargando…</div>
+      </Template>
+    );
+  }
 
   if (!practice) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen text-center">
-        <h1 className="text-3xl font-bold text-gray-700 mb-2">404 - Práctica no encontrada</h1>
-        <p className="text-gray-500">La práctica con ID "{id}" no existe.</p>
-      </div>
+      <Template>
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+          <h1 className="text-3xl font-bold text-gray-700 mb-2">404 - Práctica no encontrada</h1>
+          <p className="text-gray-500">La práctica con ID "{idStr}" no existe.</p>
+        </div>
+      </Template>
     );
   }
 

@@ -1,16 +1,34 @@
 'use client';
 
 import { useParams } from 'next/navigation';
+import React from 'react';
 import LocalArchive from '@/services/localArchive';
 import Template from '@/pages/Template';
 import SummarizerPage from '../SummarizerPage';
-import React from 'react';
 
 export default function SummaryDetailPage() {
   const params = useParams();
   const idParam = params?.id as string;
   const id = Number(idParam);
-  const summary = Number.isFinite(id) ? LocalArchive.getById('summary', id) as any : undefined;
+  const [loaded, setLoaded] = React.useState(false);
+  const [summary, setSummary] = React.useState<any | null>(null);
+
+  React.useEffect(() => {
+    if (Number.isFinite(id)) {
+      try { setSummary(LocalArchive.getById('summary', id) as any ?? null); } catch { setSummary(null); }
+    } else {
+      setSummary(null);
+    }
+    setLoaded(true);
+  }, [id]);
+
+  if (!loaded) {
+    return (
+      <Template>
+        <div className="p-8 text-center text-gray-600">Cargando…</div>
+      </Template>
+    );
+  }
 
   if (!summary) {
     return (

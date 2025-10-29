@@ -10,7 +10,25 @@ export default function FlashCardGroupPage() {
   const params = useParams<{ id: string }>();
   const idStr = params?.id;
   const id = idStr ? Number(idStr) : NaN;
-  const group = Number.isFinite(id) ? (LocalArchive.getById('flashcards', id) as any) : undefined;
+  const [loaded, setLoaded] = React.useState(false);
+  const [group, setGroup] = React.useState<any | null>(null);
+
+  React.useEffect(() => {
+    if (Number.isFinite(id)) {
+      try { setGroup(LocalArchive.getById('flashcards', id) as any ?? null); } catch { setGroup(null); }
+    } else {
+      setGroup(null);
+    }
+    setLoaded(true);
+  }, [id]);
+
+  if (!loaded) {
+    return (
+      <Template>
+        <div className="min-h-screen flex items-center justify-center text-gray-600">Cargando…</div>
+      </Template>
+    );
+  }
 
   if (!group) {
     return (
