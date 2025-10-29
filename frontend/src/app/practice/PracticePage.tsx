@@ -172,10 +172,21 @@ export default function PracticePage() {
         return { ...base, type: 'short-answer', correctAnswer: correctText, maxLength: 200 } as QuestionData;
       }
       case 'relationship': {
-        // Backend returns matching pairs structure unknown; present placeholder using choices
-        const items = choices.map((c, i) => `Ítem ${i + 1}`);
-        const concepts = choices.map(c => c.text);
-        const correctPairs: [number, number][] = choices.map((_, i) => [i, i]);
+        // Backend structure: premises (items), responses (concepts), correct_matches (object mapping)
+        const items: string[] = Array.isArray(raw?.premises) ? raw.premises : (choices.length ? choices.map((_, i) => `Ítem ${i+1}`) : []);
+        const concepts: string[] = Array.isArray(raw?.responses) ? raw.responses : (choices.length ? choices.map((c: any) => c.text) : []);
+        let correctPairs: [number, number][] = [];
+        if (raw && raw.correct_matches && typeof raw.correct_matches === 'object') {
+          for (const k of Object.keys(raw.correct_matches)) {
+            const a = Number(k);
+            const b = Number((raw.correct_matches as any)[k]);
+            if (Number.isInteger(a) && Number.isInteger(b)) correctPairs.push([a, b]);
+          }
+        }
+        // Fallback: if empty, align by index when both arrays are same length
+        if ((!correctPairs || correctPairs.length === 0) && items.length && items.length === concepts.length) {
+          correctPairs = items.map((_, i) => [i, i]);
+        }
         return { ...base, type: 'relationship', items, concepts, correctPairs } as QuestionData;
       }
       case 'multiple-choice':
@@ -236,6 +247,21 @@ export default function PracticePage() {
             ansText = it.choices[idx]?.text ?? ansText;
           }
           if (!ansText && typeof it?.answer === 'string') ansText = it.answer;
+          // Relationship pretty answer
+          if (!ansText && Array.isArray(it?.premises) && Array.isArray(it?.responses)) {
+            const pairs: Array<[number, number]> = [];
+            if (it?.correct_matches && typeof it.correct_matches === 'object') {
+              for (const k of Object.keys(it.correct_matches)) {
+                const a = Number(k);
+                const b = Number(it.correct_matches[k]);
+                if (Number.isInteger(a) && Number.isInteger(b)) pairs.push([a, b]);
+              }
+            }
+            const usedPairs = pairs.length ? pairs : (it.premises.length === it.responses.length ? it.premises.map((_: any, i: number) => [i, i]) : []);
+            if (usedPairs.length) {
+              ansText = usedPairs.map(([i, j]: [number, number]) => `${it.premises[i]} ↔ ${it.responses[j]}`).join(' | ');
+            }
+          }
           return { learningObjective: lo, explanation: exp, answerText: ansText };
         });
         setMetas(mappedMeta);
