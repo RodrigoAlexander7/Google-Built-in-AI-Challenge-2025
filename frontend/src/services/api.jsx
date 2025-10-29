@@ -146,6 +146,44 @@ async function flashcardsByTopic(payload, options = {}) {
   return ct.includes('application/json') ? res.json() : res.text();
 }
 
+/**
+ * POST /api/games/ (word_search)
+ * @param {{ topic: string; language: string }} payload
+ * @param {{ baseUrl?: string, signal?: AbortSignal }=} options
+ * @returns {Promise<any>}
+ */
+async function createWordSearchGame(payload, options = {}) {
+  const base = options.baseUrl ?? BASE_URL;
+  const url = `${base}/api/games/`;
+  const body = {
+    topic: payload.topic,
+    game_type: 'word_search',
+    language: payload.language,
+  };
+
+  console.log('WS - POST URL:', url);
+  console.log('WS - JSON payload:', body);
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+    signal: options.signal,
+  });
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    console.error('WS - Error response:', text || res.status);
+    throw new Error(text || `Error ${res.status} al llamar ${url}`);
+  }
+
+  const ct = res.headers.get('content-type') || '';
+  const data = ct.includes('application/json') ? await res.json() : await res.text();
+
+  console.log('WS - Response:', data);
+  return data;
+}
+
 export const BASE_URL = 'https://learngo-plum.vercel.app'; // e.g.
 
 export const Api = {
@@ -154,4 +192,8 @@ export const Api = {
   flashcardsFromFiles,
   flashcardsByTopic,
   buildFlashcardsFormData,
+  createWordSearchGame,
 };
+
+// Export nombrado adicional para evitar shape-mismatch al importar
+export { createWordSearchGame };

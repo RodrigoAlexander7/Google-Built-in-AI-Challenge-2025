@@ -102,7 +102,7 @@ const PracticeOptions: React.FC<PracticeOptionsProps> = ({ value, onChange }) =>
           <label className="block text-sm font-medium text-gray-700 mb-2">Área de enfoque</label>
           <ListBox
             items={focusAreaItems}
-            selectionMode="multiple"
+            selectionMode="single"
             searchable={false}
             selectedIds={value.focusAreas}
             onSelectionChange={(ids) => setValue({ focusAreas: ids })}

@@ -5,6 +5,10 @@ import { crosswordGames } from '../../resources/files/mockCrossword';
 import { wordSearchGames } from '@/resources/files/mockSearchWord';
 import { wordConnectGames } from '@/resources/files/mockWordConnect';
 import { explainItGames } from '@/resources/files/mockExplainIt';
+import PromptInput from '@/components/layout/PromptInput';
+import ListBox from '@/components/ui/ListBox/ListBox';
+import Slider from '@/components/ui/Slider/Slider';
+import { Api } from '@/services/api';
 
 interface CategoryMenuProps {
   title: string;
@@ -59,6 +63,17 @@ export default function LearnPlayPage({ onGameSelect }: LearnPlayPageProps) {
   ];
 
   const [selectedOption, setSelectedOption] = useState<string>('Sopa de letras');
+  const [topic, setTopic] = useState<string>('');
+  const [language, setLanguage] = useState<string>('Spanish');
+  const [difficulty, setDifficulty] = useState<number>(2);
+
+  const languageItems = [
+    { id: 'Spanish', title: 'Spanish' },
+    { id: 'English', title: 'English' },
+    { id: 'Portuguese', title: 'Portuguese' },
+    { id: 'French', title: 'French' },
+    { id: 'German', title: 'German' },
+  ];
 
   const gameTypeMap = {
     'Sopa de letras': 'wordsearch',
@@ -67,9 +82,21 @@ export default function LearnPlayPage({ onGameSelect }: LearnPlayPageProps) {
     'Crucigrama': 'crossword'
   };
 
-  const handleStartGame = () => {
+  const handleStartGame = async () => {
     const gameType = gameTypeMap[selectedOption as keyof typeof gameTypeMap];
-    
+
+    const finalTopic = `${(topic || 'General').trim()} - dificultad ${difficulty}`;
+
+    if (gameType === 'wordsearch') {
+      const payload = { topic: finalTopic, language };
+      console.log('WS - Start payload:', { ...payload, game_type: 'word_search' });
+      try {
+        await Api.createWordSearchGame(payload);
+      } catch (err) {
+        console.error('WS - Fetch error:', err);
+      }
+    }
+
     let randomId = 1;
     switch (gameType) {
       case 'crossword':
@@ -122,6 +149,43 @@ export default function LearnPlayPage({ onGameSelect }: LearnPlayPageProps) {
             >
               ¡Comenzar!
             </button>
+          </div>
+
+          <div className="mt-6 grid gap-6 md:grid-cols-2">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">Tópico</label>
+              <PromptInput
+                placeholder="Escribe un tópico y presiona enviar..."
+                onSendMessage={(msg) => setTopic(msg.trim())}
+              />
+              <p className="text-xs text-gray-500">
+                Actual: {topic ? `"${topic}"` : 'Sin tópico'}
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">Idioma</label>
+              <ListBox
+                items={languageItems}
+                selectionMode="single"
+                selectedIds={[language]}
+                onSelectionChange={(ids) => setLanguage(ids[0] || 'Spanish')}
+              />
+              <p className="text-xs text-gray-500">Seleccionado: {language}</p>
+            </div>
+
+            <div className="md:col-span-2">
+              <Slider
+                min={1}
+                max={3}
+                step={1}
+                value={difficulty}
+                onChange={setDifficulty}
+                label="Dificultad"
+                showMinMaxLabels
+              />
+              <p className="text-xs text-gray-500 mt-1">Se concatenará al tópico como: "{(topic || 'General').trim()} - dificultad {difficulty}"</p>
+            </div>
           </div>
         </div>
 
