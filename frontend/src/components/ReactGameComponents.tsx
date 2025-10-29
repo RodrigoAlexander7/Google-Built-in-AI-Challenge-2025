@@ -3,6 +3,7 @@ import WordSearchGame from './WordSearchGame';
 import WordConnectGame from './WordConnectGame';
 import CrosswordGame from './CrosswordGame';
 import ExplainIt from './ExplainIt';
+import { Api } from '@/services/api';
 
 /* ---------- Types ---------- */
 export type Difficulty = 'easy' | 'medium' | 'hard';
@@ -208,29 +209,6 @@ export function GameShell({
                 />
               </div>
 
-              <div className="flex items-center gap-2">
-                <label className="text-xs text-gray-600">Dificultad</label>
-                <select
-                  value={params.difficulty}
-                  onChange={(e) => setParams((p) => ({ ...p, difficulty: e.target.value as Difficulty }))}
-                  className="px-2 py-1 border rounded-lg text-sm"
-                >
-                  <option value="easy">Fácil</option>
-                  <option value="medium">Medio</option>
-                  <option value="hard">Difícil</option>
-                </select>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <label className="text-xs text-gray-600">Pistas</label>
-                <input
-                  type="number"
-                  value={params.hints}
-                  onChange={(e) => setParams((p) => ({ ...p, hints: Math.max(0, Number(e.target.value) || 0) }))}
-                  className="w-16 px-2 py-1 border rounded-lg text-sm"
-                />
-              </div>
-
               <button
                 onClick={startGame}
                 className="ml-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
@@ -252,13 +230,6 @@ export function GameShell({
 
           <div className="mt-auto flex items-center justify-center relative">
             <div className="absolute left-1/2 -translate-x-1/2 bottom-4 flex items-center gap-3">
-              <button
-                onClick={() => useHint()}
-                className="px-4 py-2 border rounded-lg bg-white shadow-sm"
-              >
-                Pista ({hintsLeft})
-              </button>
-
               <button
                 onClick={() => endGameCallback(false)}
                 className="px-4 py-2 border rounded-lg bg-red-500 text-white hover:bg-red-600"
@@ -298,6 +269,8 @@ export function GameShell({
 
 // GameOne - WordSearch
 export function GameOne({ words, size = 12, onComplete }: { words: string[]; size?: number; onComplete?: () => void }) {
+  const [wsLanguage, setWsLanguage] = useState<string>('Spanish');
+
   return (
     <GameShell
       title="Sopa de Letras"
@@ -307,14 +280,16 @@ export function GameOne({ words, size = 12, onComplete }: { words: string[]; siz
           {!started ? (
             <p className="text-gray-500">Ajusta los parámetros y pulsa Jugar para iniciar la sopa de letras.</p>
           ) : (
-            <WordSearchGame
-              words={words}
-              size={size}
-              onComplete={() => {
-                endGame(true);
-                onComplete?.();
-              }}
-            />
+            <>
+              <WordSearchGame
+                words={words}
+                size={size}
+                onComplete={() => {
+                  endGame(true);
+                  onComplete?.();
+                }}
+              />
+            </>
           )}
         </div>
       )}
