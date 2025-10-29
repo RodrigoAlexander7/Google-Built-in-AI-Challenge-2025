@@ -193,7 +193,82 @@ export const Api = {
   flashcardsByTopic,
   buildFlashcardsFormData,
   createWordSearchGame,
+  // Exercises
+  generateExercisesFromFiles,
+  generateExercisesByTopic,
+  buildExercisesFormData,
 };
 
 // Export nombrado adicional para evitar shape-mismatch al importar
 export { createWordSearchGame };
+
+/**
+ * Build FormData for exercises endpoint /api/generate-exercises/
+ * @param {{ files: File[]; exercises_count: number; exercises_difficulty: string; exercises_types: string }} payload
+ */
+function buildExercisesFormData(payload) {
+  const form = new FormData();
+  const files = Array.from(payload.files ?? []);
+  for (const f of files) {
+    form.append('files', f, f.name);
+  }
+  if (payload.exercises_count != null) form.append('exercises_count', String(payload.exercises_count));
+  if (payload.exercises_difficulty) form.append('exercises_difficulty', payload.exercises_difficulty);
+  if (payload.exercises_types) form.append('exercises_types', payload.exercises_types);
+  return form;
+}
+
+/**
+ * POST /api/generate-exercises/ with FormData (used when files are provided)
+ * @param {{ files: File[]; exercises_count: number; exercises_difficulty: string; exercises_types: string }} payload
+ * @param {{ baseUrl?: string, signal?: AbortSignal }=} options
+ */
+async function generateExercisesFromFiles(payload, options = {}) {
+  const base = options.baseUrl ?? BASE_URL;
+  const url = `${base}/api/generate-exercises/`;
+  const form = buildExercisesFormData(payload);
+
+  console.log('EX - POST URL:', url);
+  console.log('EX - FormData entries:');
+  form.forEach((v, k) => {
+    if (v instanceof File) {
+      console.log('  -', k, { name: v.name, size: v.size, type: v.type });
+    } else {
+      console.log('  -', k, v);
+    }
+  });
+
+  const res = await fetch(url, { method: 'POST', body: form, signal: options.signal });
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(text || `Error ${res.status} al llamar ${url}`);
+  }
+  const ct = res.headers.get('content-type') || '';
+  return ct.includes('application/json') ? res.json() : res.text();
+}
+
+/**
+ * POST /api/generate-exercises/by_topic with JSON (used when no files)
+ * @param {{ topic: string; exercises_count: number; exercises_difficulty: string; exercises_types: string }} payload
+ * @param {{ baseUrl?: string, signal?: AbortSignal }=} options
+ */
+async function generateExercisesByTopic(payload, options = {}) {
+  const base = options.baseUrl ?? BASE_URL;
+  const url = `${base}/api/generate-exercises/by_topic`;
+
+  console.log('EX - POST URL:', url);
+  console.log('EX - JSON payload:', payload);
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+    signal: options.signal,
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(text || `Error ${res.status} al llamar ${url}`);
+  }
+  const ct = res.headers.get('content-type') || '';
+  return ct.includes('application/json') ? res.json() : res.text();
+}

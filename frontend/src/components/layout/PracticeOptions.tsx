@@ -34,12 +34,6 @@ const questionTypeItems: CheckBoxItemData[] = [
   { id: 'relationship', title: 'Relacionar', description: 'Une conceptos con definiciones' },
 ];
 
-const focusAreaItems: ListBoxItemData[] = [
-  { id: 'vocabulario', title: 'Vocabulario', description: 'Evalúa términos clave' },
-  { id: 'analisis', title: 'Análisis', description: 'Interpreta y razona' },
-  { id: 'comprension', title: 'Comprensión', description: 'Entiende el contenido' },
-  { id: 'resumen', title: 'Resumen', description: 'Sintetiza ideas principales' },
-];
 
 const exerciseOptions = [1, 4, 8, 12];
 
@@ -96,18 +90,6 @@ const PracticeOptions: React.FC<PracticeOptionsProps> = ({ value, onChange }) =>
           </div>
         </div>
 
-        {/* Área de enfoque */}
-        <div id="pr-opt-focus" className="lg:col-span-1">
-          <label className="block text-sm font-medium text-gray-700 mb-2">Área de enfoque</label>
-          <ListBox
-            items={focusAreaItems}
-            selectionMode="single"
-            searchable={false}
-            selectedIds={value.focusAreas}
-            onSelectionChange={(ids) => setValue({ focusAreas: ids })}
-            className="bg-white"
-          />
-        </div>
 
         {/* Tipo de pregunta (selección única) */}
         <div id="pr-opt-question" className="lg:col-span-1">

@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import PracticeQuestionBox from '@/components/layout/PracticeQuestionBox';
+import PracticeQuestionBox, { type QuestionData } from '@/components/layout/PracticeQuestionBox';
 import PromptInput from '@/components/layout/PromptInput';
 import PracticeOptions, { PracticeOptionsValue } from '@/components/layout/PracticeOptions';
+import { Api } from '@/services/api';
 
 // Small typing effect for tour
 const TypingText: React.FC<{ text: string; speed?: number; onDone?: () => void; onStep?: (i:number,ch:string)=>void }> = ({ text, speed = 18, onDone, onStep }) => {
@@ -26,6 +27,8 @@ export default function PracticePage() {
 
   const [response, setResponse] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [questions, setQuestions] = useState<QuestionData[]>([]);
 
   // Tour state
   const [tourOpen, setTourOpen] = useState(false);
@@ -91,12 +94,121 @@ export default function PracticePage() {
   const prev = () => setTourIndex(i => Math.max(0, i-1));
   const skip = () => { try{localStorage.setItem('tour:practice:v1','done');}catch{} setTourOpen(false); };
 
-  const handleSendMessage = async (message: string) => {
+  // Local mirror of PromptInput's UploadedFile
+  type UploadedFile = { id: string; file: File; previewUrl?: string };
+
+  const mapDifficulty = (d: PracticeOptionsValue['difficulty']): string => {
+    switch (d) {
+      case 1: return 'easy';
+      case 2: return 'medium';
+      case 3: return 'hard';
+      case 4: return 'extreme';
+      default: return 'medium';
+    }
+  };
+
+  const mapQuestionTypeToApi = (qt: PracticeOptionsValue['questionType'] | null): string => {
+    switch (qt) {
+      case 'multiple-choice': return 'multiple_choice';
+      case 'true-false': return 'true_false';
+      case 'fill-blank': return 'fill_in_the_blank';
+      case 'short-answer': return 'short_answer';
+      case 'relationship': return 'matching';
+      // 'justification' not supported on backend; fallback
+      default: return 'multiple_choice';
+    }
+  };
+
+  const toQuestionData = (raw: any, requestedType: PracticeOptionsValue['questionType'] | null, index: number): QuestionData => {
+    const base = {
+      id: `q_${Date.now()}_${index}`,
+      question: raw?.question ?? 'Pregunta',
+      points: undefined as number | undefined,
+    } as any;
+
+    // Prefer the requested type mapping, fallback to multiple-choice using choices
+    const choices: Array<{ text: string; is_correct?: boolean }> = Array.isArray(raw?.choices) ? raw.choices : [];
+    const correctIndex = Math.max(0, choices.findIndex(c => c?.is_correct));
+
+    switch (requestedType) {
+      case 'true-false': {
+        // Try to infer true/false from choices; default to false
+        let correct = false;
+        if (choices.length === 2) {
+          // Find which is marked correct; map its text to boolean when possible
+          const ci = choices.findIndex(c => c?.is_correct);
+          const txt = (choices[ci]?.text || '').toLowerCase();
+          if (/(true|verdadero)/.test(txt)) correct = true;
+          else if (/(false|falso)/.test(txt)) correct = false;
+          else correct = ci === 0; // arbitrary fallback
+        }
+        return { ...base, type: 'true-false', correctAnswer: correct } as QuestionData;
+      }
+      case 'fill-blank': {
+        const correctText = (choices.find(c => c.is_correct)?.text ?? '').trim();
+        return { ...base, type: 'fill-blank', blanks: 1, correctAnswers: [correctText] } as QuestionData;
+      }
+      case 'short-answer': {
+        const correctText = (choices.find(c => c.is_correct)?.text ?? raw?.explanation ?? '').trim();
+        return { ...base, type: 'short-answer', correctAnswer: correctText, maxLength: 200 } as QuestionData;
+      }
+      case 'relationship': {
+        // Backend returns matching pairs structure unknown; present placeholder using choices
+        const items = choices.map((c, i) => `Ítem ${i + 1}`);
+        const concepts = choices.map(c => c.text);
+        const correctPairs: [number, number][] = choices.map((_, i) => [i, i]);
+        return { ...base, type: 'relationship', items, concepts, correctPairs } as QuestionData;
+      }
+      case 'multiple-choice':
+      default: {
+        const options = choices.length ? choices.map(c => c.text) : [];
+        const corr = correctIndex >= 0 ? correctIndex : 0;
+        return { ...base, type: 'multiple-choice', options, correctAnswer: corr } as QuestionData;
+      }
+    }
+  };
+
+  const handleSendMessage = async (message: string, files: UploadedFile[]) => {
     setIsLoading(true);
-    setTimeout(() => {
-      setResponse(`Generando práctica basada en: "${message}"`);
+    setError(null);
+    setResponse('');
+    setQuestions([]);
+    try {
+      const usesFiles = Array.isArray(files) && files.length > 0;
+      const exercises_types = mapQuestionTypeToApi(practiceOptions.questionType);
+      const exercises_difficulty = mapDifficulty(practiceOptions.difficulty);
+      const exercises_count = practiceOptions.exerciseCount;
+
+      let data: any;
+      if (usesFiles) {
+        data = await Api.generateExercisesFromFiles({
+          files: files.map(f => f.file),
+          exercises_count,
+          exercises_difficulty,
+          exercises_types,
+        });
+      } else {
+        data = await Api.generateExercisesByTopic({
+          topic: message || 'General',
+          exercises_count,
+          exercises_difficulty,
+          exercises_types,
+        });
+      }
+
+      const list: any[] = data?.exercises?.exercises ?? [];
+      if (!Array.isArray(list) || list.length === 0) {
+        setResponse('No se recibieron ejercicios. Intenta con otros parámetros.');
+      } else {
+        const mapped = list.map((it, i) => toQuestionData(it, practiceOptions.questionType, i));
+        setQuestions(mapped);
+      }
+    } catch (e: any) {
+      console.error('[practice] error', e);
+      setError(e?.message || 'Error al generar ejercicios');
+    } finally {
       setIsLoading(false);
-    }, 700);
+    }
   };
 
   return (
@@ -139,11 +251,20 @@ export default function PracticePage() {
       <PracticeOptions value={practiceOptions} onChange={setPracticeOptions} />
 
       {isLoading && <p className="text-center text-gray-600 mt-4">Cargando preguntas...</p>}
+      {error && <p className="text-center text-red-600 mt-2">{error}</p>}
 
       {response && (
         <div className="mt-6 p-4 bg-gray-100 rounded-lg">
           <h3 className="font-bold mb-2">Resultado:</h3>
           <p className="text-gray-700">{response}</p>
+        </div>
+      )}
+
+      {questions.length > 0 && (
+        <div className="mt-6 space-y-5">
+          {questions.map((q) => (
+            <PracticeQuestionBox key={q.id} question={q} />
+          ))}
         </div>
       )}
     </div>
