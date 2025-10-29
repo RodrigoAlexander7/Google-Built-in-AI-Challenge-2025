@@ -321,8 +321,13 @@ export default function PracticePage() {
         </div>
       )}
 
-      <h1 className="text-3xl font-bold text-gray-800 text-center mb-4">Nueva práctica</h1>
-      <p className="text-center text-gray-500 mb-8">Configura y genera tus ejercicios personalizados.</p>
+      <div className="text-center mb-6">
+        <div className="inline-block mb-2"><span className="text-5xl">🧠</span></div>
+        <h1 className="text-4xl md:text-5xl font-black text-gray-900 mb-2 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          Nueva práctica
+        </h1>
+        <p className="text-gray-600">Configura y genera tus ejercicios personalizados.</p>
+      </div>
       {questions.length === 0 && (
         <>
           <div className="mt-10" id="pr-input">

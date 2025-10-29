@@ -128,6 +128,17 @@ export default function FlashCardPage() {
         </div>
       )}
 
+      {/* Hero header */}
+      <div className="max-w-6xl mx-auto px-4">
+        <div className="text-center mb-8">
+          <div className="inline-block mb-2"><span className="text-5xl">🃏</span></div>
+          <h1 className="text-4xl md:text-5xl font-black text-gray-900 mb-2 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            Flashcards
+          </h1>
+          <p className="text-gray-600">Genera tarjetas de estudio en segundos.</p>
+        </div>
+      </div>
+
       <div className="max-w-6xl mx-auto px-4 space-y-8">
         {/* Visualizador de Flashcards */}
         <FlashCardContainer initialCards={cards} />

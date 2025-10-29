@@ -20,11 +20,11 @@ const Navbar: React.FC = () => {
 
   // Navegación principal
   const mainNavItems = [
-    { name: 'Summarizer', href: '/summarizer', icon: 'fas fa-file-alt' },
-    { name: 'Practice', href: '/practice', icon: 'fas fa-dumbbell' },
-    { name: 'Flashcards', href: '/flashcards', icon: 'fas fa-layer-group' },
-    { name: 'LearningPath', href: '/learning-path', icon: 'fas fa-road' },
-    { name: 'Learn&Play', href: '/learn-play', icon: 'fas fa-gamepad' },
+    { name: '📝 Summarizer', href: '/summarizer', icon: 'fas fa-file-alt' },
+    { name: '🧠 Practice', href: '/practice', icon: 'fas fa-dumbbell' },
+    { name: '🃏 Flashcards', href: '/flashcards', icon: 'fas fa-layer-group' },
+    { name: '🧭 LearningPath', href: '/learning-path', icon: 'fas fa-road' },
+    { name: '🎮 Learn&Play', href: '/learn-play', icon: 'fas fa-gamepad' },
   ];
 
   // Menú desplegable

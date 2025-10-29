@@ -433,9 +433,14 @@ export default function SummarizerPage({
         </div>
       )}
 
-      <div id="sp-navbar" className="flex flex-col md:flex-row md:items-center md:justify-between">
-        <h1 id="sp-title" className="text-2xl font-bold mb-2">{title}</h1>
-        {date && <p className="text-sm text-gray-500">{new Date(date).toLocaleString('es-ES')}</p>}
+      <div id="sp-navbar" className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <span className="text-3xl md:text-4xl">📝</span>
+          <h1 id="sp-title" className="text-3xl md:text-4xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            {title}
+          </h1>
+        </div>
+        {date && <p className="text-sm text-gray-500 mt-2 md:mt-0">{new Date(date).toLocaleString('es-ES')}</p>}
       </div>
 
       <div id="sp-visualizer">
