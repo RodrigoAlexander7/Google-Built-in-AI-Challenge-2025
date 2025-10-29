@@ -9,6 +9,7 @@ import PracticeGrader, { type UserAnswersMap } from '@/components/layout/Practic
 import LoadingOverlay from '@/components/ui/LoadingOverlay';
 import SaveFloatingButton from '@/components/ui/SaveFloatingButton';
 import LocalArchive from '@/services/localArchive';
+import { toast } from 'sonner';
 
 // Small typing effect for tour
 const TypingText: React.FC<{ text: string; speed?: number; onDone?: () => void; onStep?: (i:number,ch:string)=>void }> = ({ text, speed = 18, onDone, onStep }) => {
@@ -288,7 +289,8 @@ export default function PracticePage() {
         defaultCategory={'Prácticas'}
         onSave={({ title, category }) => {
           LocalArchive.addPractice({ title, category, questions, metas, options: practiceOptions });
-          console.log('[practice] saved to localArchive');
+          try { window.dispatchEvent(new CustomEvent('archive:update')); } catch {}
+          toast.success('Práctica guardada');
         }}
       />
       <div className="max-w-6xl mx-auto px-4 space-y-8">

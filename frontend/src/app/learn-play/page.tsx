@@ -5,15 +5,17 @@ import Template from "../../pages/Template";
 import LearnPlayPage from "./LearnPlayPage";
 import { GameOne, GameTwo, GameThree, GameFour } from '@/components/ReactGameComponents';
 import SaveFloatingButton from '@/components/ui/SaveFloatingButton';
+import DeleteFloatingButton from '@/components/ui/DeleteFloatingButton';
 import LocalArchive from '@/services/localArchive';
+import { toast } from 'sonner';
 import { explainItGames } from '@/resources/files/mockExplainIt';
 
 type Difficulty = 'easy' | 'medium' | 'hard';
 
 type SelectedGame =
-  | { type: 'wordsearch' | 'wordconnect'; title: string; words: string[]; difficulty: Difficulty; category?: string }
-  | { type: 'crossword'; title: string; words: { word: string; clue: string }[]; difficulty: Difficulty; category?: string }
-  | { type: 'explainit'; id: number; title: string; category?: string };
+  | { type: 'wordsearch' | 'wordconnect'; title: string; words: string[]; difficulty: Difficulty; category?: string; id?: number; fromArchive?: boolean }
+  | { type: 'crossword'; title: string; words: { word: string; clue: string }[]; difficulty: Difficulty; category?: string; id?: number; fromArchive?: boolean }
+  | { type: 'explainit'; id: number; title: string; category?: string; fromArchive?: boolean };
 
 export default function Home() {
   const [selectedGame, setSelectedGame] = useState<SelectedGame | null>(null);
@@ -29,19 +31,19 @@ export default function Home() {
     const saved = LocalArchive.getGameById(id);
     if (saved) {
       if (saved.gameType === 'crossword') {
-        setSelectedGame({ type: 'crossword', title: saved.title, words: saved.payload?.words || [], difficulty: 'medium', category: saved.category });
+        setSelectedGame({ type: 'crossword', id: saved.id, fromArchive: true, title: saved.title, words: saved.payload?.words || [], difficulty: 'medium', category: saved.category });
         return;
       }
       if (saved.gameType === 'wordsearch') {
-        setSelectedGame({ type: 'wordsearch', title: saved.title, words: saved.payload?.words || [], difficulty: 'medium', category: saved.category });
+        setSelectedGame({ type: 'wordsearch', id: saved.id, fromArchive: true, title: saved.title, words: saved.payload?.words || [], difficulty: 'medium', category: saved.category });
         return;
       }
       if (saved.gameType === 'wordconnect') {
-        setSelectedGame({ type: 'wordconnect', title: saved.title, words: saved.payload?.words || [], difficulty: 'medium', category: saved.category });
+        setSelectedGame({ type: 'wordconnect', id: saved.id, fromArchive: true, title: saved.title, words: saved.payload?.words || [], difficulty: 'medium', category: saved.category });
         return;
       }
       if (saved.gameType === 'explainit') {
-        setSelectedGame({ type: 'explainit', id: id, title: saved.title, category: saved.category });
+        setSelectedGame({ type: 'explainit', id: saved.id, fromArchive: true, title: saved.title, category: saved.category });
         return;
       }
     }
@@ -113,7 +115,7 @@ export default function Home() {
           <div className="max-w-6xl mx-auto px-6 py-8">
             {/* Save button for games */}
             <SaveFloatingButton
-              visible={!!selectedGame}
+              visible={!!selectedGame && !selectedGame.fromArchive}
               defaultTitle={selectedGame.title}
               defaultCategory={selectedGame.category || 'Juegos'}
               onSave={({ title, category }) => {
@@ -126,9 +128,25 @@ export default function Home() {
                 } else if (selectedGame.type === 'explainit') {
                   LocalArchive.addGame({ gameType: 'explainit', title, category, payload: { id: selectedGame.id, question: selectedGame.title } });
                 }
-                console.log('[learn-play] game saved to localArchive');
+                try { window.dispatchEvent(new CustomEvent('archive:update')); } catch {}
+                toast.success('Juego guardado');
               }}
             />
+            {selectedGame?.fromArchive && typeof (selectedGame as any).id === 'number' && (
+              <DeleteFloatingButton
+                onDelete={() => {
+                  const idToDelete = (selectedGame as any).id as number;
+                  const kind: 'game' = 'game';
+                  if (LocalArchive.remove(kind, idToDelete)) {
+                    toast.success('Juego eliminado');
+                    try { window.dispatchEvent(new CustomEvent('archive:update')); } catch {}
+                    setSelectedGame(null);
+                  } else {
+                    toast.error('No se pudo eliminar');
+                  }
+                }}
+              />
+            )}
             <div className="flex items-center justify-between mb-8">
               <div>
                 <button 

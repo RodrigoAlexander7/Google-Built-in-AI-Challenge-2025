@@ -5,9 +5,13 @@ import { useParams } from 'next/navigation';
 import Template from '@/pages/Template';
 import FlashCardContainer from '@/components/layout/FlashCardContainer';
 import LocalArchive from '@/services/localArchive';
+import DeleteFloatingButton from '@/components/ui/DeleteFloatingButton';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 export default function FlashCardGroupPage() {
   const params = useParams<{ id: string }>();
+  const router = useRouter();
   const idStr = params?.id;
   const id = idStr ? Number(idStr) : NaN;
   const [loaded, setLoaded] = React.useState(false);
@@ -45,6 +49,15 @@ export default function FlashCardGroupPage() {
 
   return (
     <Template>
+      <DeleteFloatingButton
+        onDelete={() => {
+          if (Number.isFinite(id)) {
+            const ok = LocalArchive.remove('flashcards', id);
+            if (ok) { toast.success('Flashcards eliminadas'); try { window.dispatchEvent(new CustomEvent('archive:update')); } catch {} router.push('/flashcards'); }
+            else { toast.error('No se pudo eliminar'); }
+          }
+        }}
+      />
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
         <div className="max-w-5xl mx-auto px-4 space-y-8">
           <div className="text-center">

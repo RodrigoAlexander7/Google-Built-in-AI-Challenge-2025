@@ -50,6 +50,27 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle, onGameSele
     }
   }, [isLearnPlay, isFlashcards, isPractice, pathname]);
 
+  // Refresh lists on archive updates
+  useEffect(() => {
+    const onUpdate = () => {
+      if (isLearnPlay) {
+        try {
+          const games = LocalArchive.listGames().map(g => ({ id: g.id, title: g.title, date: g.dateISO, type: g.gameType, category: g.category }))
+            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+          setSavedGames(games);
+        } catch { setSavedGames([]); }
+      } else {
+        try {
+          if (isFlashcards) setSavedList(LocalArchive.listByKind('flashcards'));
+          else if (isPractice) setSavedList(LocalArchive.listByKind('practice'));
+          else setSavedList(LocalArchive.listByKind('summary'));
+        } catch { setSavedList([]); }
+      }
+    };
+    window.addEventListener('archive:update', onUpdate as any);
+    return () => window.removeEventListener('archive:update', onUpdate as any);
+  }, [isLearnPlay, isFlashcards, isPractice]);
+
   const allGames: GameItem[] = isLearnPlay ? (mounted ? savedGames : []) : [];
 
   // Agrupar juegos por tipo

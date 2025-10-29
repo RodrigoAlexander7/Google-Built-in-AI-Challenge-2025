@@ -114,6 +114,15 @@ export const LocalArchive = {
     };
     const list = loadAll(); list.push(item); saveAll(list); return item;
   },
+  remove(kind: ArchiveKind, id: number): boolean {
+    const list = loadAll();
+    const idx = list.findIndex((it) => it.kind === kind && it.id === id);
+    if (idx === -1) return false;
+    list.splice(idx, 1);
+    saveAll(list);
+    try { window.dispatchEvent(new CustomEvent('archive:update')); } catch {}
+    return true;
+  },
 };
 
 export default LocalArchive;

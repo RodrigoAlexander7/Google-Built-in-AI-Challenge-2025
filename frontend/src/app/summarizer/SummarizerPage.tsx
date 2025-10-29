@@ -49,7 +49,8 @@ export default function SummarizerPage({
   title = 'Nuevo Resumen',
   date,
   files = [],
-}: SummarizerPageProps) {
+  readonly = false,
+}: SummarizerPageProps & { readonly?: boolean }) {
   const [options, setOptions] = useState<SummaryOptionsData>({
     summaryType: null,
     languageRegister: null,
@@ -341,12 +342,13 @@ export default function SummarizerPage({
       <LoadingOverlay open={isLoading} title="Generando tu resumen" subtitle="Analizando y sintetizando tu contenido…" />
       {/* Save button when there is a generated response */}
       <SaveFloatingButton
-        visible={hasResponse}
+        visible={hasResponse && !readonly}
         defaultTitle={title || 'Resumen'}
         defaultCategory={'Resumenes'}
         onSave={({ title: t, category }) => {
           LocalArchive.addSummary({ title: t, category, content: response, options });
-          console.log('[summarizer] saved to localArchive');
+          try { window.dispatchEvent(new CustomEvent('archive:update')); } catch {}
+          try { const { toast } = require('sonner'); toast.success('Resumen guardado'); } catch {}
         }}
       />
       {/* Guided tour overlay */}

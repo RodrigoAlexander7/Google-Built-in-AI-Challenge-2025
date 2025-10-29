@@ -5,9 +5,13 @@ import React from 'react';
 import LocalArchive from '@/services/localArchive';
 import PracticeQuestionBox from '@/components/layout/PracticeQuestionBox';
 import Template from '@/pages/Template';
+import DeleteFloatingButton from '@/components/ui/DeleteFloatingButton';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 export default function PracticeDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const idStr = typeof params?.id === 'string' ? params.id : undefined;
   const id = idStr ? Number(idStr) : NaN;
   const [loaded, setLoaded] = React.useState(false);
@@ -43,6 +47,15 @@ export default function PracticeDetailPage() {
 
   return (
     <Template>
+    <DeleteFloatingButton
+      onDelete={() => {
+        if (Number.isFinite(id)) {
+          const ok = LocalArchive.remove('practice', id);
+          if (ok) { toast.success('Práctica eliminada'); try { window.dispatchEvent(new CustomEvent('archive:update')); } catch {} router.push('/practice'); }
+          else { toast.error('No se pudo eliminar'); }
+        }
+      }}
+    />
     <div className="max-w-6xl mx-auto px-4 py-8 space-y-10">
       <div className="text-center">
         <h1 className="text-3xl font-bold text-gray-800 mb-2">{practice.title}</h1>

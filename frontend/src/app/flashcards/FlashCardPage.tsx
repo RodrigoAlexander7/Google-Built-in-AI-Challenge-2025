@@ -9,6 +9,7 @@ import type { FlashCardData } from '../../types/FlashCardData';
 import LoadingOverlay from '../../components/ui/LoadingOverlay';
 import SaveFloatingButton from '../../components/ui/SaveFloatingButton';
 import LocalArchive from '../../services/localArchive';
+import { toast } from 'sonner';
 
 // Typing effect reused
 const TypingText: React.FC<{ text: string; speed?: number; onStep?: (i:number,ch:string)=>void }> = ({ text, speed = 16, onStep }) => {
@@ -101,7 +102,8 @@ export default function FlashCardPage() {
         defaultCategory={options.focuses?.[0] || 'Flashcards'}
         onSave={({ title, category }) => {
           LocalArchive.addFlashcards({ title, category, cards, options });
-          console.log('[flashcards] saved to localArchive');
+          try { window.dispatchEvent(new CustomEvent('archive:update')); } catch {}
+          toast.success('Flashcards guardadas');
         }}
       />
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">

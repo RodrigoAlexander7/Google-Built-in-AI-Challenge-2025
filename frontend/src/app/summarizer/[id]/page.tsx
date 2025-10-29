@@ -5,9 +5,13 @@ import React from 'react';
 import LocalArchive from '@/services/localArchive';
 import Template from '@/pages/Template';
 import SummarizerPage from '../SummarizerPage';
+import DeleteFloatingButton from '@/components/ui/DeleteFloatingButton';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 export default function SummaryDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const idParam = params?.id as string;
   const id = Number(idParam);
   const [loaded, setLoaded] = React.useState(false);
@@ -43,10 +47,20 @@ export default function SummaryDetailPage() {
 
   return (
     <Template>
+      <DeleteFloatingButton
+        onDelete={() => {
+          if (Number.isFinite(id)) {
+            const ok = LocalArchive.remove('summary', id);
+            if (ok) { toast.success('Resumen eliminado'); try { window.dispatchEvent(new CustomEvent('archive:update')); } catch {} router.push('/summarizer'); }
+            else { toast.error('No se pudo eliminar'); }
+          }
+        }}
+      />
       <SummarizerPage
         initialResponse={summary?.payload?.content || ''}
         title={summary?.title || 'Resumen'}
         date={summary?.dateISO}
+        readonly
       />
     </Template>
   );
