@@ -85,14 +85,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle, onGameSele
   // Determinar los datos que se muestran según la ruta (usar LocalArchive)
   const summariesList = isLearnPlay ? [] : (mounted ? savedList : []);
 
-  // Título dinámico
+  // Título dinámico con emoji
+  const sectionEmoji = isLearnPlay ? '🎮' : isFlashcards ? '🃏' : isPractice ? '🧠' : '📝';
   const title = isLearnPlay
-    ? 'Mis Juegos'
+    ? `${sectionEmoji} Mis Juegos`
     : isFlashcards
-    ? 'Flashcards'
+    ? `${sectionEmoji} Flashcards`
     : isPractice
-    ? 'Mis Prácticas'
-    : 'Resúmenes';
+    ? `${sectionEmoji} Mis Prácticas`
+    : `${sectionEmoji} Resúmenes`;
 
   // URL base para los enlaces
   const basePath = isLearnPlay ? '/learn-play' : isFlashcards ? '/flashcards' : isPractice ? '/practice' : '/summarizer';
@@ -112,6 +113,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle, onGameSele
     wordsearch: '🔍 Sopas de Letras',
     wordconnect: '🔗 Conecta Palabras',
     explainit: '💡 Explícalo'
+  };
+  const gameTypeEmoji: Record<string, string> = {
+    crossword: '🧩',
+    wordsearch: '🔍',
+    wordconnect: '🔗',
+    explainit: '💡'
   };
 
   const handleGameClick = (type: string, id: number) => {
@@ -202,7 +209,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle, onGameSele
                           className="w-full text-left block px-4 py-3 rounded-xl text-gray-700 hover:text-blue-600 hover:bg-blue-50/80 transition-all duration-300 group relative"
                         >
                           <div className="flex flex-col">
-                            <span className="font-medium truncate">{game.title}</span>
+                            <span className="font-medium truncate flex items-center gap-2">
+                              <span aria-hidden>{gameTypeEmoji[game.type] ?? '🎮'}</span>
+                              {game.title}
+                            </span>
                             <span className="text-xs text-gray-500 mt-1">
                               {new Date(game.date).toLocaleDateString('es-ES', {
                                 day: '2-digit',
@@ -233,7 +243,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle, onGameSele
                       className="w-full text-left px-4 py-3 rounded-xl text-gray-700 bg-white/70 hover:bg-blue-50/80 transition-all duration-300 group relative border border-gray-200/60"
                     >
                       <div className="flex flex-col">
-                        <span className="font-medium truncate">{item.title}</span>
+                        <span className="font-medium truncate flex items-center gap-2">
+                          <span aria-hidden>{sectionEmoji}</span>
+                          {item.title}
+                        </span>
                         {item.dateISO && (
                           <span className="text-xs text-gray-500 mt-1">
                             {new Date(item.dateISO).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
