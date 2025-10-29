@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ExplainItProps, EvaluationResults } from '../types/ExplainItGameType';
+import { ExplainItProps, EvaluationResults } from '../types/ExplainItGameTypes';
 
 export default function ExplainIt({
   question = '¿Puedes explicar sobre la fotosíntesis?',

@@ -501,10 +501,10 @@ if (usuario) {
           { left: "template literal", right: "Strings con interpolación usando ${}" }
         ],
         correctAnswer: [
-          { left: "var", right: "Function scope y permite redeclaración" },
-          { left: "let", right: "Block scope y permite reasignación" },
-          { left: "const", right: "Block scope sin reasignación" },
-          { left: "template literal", right: "Strings con interpolación usando ${}" }
+          "Function scope y permite redeclaración",
+          "Block scope y permite reasignación",
+          "Block scope sin reasignación",
+          "Strings con interpolación usando ${}"
         ]
       }
     ]

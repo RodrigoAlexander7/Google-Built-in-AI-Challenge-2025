@@ -18,7 +18,7 @@ import Sidebar from '@/components/layout/Sidebar';
 import PracticeQuestionBox from '@/components/layout/PracticeQuestionBox';
 import FlashCard from '@/components/layout/FlashCard';
 import type { QuestionData } from '@/components/layout/PracticeQuestionBox';
-import type { FlashCardData as FlashCardComponentData } from '@/components/layout/FlashCard';
+import type { FlashCardData as FlashCardComponentData } from '@/types/FlashCardData';
 import { getSessionById } from '@/resources/files/mockLearningPaths';
 import type { Session, Topic } from '@/types/LearningPath';
 
@@ -132,24 +132,32 @@ export default function SessionViewPage() {
   // Preparar questions para el componente (convertir formato)
   const questions: QuestionData[] = currentTopic?.practice.map(q => {
     if (q.type === 'multiple-choice') {
+      const opts = q.options || [];
+      let idx = 0;
+      if (typeof q.correctAnswer === 'string') {
+        const found = opts.indexOf(q.correctAnswer);
+        idx = found >= 0 ? found : 0;
+      } else if (Array.isArray(q.correctAnswer) && q.correctAnswer.length > 0) {
+        const found = opts.indexOf(q.correctAnswer[0]);
+        idx = found >= 0 ? found : 0;
+      }
       return {
         id: q.id,
         type: 'multiple-choice',
         question: q.question,
-        options: q.options || [],
-        correctAnswer: typeof q.correctAnswer === 'string' 
-          ? (q.options?.indexOf(q.correctAnswer) ?? 0)
-          : q.correctAnswer,
-        points: 5
+        options: opts,
+        correctAnswer: idx,
+        points: 5,
       };
     }
     if (q.type === 'true-false') {
+      const val = Array.isArray(q.correctAnswer) ? q.correctAnswer[0] : q.correctAnswer;
       return {
         id: q.id,
         type: 'true-false',
         question: q.question,
-        correctAnswer: q.correctAnswer === 'true',
-        points: 3
+        correctAnswer: String(val).toLowerCase() === 'true',
+        points: 3,
       };
     }
     if (q.type === 'fill-blank') {
@@ -158,8 +166,8 @@ export default function SessionViewPage() {
         type: 'fill-blank',
         question: q.question,
         blanks: 1,
-        correctAnswers: Array.isArray(q.correctAnswer) ? q.correctAnswer : [q.correctAnswer],
-        points: 4
+        correctAnswers: Array.isArray(q.correctAnswer) ? q.correctAnswer : [String(q.correctAnswer)],
+        points: 4,
       };
     }
     if (q.type === 'relationship' && q.pairs) {
@@ -170,16 +178,16 @@ export default function SessionViewPage() {
         items: q.pairs.map(p => p.left),
         concepts: q.pairs.map(p => p.right),
         correctPairs: q.pairs.map((_, idx) => [idx, idx]),
-        points: 8
+        points: 8,
       };
     }
-    // Default fallback para short-answer o justification
+    // Default fallback para short-answer
     return {
       id: q.id,
       type: 'short-answer',
       question: q.question,
-      expectedKeywords: [],
-      points: 6
+      correctAnswer: Array.isArray(q.correctAnswer) ? (q.correctAnswer[0] ?? '') : String(q.correctAnswer ?? ''),
+      points: 6,
     };
   }) || [];
 
@@ -371,16 +379,11 @@ export default function SessionViewPage() {
                     <h1 className="text-2xl font-bold">{currentTopic.title}</h1>
                   </div>
                   <div className="flex items-center space-x-4 text-sm text-blue-100">
-                    <span>⏱️ {currentTopic.estimatedMinutes} minutos</span>
+                    <span>⏱️ {currentTopic.duration}</span>
                     <span>📖 Tema {currentTopicIndex + 1} de {totalTopics}</span>
                   </div>
                 </div>
-                {currentTopic.completed && (
-                  <div className="flex items-center space-x-2 bg-white/20 px-3 py-1.5 rounded-full">
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span className="text-sm font-medium">Completado</span>
-                  </div>
-                )}
+                
               </div>
             </div>
 

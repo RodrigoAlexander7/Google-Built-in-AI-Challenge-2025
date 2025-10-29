@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FlashCardData } from './FlashCard';
+import { FlashCardData } from '../../types/FlashCardData';
 
 interface FlashCardModalProps {
   isOpen: boolean;
