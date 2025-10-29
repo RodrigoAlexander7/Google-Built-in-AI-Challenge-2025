@@ -13,6 +13,9 @@ export default function FlashCardGroupPage() {
   const [loaded, setLoaded] = React.useState(false);
   const [group, setGroup] = React.useState<any | null>(null);
 
+  // Compute cards deterministically every render to keep hook order stable
+  const cards = React.useMemo(() => group?.payload?.cards ?? [], [group?.id]);
+
   React.useEffect(() => {
     if (Number.isFinite(id)) {
       try { setGroup(LocalArchive.getById('flashcards', id) as any ?? null); } catch { setGroup(null); }
@@ -39,9 +42,6 @@ export default function FlashCardGroupPage() {
       </Template>
     );
   }
-
-  // Memoriza las cartas para evitar un cambio de referencia en cada render
-  const cards = React.useMemo(() => group?.payload?.cards ?? [], [group?.id]);
 
   return (
     <Template>
