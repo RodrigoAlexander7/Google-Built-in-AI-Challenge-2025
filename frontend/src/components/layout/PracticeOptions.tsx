@@ -32,7 +32,6 @@ const questionTypeItems: CheckBoxItemData[] = [
   { id: 'fill-blank', title: 'Espacio en blanco', description: 'Completa la oración' },
   { id: 'short-answer', title: 'Respuesta corta', description: 'Escribe una breve respuesta' },
   { id: 'relationship', title: 'Relacionar', description: 'Une conceptos con definiciones' },
-  { id: 'justification', title: 'Justificación', description: 'Responde y justifica' },
 ];
 
 const focusAreaItems: ListBoxItemData[] = [
