@@ -8,7 +8,7 @@ import { explainItGames } from '@/resources/files/mockExplainIt';
 import PromptInput from '@/components/layout/PromptInput';
 import ListBox from '@/components/ui/ListBox/ListBox';
 import Slider from '@/components/ui/Slider/Slider';
-import { Api } from '@/services/api';
+import { Api, createWordSearchGame } from '@/services/api';
 
 interface CategoryMenuProps {
   title: string;
@@ -67,6 +67,10 @@ export default function LearnPlayPage({ onGameSelect }: LearnPlayPageProps) {
   const [language, setLanguage] = useState<string>('Spanish');
   const [difficulty, setDifficulty] = useState<number>(2);
 
+  // Map numeric difficulty to text label
+  const difficultyLabels: Record<number, string> = { 1: 'fácil', 2: 'medio', 3: 'difícil' };
+  const difficultyText = difficultyLabels[difficulty] ?? String(difficulty);
+
   const languageItems = [
     { id: 'Spanish', title: 'Spanish' },
     { id: 'English', title: 'English' },
@@ -85,13 +89,14 @@ export default function LearnPlayPage({ onGameSelect }: LearnPlayPageProps) {
   const handleStartGame = async () => {
     const gameType = gameTypeMap[selectedOption as keyof typeof gameTypeMap];
 
-    const finalTopic = `${(topic || 'General').trim()} - dificultad ${difficulty}`;
+    // Build final topic including textual difficulty
+    const finalTopic = `${(topic || 'General').trim()} - dificultad ${difficultyText}`;
 
     if (gameType === 'wordsearch') {
       const payload = { topic: finalTopic, language };
       console.log('WS - Start payload:', { ...payload, game_type: 'word_search' });
       try {
-        await Api.createWordSearchGame(payload);
+        await createWordSearchGame(payload);
       } catch (err) {
         console.error('WS - Fetch error:', err);
       }
@@ -184,7 +189,7 @@ export default function LearnPlayPage({ onGameSelect }: LearnPlayPageProps) {
                 label="Dificultad"
                 showMinMaxLabels
               />
-              <p className="text-xs text-gray-500 mt-1">Se concatenará al tópico como: "{(topic || 'General').trim()} - dificultad {difficulty}"</p>
+              <p className="text-xs text-gray-500 mt-1">Se concatenará al tópico como: "{(topic || 'General').trim()} - dificultad {difficultyText}"</p>
             </div>
           </div>
         </div>
