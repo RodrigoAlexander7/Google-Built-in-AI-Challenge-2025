@@ -15,7 +15,14 @@ interface PracticeGraderProps {
 }
 
 function normalizeText(s: any) {
-  return (String(s ?? '')).trim().toLowerCase();
+  // Normalize diacritics, remove punctuation (keep letters/numbers/spaces), collapse spaces
+  return String(s ?? '')
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}\s]/gu, '')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 function arraysEqualIgnoreOrder<T>(a: T[], b: T[]) {
@@ -33,7 +40,8 @@ export function isAnswerCorrect(q: QuestionData, ans: any): boolean {
       return typeof ans === 'boolean' && ans === q.correctAnswer;
     case 'fill-blank': {
       const expected = q.correctAnswers.map(normalizeText);
-      const got = Array.isArray(ans) ? ans.map(normalizeText) : [];
+      const gotArr = Array.isArray(ans) ? ans : (typeof ans === 'string' ? [ans] : []);
+      const got = gotArr.map(normalizeText);
       if (got.length !== expected.length) return false;
       return expected.every((e, i) => e === got[i]);
     }

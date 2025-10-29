@@ -33,6 +33,7 @@ export default function PracticePage() {
   const [userAnswers, setUserAnswers] = useState<UserAnswersMap>({});
   const [showResults, setShowResults] = useState(false);
   const [score, setScore] = useState<number | undefined>(undefined);
+  const [metas, setMetas] = useState<Array<{ learningObjective?: string; explanation?: string; answerText?: string }>>([]);
 
   const resetPractice = () => {
     setQuestions([]);
@@ -163,11 +164,11 @@ export default function PracticePage() {
         return { ...base, type: 'true-false', correctAnswer: correct } as QuestionData;
       }
       case 'fill-blank': {
-        const correctText = (choices.find(c => c.is_correct)?.text ?? '').trim();
+        const correctText = (raw?.answer ?? choices.find(c => c.is_correct)?.text ?? '').trim();
         return { ...base, type: 'fill-blank', blanks: 1, correctAnswers: [correctText] } as QuestionData;
       }
       case 'short-answer': {
-        const correctText = (choices.find(c => c.is_correct)?.text ?? raw?.explanation ?? '').trim();
+        const correctText = (raw?.answer ?? choices.find(c => c.is_correct)?.text ?? raw?.explanation ?? '').trim();
         return { ...base, type: 'short-answer', correctAnswer: correctText, maxLength: 200 } as QuestionData;
       }
       case 'relationship': {
@@ -224,6 +225,20 @@ export default function PracticePage() {
       } else {
         const mapped = list.map((it, i) => toQuestionData(it, practiceOptions.questionType, i));
         setQuestions(mapped);
+        const mappedMeta = list.map((it: any) => {
+          const lo = it?.learning_objective ?? it?.learningObjective ?? undefined;
+          const exp = it?.explanation ?? undefined;
+          let ansText: string | undefined = undefined;
+          // Best-effort extraction of correct answer text by type
+          if (typeof it?.is_true === 'boolean') ansText = it.is_true ? 'Verdadero' : 'Falso';
+          if (!ansText && Array.isArray(it?.choices)) {
+            const idx = it.choices.findIndex((c: any) => c?.is_correct);
+            ansText = it.choices[idx]?.text ?? ansText;
+          }
+          if (!ansText && typeof it?.answer === 'string') ansText = it.answer;
+          return { learningObjective: lo, explanation: exp, answerText: ansText };
+        });
+        setMetas(mappedMeta);
       }
     } catch (e: any) {
       console.error('[practice] error', e);
@@ -295,14 +310,45 @@ export default function PracticePage() {
 
       {questions.length > 0 && (
         <>
-          <div className="mt-6 space-y-5">
-            {questions.map((q) => (
-              <PracticeQuestionBox
-                key={q.id}
-                question={q}
-                showResults={showResults}
-                onAnswer={(ans) => setUserAnswers(prev => ({ ...prev, [q.id]: ans }))}
-              />
+          <div className="mt-6 space-y-6">
+            {questions.map((q, idx) => (
+              <div key={q.id} className="space-y-3">
+                <PracticeQuestionBox
+                  question={q}
+                  showResults={showResults}
+                  onAnswer={(ans) => setUserAnswers(prev => ({ ...prev, [q.id]: ans }))}
+                />
+                {showResults && (
+                  <div className="rounded-xl border border-indigo-200 bg-indigo-50/60 p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-semibold tracking-wide text-indigo-700 uppercase">Pregunta {idx + 1}</span>
+                      {metas[idx]?.answerText && (
+                        <span className="text-xs px-2 py-1 rounded-full bg-indigo-200 text-indigo-800">Respuesta</span>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <div className="md:col-span-2">
+                        <div className="text-[13px] text-indigo-900/90">
+                          <span className="font-semibold">Objetivo de aprendizaje: </span>
+                          <span>{metas[idx]?.learningObjective ?? '—'}</span>
+                        </div>
+                        {metas[idx]?.explanation && (
+                          <div className="text-[13px] text-indigo-900/90 mt-1">
+                            <span className="font-semibold">Explicación: </span>
+                            <span>{metas[idx]?.explanation}</span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="md:col-span-1">
+                        <div className="text-[13px] text-indigo-900/90">
+                          <span className="font-semibold">Respuesta correcta: </span>
+                          <span>{metas[idx]?.answerText ?? '—'}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             ))}
           </div>
 
