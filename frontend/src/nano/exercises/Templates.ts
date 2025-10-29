@@ -1,9 +1,14 @@
 import { ExerciseOptions } from "@/nano/gobal";
-import { exerciseStructure } from "@/nano/exercises/Structures";
+import { multipleChoiceStructure } from "@/nano/exercises/Structures";
 
 export function getExerciseTemplate(exerciseOptions: ExerciseOptions): string {
-   return `Generate exercises based on the following content or topic: ${exerciseOptions.topic}.
+   let exerciseStructure = "";
+   if (exerciseOptions.exercises_types === 'multiple-choice') {
+      exerciseStructure = multipleChoiceStructure;
+   }
+
+   return `Generate ${exerciseOptions.exercises_count} exercises in a ${exerciseOptions.exercises_difficulty} difficulty level based on the following content or topic: ${exerciseOptions.topic}.
    Return ONLY valid JSON in the following format:
-   ${exerciseStructure}
+   ${multipleChoiceStructure}
    Return ONLY valid JSON in the following format:`
 }

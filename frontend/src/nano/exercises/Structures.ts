@@ -1,4 +1,4 @@
-export const exerciseStructure = `[
+export const multipleChoiceStructure = `[
    {
      "topic": "string (optional, e.g. 'Mathematics')",
      "difficulty": "string (optional, one of: Easy, Medium, Hard)",

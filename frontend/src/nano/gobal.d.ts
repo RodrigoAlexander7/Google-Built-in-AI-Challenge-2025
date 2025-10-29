@@ -15,23 +15,9 @@ export interface NanoClientOptions {
 export declare const LanguageModel: any;
 
 
-
-export interface ExerciseOptions {
-   topic?: string;
-   difficulty?: 'Easy' | 'Medium' | 'Hard';
-   question: string;
-   choices: Array<{
-      label: string;
-      text: string;
-      is_correct: boolean;
-   }>;
-   explanation?: string;
-   learning_objective?: string;
-}
-
 export interface ExerciseOptions {
    topic: string;
-   difficulty: 'Easy' | 'Medium' | 'Hard';
-   count: number;
-   exerciseType: 'multiple-choice' | 'true-false' | 'fill-in-the-blank';
+   exercises_difficulty: 'Easy' | 'Medium' | 'Hard';
+   exercises_count: number;
+   exercises_types: 'multiple-choice' | 'true-false' | 'fill-in-the-blank';
 }
