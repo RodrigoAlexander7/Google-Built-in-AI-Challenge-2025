@@ -135,7 +135,7 @@ export default function LearningPathViewPage() {
               <div className="flex flex-wrap gap-3 text-sm">
                 <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200 flex items-center gap-1">
                   <Target className="w-4 h-4" />
-                  {pathData.focusType}
+                  {pathData.difficulty}
                 </span>
                 <span className="px-3 py-1 rounded-full bg-purple-50 text-purple-700 border border-purple-200 flex items-center gap-1">
                   <BookOpen className="w-4 h-4" />
@@ -219,14 +219,14 @@ export default function LearningPathViewPage() {
                       <div className="mt-3 max-w-md">
                         <div className="flex items-center justify-between mb-1">
                           <span className="text-xs text-gray-500">
-                            {module.sessions.filter(s => s.completed).length}/{module.sessions.length} sesiones
+                            {module.sessions.filter(s => s.topics.length > 0).length}/{module.sessions.length} sesiones
                           </span>
                           <span className="text-xs font-medium text-gray-700">{moduleProgress}%</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
                           <div
                             className={`h-full rounded-full transition-all duration-500 ${
-                              module.completed
+                              moduleProgress === 100
                                 ? 'bg-gradient-to-r from-green-500 to-emerald-600'
                                 : 'bg-gradient-to-r from-blue-500 to-purple-600'
                             }`}
