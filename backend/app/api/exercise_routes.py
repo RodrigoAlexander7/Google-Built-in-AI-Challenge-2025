@@ -1,6 +1,5 @@
-from fastapi import APIRouter, File, UploadFile
+from fastapi import APIRouter, File, UploadFile, Form
 from typing import List
-from pydantic import BaseModel
 from app.services.exercise_generation_service import generate_exercises
 from app.infrastructure.files.file_manager import extract_file_contents
 from app.domain.exercises_models import ExercisesByTopicRequest, ExerciseType
@@ -11,9 +10,9 @@ router = APIRouter(prefix="/generate-exercises", tags=["Generate Exercises"])
 @router.post("/", response_model=dict)
 async def exercises(
     files: List[UploadFile] = File(default=[], description="Files to be summarized"),
-    exercises_count: int = 5,
-    exercises_difficulty: str = "medium",
-    exercises_types: ExerciseType = ExerciseType.multiple_choice,
+    exercises_count: int = Form(5, description="Number of exercises to generate"),
+    exercises_difficulty: str = Form("medium", description="Difficulty level of the exercises"),
+    exercises_types: ExerciseType = Form(ExerciseType.multiple_choice, description="Types of exercises to generate"),
 ):
     # Content extraction
     data = await extract_file_contents(files)
@@ -53,7 +52,7 @@ async def exercises_by_topic(request: ExercisesByTopicRequest):
         request.topic,
         request.exercises_count,
         request.exercises_difficulty,
-        request.exercises_types,
+        request.exercises_types
     )
 
     return {"exercises": exercises}
