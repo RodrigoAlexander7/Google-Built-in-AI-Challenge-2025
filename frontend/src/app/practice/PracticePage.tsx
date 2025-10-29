@@ -34,6 +34,16 @@ export default function PracticePage() {
   const [showResults, setShowResults] = useState(false);
   const [score, setScore] = useState<number | undefined>(undefined);
 
+  const resetPractice = () => {
+    setQuestions([]);
+    setUserAnswers({});
+    setShowResults(false);
+    setScore(undefined);
+    setError(null);
+    setResponse('');
+    // keep practiceOptions as-is so the user can tweak and regenerate
+  };
+
   // Tour state
   const [tourOpen, setTourOpen] = useState(false);
   const [tourIndex, setTourIndex] = useState(0);
@@ -302,6 +312,7 @@ export default function PracticePage() {
             isGraded={showResults}
             score={score}
             onGrade={(s, _t) => { setScore(s); setShowResults(true); }}
+            onReset={resetPractice}
           />
         </>
       )}

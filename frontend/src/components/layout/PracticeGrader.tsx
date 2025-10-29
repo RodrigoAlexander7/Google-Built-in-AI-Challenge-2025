@@ -11,6 +11,7 @@ interface PracticeGraderProps {
   onGrade: (score: number, total: number) => void;
   isGraded: boolean;
   score?: number;
+  onReset?: () => void;
 }
 
 function normalizeText(s: any) {
@@ -50,7 +51,7 @@ export function isAnswerCorrect(q: QuestionData, ans: any): boolean {
   }
 }
 
-const PracticeGrader: React.FC<PracticeGraderProps> = ({ questions, userAnswers, onGrade, isGraded, score }) => {
+const PracticeGrader: React.FC<PracticeGraderProps> = ({ questions, userAnswers, onGrade, isGraded, score, onReset }) => {
   const total = questions.length;
 
   const handleGrade = () => {
@@ -75,6 +76,14 @@ const PracticeGrader: React.FC<PracticeGraderProps> = ({ questions, userAnswers,
           )}
         </div>
         <div className="flex items-center gap-3">
+          {onReset && (
+            <button
+              onClick={onReset}
+              className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50"
+            >
+              Reiniciar práctica
+            </button>
+          )}
           <button
             onClick={handleGrade}
             className="px-4 py-2 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-medium shadow hover:from-emerald-600 hover:to-teal-700"
