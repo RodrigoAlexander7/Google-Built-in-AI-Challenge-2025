@@ -5,6 +5,7 @@ import PracticeQuestionBox, { type QuestionData } from '@/components/layout/Prac
 import PromptInput from '@/components/layout/PromptInput';
 import PracticeOptions, { PracticeOptionsValue } from '@/components/layout/PracticeOptions';
 import { Api } from '@/services/api';
+import PracticeGrader, { type UserAnswersMap } from '@/components/layout/PracticeGrader';
 
 // Small typing effect for tour
 const TypingText: React.FC<{ text: string; speed?: number; onDone?: () => void; onStep?: (i:number,ch:string)=>void }> = ({ text, speed = 18, onDone, onStep }) => {
@@ -29,6 +30,9 @@ export default function PracticePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [questions, setQuestions] = useState<QuestionData[]>([]);
+  const [userAnswers, setUserAnswers] = useState<UserAnswersMap>({});
+  const [showResults, setShowResults] = useState(false);
+  const [score, setScore] = useState<number | undefined>(undefined);
 
   // Tour state
   const [tourOpen, setTourOpen] = useState(false);
@@ -120,9 +124,10 @@ export default function PracticePage() {
   };
 
   const toQuestionData = (raw: any, requestedType: PracticeOptionsValue['questionType'] | null, index: number): QuestionData => {
+    const qText = (raw?.statement ?? raw?.question ?? 'Pregunta') as string;
     const base = {
       id: `q_${Date.now()}_${index}`,
-      question: raw?.question ?? 'Pregunta',
+      question: qText,
       points: undefined as number | undefined,
     } as any;
 
@@ -132,15 +137,18 @@ export default function PracticePage() {
 
     switch (requestedType) {
       case 'true-false': {
-        // Try to infer true/false from choices; default to false
+        // Prefer backend boolean when provided
+        if (typeof raw?.is_true === 'boolean') {
+          return { ...base, type: 'true-false', correctAnswer: !!raw.is_true } as QuestionData;
+        }
+        // Otherwise infer from choices if available
         let correct = false;
         if (choices.length === 2) {
-          // Find which is marked correct; map its text to boolean when possible
           const ci = choices.findIndex(c => c?.is_correct);
           const txt = (choices[ci]?.text || '').toLowerCase();
           if (/(true|verdadero)/.test(txt)) correct = true;
           else if (/(false|falso)/.test(txt)) correct = false;
-          else correct = ci === 0; // arbitrary fallback
+          else correct = ci === 0;
         }
         return { ...base, type: 'true-false', correctAnswer: correct } as QuestionData;
       }
@@ -173,6 +181,9 @@ export default function PracticePage() {
     setError(null);
     setResponse('');
     setQuestions([]);
+    setUserAnswers({});
+    setShowResults(false);
+    setScore(undefined);
     try {
       const usesFiles = Array.isArray(files) && files.length > 0;
       const exercises_types = mapQuestionTypeToApi(practiceOptions.questionType);
@@ -196,6 +207,7 @@ export default function PracticePage() {
         });
       }
 
+      console.log('[practice] API response:', data);
       const list: any[] = data?.exercises?.exercises ?? [];
       if (!Array.isArray(list) || list.length === 0) {
         setResponse('No se recibieron ejercicios. Intenta con otros parámetros.');
@@ -242,15 +254,26 @@ export default function PracticePage() {
 
       <h1 className="text-3xl font-bold text-gray-800 text-center mb-4">Nueva práctica</h1>
       <p className="text-center text-gray-500 mb-8">Configura y genera tus ejercicios personalizados.</p>
-      <div className="mt-10" id="pr-input">
-        <PromptInput
-          placeholder="Escribe el texto o tema para generar ejercicios..."
-          onSendMessage={handleSendMessage}
-        />
-      </div>
-      <PracticeOptions value={practiceOptions} onChange={setPracticeOptions} />
+      {questions.length === 0 && (
+        <>
+          <div className="mt-10" id="pr-input">
+            <PromptInput
+              placeholder="Escribe el texto o tema para generar ejercicios..."
+              onSendMessage={handleSendMessage}
+            />
+          </div>
+          <PracticeOptions value={practiceOptions} onChange={setPracticeOptions} />
+        </>
+      )}
 
-      {isLoading && <p className="text-center text-gray-600 mt-4">Cargando preguntas...</p>}
+      {isLoading && (
+        <div className="flex justify-center mt-6" aria-label="Cargando preguntas">
+          <svg className="animate-spin h-6 w-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+          </svg>
+        </div>
+      )}
       {error && <p className="text-center text-red-600 mt-2">{error}</p>}
 
       {response && (
@@ -261,11 +284,26 @@ export default function PracticePage() {
       )}
 
       {questions.length > 0 && (
-        <div className="mt-6 space-y-5">
-          {questions.map((q) => (
-            <PracticeQuestionBox key={q.id} question={q} />
-          ))}
-        </div>
+        <>
+          <div className="mt-6 space-y-5">
+            {questions.map((q) => (
+              <PracticeQuestionBox
+                key={q.id}
+                question={q}
+                showResults={showResults}
+                onAnswer={(ans) => setUserAnswers(prev => ({ ...prev, [q.id]: ans }))}
+              />
+            ))}
+          </div>
+
+          <PracticeGrader
+            questions={questions}
+            userAnswers={userAnswers}
+            isGraded={showResults}
+            score={score}
+            onGrade={(s, _t) => { setScore(s); setShowResults(true); }}
+          />
+        </>
       )}
     </div>
   );
