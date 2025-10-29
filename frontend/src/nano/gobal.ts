@@ -14,7 +14,6 @@ export interface NanoClientOptions {
 
 export declare const LanguageModel: any;
 
-
 export interface ExerciseOptions {
    topic: string;
    exercises_difficulty: 'Easy' | 'Medium' | 'Hard';
