@@ -6,6 +6,9 @@ import PromptInput from '@/components/layout/PromptInput';
 import PracticeOptions, { PracticeOptionsValue } from '@/components/layout/PracticeOptions';
 import { Api } from '@/services/api';
 import PracticeGrader, { type UserAnswersMap } from '@/components/layout/PracticeGrader';
+import LoadingOverlay from '@/components/ui/LoadingOverlay';
+import SaveFloatingButton from '@/components/ui/SaveFloatingButton';
+import LocalArchive from '@/services/localArchive';
 
 // Small typing effect for tour
 const TypingText: React.FC<{ text: string; speed?: number; onDone?: () => void; onStep?: (i:number,ch:string)=>void }> = ({ text, speed = 18, onDone, onStep }) => {
@@ -274,8 +277,21 @@ export default function PracticePage() {
     }
   };
 
+  const canSave = questions.length > 0;
+
   return (
-    <div className="max-w-6xl mx-auto px-4 space-y-8">
+    <>
+      <LoadingOverlay open={isLoading} title="Generando tus ejercicios" subtitle="Creando preguntas y opciones…" />
+      <SaveFloatingButton
+        visible={canSave}
+        defaultTitle={`Práctica de ${questions.length} preguntas`}
+        defaultCategory={'Prácticas'}
+        onSave={({ title, category }) => {
+          LocalArchive.addPractice({ title, category, questions, metas, options: practiceOptions });
+          console.log('[practice] saved to localArchive');
+        }}
+      />
+      <div className="max-w-6xl mx-auto px-4 space-y-8">
       {/* Guided tour overlay */}
       {tourOpen && focusRect && (
         <div className="fixed inset-0 z-[9999]">
@@ -388,6 +404,7 @@ export default function PracticePage() {
           />
         </>
       )}
-    </div>
+      </div>
+    </>
   );
 }

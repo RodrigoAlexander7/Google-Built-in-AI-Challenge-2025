@@ -6,6 +6,9 @@ import PromptInput from '../../components/layout/PromptInput';
 import ResponseVisualizer from '../../components/layout/ResponseVisualizer';
 import { Api, BASE_URL } from '../../services/api';
 import type { SummaryPromptRequest, SummaryPromptOptions, SummaryResponse } from '../../types/SummaryPromptType';
+import LoadingOverlay from '../../components/ui/LoadingOverlay';
+import SaveFloatingButton from '../../components/ui/SaveFloatingButton';
+import LocalArchive from '../../services/localArchive';
 
 // Small typing effect component for RPG-like feel
 const TypingText: React.FC<{ text: string; speed?: number; onStep?: (i: number, ch: string) => void; onDone?: () => void }> = ({ text, speed = 18, onStep, onDone }) => {
@@ -335,6 +338,17 @@ export default function SummarizerPage({
 
   return (
     <>
+      <LoadingOverlay open={isLoading} title="Generando tu resumen" subtitle="Analizando y sintetizando tu contenido…" />
+      {/* Save button when there is a generated response */}
+      <SaveFloatingButton
+        visible={hasResponse}
+        defaultTitle={title || 'Resumen'}
+        defaultCategory={'Resumenes'}
+        onSave={({ title: t, category }) => {
+          LocalArchive.addSummary({ title: t, category, content: response, options });
+          console.log('[summarizer] saved to localArchive');
+        }}
+      />
       {/* Guided tour overlay */}
       {tourOpen && focusRect && (
         <div className="fixed inset-0 z-[9999]" style={{ pointerEvents: 'auto' }}>

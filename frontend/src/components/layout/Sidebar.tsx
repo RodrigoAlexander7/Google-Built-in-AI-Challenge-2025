@@ -1,16 +1,8 @@
 'use client';
 import React from 'react';
 import { usePathname } from 'next/navigation';
-import { mockSummaries } from '@/resources/files/mockSummaries';
-import { SummaryRecord } from '../../types/SummaryRecord';
-import { mockPracticePages } from '@/resources/files/mockPractice';
-import type { QuestionGroup } from '@/types/QuestionGroup';
-import { mockFlashCards } from '@/resources/files/mockFlashCards'; 
-import type { FlashCardGroup } from '@/types/FlashCardGroup';
-import { crosswordGames } from '@/resources/files/mockCrossword';
-import { wordSearchGames } from '@/resources/files/mockSearchWord';
-import { wordConnectGames } from '@/resources/files/mockWordConnect';
-import { explainItGames } from '@/resources/files/mockExplainIt';
+// Replaced mocks with local archive
+import LocalArchive from '@/services/localArchive';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -19,13 +11,7 @@ interface SidebarProps {
   onGameSelect?: (type: string, id: number) => void;
 }
 
-interface GameItem {
-  id: number;
-  title: string;
-  date: string;
-  type: 'crossword' | 'wordsearch' | 'wordconnect' | 'explainit';
-  category: string;
-}
+interface GameItem { id: number; title: string; date: string; type: 'crossword' | 'wordsearch' | 'wordconnect' | 'explainit'; category: string; }
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle, onGameSelect }) => {
   const pathname = usePathname();
@@ -35,37 +21,16 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle, onGameSele
   const isFlashcards = pathname?.startsWith('/flashcards') ?? false;
   const isLearnPlay = pathname?.startsWith('/learn-play') ?? false;
 
-  // Para la página de juegos, combinamos todos los juegos
-  const allGames: GameItem[] = isLearnPlay ? [
-    ...crosswordGames.map(game => ({
-      id: game.id,
-      title: game.title,
-      date: game.date,
-      type: 'crossword' as const,
-      category: game.category
-    })),
-    ...wordSearchGames.map(game => ({
-      id: game.id,
-      title: game.title,
-      date: game.date,
-      type: 'wordsearch' as const,
-      category: game.category
-    })),
-    ...wordConnectGames.map(game => ({
-      id: game.id,
-      title: game.title,
-      date: game.date,
-      type: 'wordconnect' as const,
-      category: game.category
-    })),
-    ...explainItGames.map(game => ({
-      id: game.id,
-      title: game.question,
-      date: game.date,
-      type: 'explainit' as const,
-      category: game.category
+  // Para la página de juegos, cargar desde localStorage
+  const allGames: GameItem[] = isLearnPlay ? (
+    LocalArchive.listGames().map(g => ({
+      id: g.id,
+      title: g.title,
+      date: g.dateISO,
+      type: g.gameType,
+      category: g.category
     }))
-  ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()) : [];
+  ).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()) : [];
 
   // Agrupar juegos por tipo
   const gamesByType = allGames.reduce((acc, game) => {
@@ -76,17 +41,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle, onGameSele
     return acc;
   }, {} as Record<string, GameItem[]>);
 
-  // Determinar los datos que se muestran según la ruta
+  // Determinar los datos que se muestran según la ruta (usar LocalArchive)
   const summariesList = isLearnPlay
-    ? [] // Los juegos se muestran en la sección agrupada
+    ? [] // Juegos se listan agrupados aparte
     : isFlashcards
-    ? mockFlashCards
+    ? LocalArchive.listByKind('flashcards')
     : isPractice
-    ? mockPracticePages
-    : [...mockSummaries].sort(
-        (a: SummaryRecord, b: SummaryRecord) =>
-          new Date(b.date).getTime() - new Date(a.date).getTime()
-      );
+    ? LocalArchive.listByKind('practice')
+    : LocalArchive.listByKind('summary');
 
   // Título dinámico
   const title = isLearnPlay
@@ -98,13 +60,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle, onGameSele
     : 'Resúmenes';
 
   // URL base para los enlaces
-  const basePath = isLearnPlay
-    ? '/learn-play'
-    : isFlashcards
-    ? '/flashcards'
-    : isPractice
-    ? '/practice'
-    : '/summarizer';
+  const basePath = isLearnPlay ? '/learn-play' : isFlashcards ? '/flashcards' : isPractice ? '/practice' : '/summarizer';
 
   // Texto del botón principal
   const newButtonText = isLearnPlay
@@ -235,34 +191,24 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle, onGameSele
               <div className="space-y-1 mb-8">
                 {summariesList.length > 0 ? (
                   summariesList.map((item: any) => (
-                    <a
+                    <div
                       key={item.id}
-                      href={`${basePath}/${item.id}`}
-                      onClick={onClose}
-                      className="block px-4 py-3 rounded-xl text-gray-700 hover:text-blue-600 hover:bg-blue-50/80 transition-all duration-300 group relative"
+                      className="px-4 py-3 rounded-xl text-gray-700 bg-white/70 hover:bg-blue-50/80 transition-all duration-300 group relative border border-gray-200/60"
                     >
                       <div className="flex flex-col">
                         <span className="font-medium truncate">{item.title}</span>
-                        {'date' in item && (
-                          <span className="text-xs text-gray-500 mt-1">
-                            {new Date(item.date).toLocaleDateString('es-ES', {
-                              day: '2-digit',
-                              month: 'short',
-                              year: 'numeric',
-                            })}
-                          </span>
+                        <span className="text-xs text-gray-500 mt-1">
+                          {new Date(item.dateISO).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
+                        </span>
+                        {item.category && (
+                          <span className="text-[11px] text-blue-600 mt-1">{item.category}</span>
                         )}
                       </div>
-                      <div className="absolute bottom-0 left-4 right-4 h-0.5 bg-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
-                    </a>
+                    </div>
                   ))
                 ) : (
                   <p className="text-sm text-gray-500 px-4 py-2">
-                    {isFlashcards
-                      ? 'No hay grupos de flashcards guardados.'
-                      : isPractice
-                      ? 'No hay prácticas guardadas.'
-                      : 'No hay resúmenes guardados.'}
+                    {isFlashcards ? 'No hay grupos de flashcards guardados.' : isPractice ? 'No hay prácticas guardadas.' : 'No hay resúmenes guardados.'}
                   </p>
                 )}
               </div>

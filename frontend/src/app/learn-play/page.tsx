@@ -4,14 +4,16 @@ import React, { useState } from 'react';
 import Template from "../../pages/Template";
 import LearnPlayPage from "./LearnPlayPage";
 import { GameOne, GameTwo, GameThree, GameFour } from '@/components/ReactGameComponents';
+import SaveFloatingButton from '@/components/ui/SaveFloatingButton';
+import LocalArchive from '@/services/localArchive';
 import { explainItGames } from '@/resources/files/mockExplainIt';
 
 type Difficulty = 'easy' | 'medium' | 'hard';
 
 type SelectedGame =
-  | { type: 'wordsearch' | 'wordconnect'; title: string; words: string[]; difficulty: Difficulty }
-  | { type: 'crossword'; title: string; words: { word: string; clue: string }[]; difficulty: Difficulty }
-  | { type: 'explainit'; id: number; title: string };
+  | { type: 'wordsearch' | 'wordconnect'; title: string; words: string[]; difficulty: Difficulty; category?: string }
+  | { type: 'crossword'; title: string; words: { word: string; clue: string }[]; difficulty: Difficulty; category?: string }
+  | { type: 'explainit'; id: number; title: string; category?: string };
 
 export default function Home() {
   const [selectedGame, setSelectedGame] = useState<SelectedGame | null>(null);
@@ -23,10 +25,31 @@ export default function Home() {
 
   // Legacy handler for Sidebar (mock-based)
   const handleGameSelectFromSidebar = (type: string, id: number) => {
+    // Prefer local archive
+    const saved = LocalArchive.getGameById(id);
+    if (saved) {
+      if (saved.gameType === 'crossword') {
+        setSelectedGame({ type: 'crossword', title: saved.title, words: saved.payload?.words || [], difficulty: 'medium', category: saved.category });
+        return;
+      }
+      if (saved.gameType === 'wordsearch') {
+        setSelectedGame({ type: 'wordsearch', title: saved.title, words: saved.payload?.words || [], difficulty: 'medium', category: saved.category });
+        return;
+      }
+      if (saved.gameType === 'wordconnect') {
+        setSelectedGame({ type: 'wordconnect', title: saved.title, words: saved.payload?.words || [], difficulty: 'medium', category: saved.category });
+        return;
+      }
+      if (saved.gameType === 'explainit') {
+        setSelectedGame({ type: 'explainit', id: id, title: saved.title, category: saved.category });
+        return;
+      }
+    }
+    // Fallback for legacy mock explainit
     if (type === 'explainit') {
       const gameData = explainItGames.find(g => g.id === id);
       if (gameData) {
-        setSelectedGame({ type: 'explainit', id, title: gameData.question });
+        setSelectedGame({ type: 'explainit', id, title: gameData.question, category: gameData.category });
       }
     }
   };
@@ -88,6 +111,24 @@ export default function Home() {
       {selectedGame ? (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
           <div className="max-w-6xl mx-auto px-6 py-8">
+            {/* Save button for games */}
+            <SaveFloatingButton
+              visible={!!selectedGame}
+              defaultTitle={selectedGame.title}
+              defaultCategory={selectedGame.category || 'Juegos'}
+              onSave={({ title, category }) => {
+                if (selectedGame.type === 'crossword') {
+                  LocalArchive.addGame({ gameType: 'crossword', title, category, payload: { words: selectedGame.words, difficulty: selectedGame.difficulty } });
+                } else if (selectedGame.type === 'wordsearch') {
+                  LocalArchive.addGame({ gameType: 'wordsearch', title, category, payload: { words: selectedGame.words, difficulty: selectedGame.difficulty } });
+                } else if (selectedGame.type === 'wordconnect') {
+                  LocalArchive.addGame({ gameType: 'wordconnect', title, category, payload: { words: selectedGame.words, difficulty: selectedGame.difficulty } });
+                } else if (selectedGame.type === 'explainit') {
+                  LocalArchive.addGame({ gameType: 'explainit', title, category, payload: { id: selectedGame.id, question: selectedGame.title } });
+                }
+                console.log('[learn-play] game saved to localArchive');
+              }}
+            />
             <div className="flex items-center justify-between mb-8">
               <div>
                 <button 

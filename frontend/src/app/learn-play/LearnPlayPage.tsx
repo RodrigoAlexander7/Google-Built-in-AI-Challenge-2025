@@ -6,6 +6,7 @@ import PromptInput from '@/components/layout/PromptInput';
 import ListBox from '@/components/ui/ListBox/ListBox';
 import Slider from '@/components/ui/Slider/Slider';
 import { Api, createWordSearchGame, createCrosswordGame } from '@/services/api';
+import LoadingOverlay from '@/components/ui/LoadingOverlay';
 
 interface CategoryMenuProps {
   title: string;
@@ -46,8 +47,8 @@ function CategoryMenu({ title, options, onSelect, selectedOption }: CategoryMenu
 type Difficulty = 'easy' | 'medium' | 'hard';
 
 type SelectedGamePayload =
-  | { type: 'wordsearch' | 'wordconnect'; title: string; words: string[]; difficulty: Difficulty }
-  | { type: 'crossword'; title: string; words: { word: string; clue: string }[]; difficulty: Difficulty }
+  | { type: 'wordsearch' | 'wordconnect'; title: string; words: string[]; difficulty: Difficulty; category?: string }
+  | { type: 'crossword'; title: string; words: { word: string; clue: string }[]; difficulty: Difficulty; category?: string }
   | { type: 'explainit'; id: number; title: string };
 
 interface LearnPlayPageProps {
@@ -123,6 +124,7 @@ export default function LearnPlayPage({ onGameSelect }: LearnPlayPageProps) {
           title: data?.title || 'Sopa de Letras',
           words,
           difficulty: difficultyCode,
+          category: data?.category || 'General',
         });
         return;
       }
@@ -141,6 +143,7 @@ export default function LearnPlayPage({ onGameSelect }: LearnPlayPageProps) {
           title: `Word connect de ${data?.title || (topic || 'General')}`,
           words,
           difficulty: difficultyCode,
+          category: data?.category || 'General',
         });
         return;
       }
@@ -158,6 +161,7 @@ export default function LearnPlayPage({ onGameSelect }: LearnPlayPageProps) {
           title: data?.title || 'Crucigrama',
           words,
           difficulty: difficultyCode,
+          category: data?.category || 'General',
         });
         return;
       }
@@ -279,8 +283,12 @@ export default function LearnPlayPage({ onGameSelect }: LearnPlayPageProps) {
     return <span>{shown}</span>;
   };
 
+  const loadingTitle = useMemo(() => `Generando ${selectedOption}`, [selectedOption]);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+    <>
+      <LoadingOverlay open={loading} title={loadingTitle} subtitle="Preparando tu juego…" />
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       <div className="max-w-4xl mx-auto px-6 py-16">
         <div className="text-center mb-16">
           <div className="inline-block mb-4">
@@ -423,5 +431,6 @@ export default function LearnPlayPage({ onGameSelect }: LearnPlayPageProps) {
         )}
       </div>
     </div>
+    </>
   );
 }

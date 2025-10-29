@@ -6,6 +6,9 @@ import PromptInput from "../../components/layout/PromptInput";
 import FlashCardOption, { FlashCardOptionsValue } from "../../components/layout/FlashCardOption";
 import { Api, BASE_URL } from '../../services/api';
 import type { FlashCardData } from '../../types/FlashCardData';
+import LoadingOverlay from '../../components/ui/LoadingOverlay';
+import SaveFloatingButton from '../../components/ui/SaveFloatingButton';
+import LocalArchive from '../../services/localArchive';
 
 // Typing effect reused
 const TypingText: React.FC<{ text: string; speed?: number; onStep?: (i:number,ch:string)=>void }> = ({ text, speed = 16, onStep }) => {
@@ -87,8 +90,21 @@ export default function FlashCardPage() {
   const next = () => { setTourIndex(i=>{ const nx=i+1; if(nx>=steps.length){ try{localStorage.setItem('tour:flashcards:v1','done');}catch{} setTourOpen(false); console.log('[fc-tour] done'); return i; } console.log('[fc-tour] next ->', steps[nx].key); return nx; }); };
   const skip = () => { try{localStorage.setItem('tour:flashcards:v1','done');}catch{} setTourOpen(false); };
 
+  const canSave = cards.length > 0;
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
+    <>
+      <LoadingOverlay open={loading} title="Generando tus flashcards" subtitle="Preparando tarjetas de estudio…" />
+      <SaveFloatingButton
+        visible={canSave}
+        defaultTitle={`Flashcards (${cards.length})`}
+        defaultCategory={options.focuses?.[0] || 'Flashcards'}
+        onSave={({ title, category }) => {
+          LocalArchive.addFlashcards({ title, category, cards, options });
+          console.log('[flashcards] saved to localArchive');
+        }}
+      />
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
       {/* Tour overlay */}
       {tourOpen && focusRect && (
         <div className="fixed inset-0 z-[9999]">
@@ -187,6 +203,7 @@ export default function FlashCardPage() {
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </>
   );
 }
