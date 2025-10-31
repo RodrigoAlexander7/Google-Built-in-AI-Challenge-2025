@@ -5,6 +5,8 @@ import SummaryOptions, { SummaryOptionsData } from '../../components/layout/Summ
 import PromptInput from '../../components/layout/PromptInput';
 import ResponseVisualizer from '../../components/layout/ResponseVisualizer';
 import { Api, BASE_URL } from '../../services/api';
+import { summarizeWithNano, isNanoAvailable } from '@/nano/AIClient';
+import { extractTextFromPdf } from '@/services/pdf';
 import type { SummaryPromptRequest, SummaryPromptOptions, SummaryResponse } from '../../types/SummaryPromptType';
 import LoadingOverlay from '../../components/ui/LoadingOverlay';
 import SaveFloatingButton from '../../components/ui/SaveFloatingButton';
@@ -63,6 +65,17 @@ export default function SummarizerPage({
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [response, setResponse] = useState(initialResponse);
   const [isLoading, setIsLoading] = useState(false);
+  // Default false to avoid SSR/client hydration mismatch. Read actual preference on client side.
+  const [nanoEnabled, setNanoEnabled] = useState<boolean>(false);
+  useEffect(() => {
+    try {
+      const v = window.localStorage.getItem('nano:enabled');
+      setNanoEnabled(v === '1' || v === 'true');
+    } catch {
+      // no-op
+    }
+  }, []);
+  const [nanoAvailable, setNanoAvailable] = useState<boolean | null>(null);
   const [showPromptStep, setShowPromptStep] = useState(false);
   const [focusRect, setFocusRect] = useState<{ x: number; y: number; w: number; h: number } | null>(null);
   // Tour state
@@ -110,6 +123,18 @@ export default function SummarizerPage({
         console.log('[tour] start');
       }
     } catch {}
+  }, []);
+
+  // Detect if Gemini Nano browser APIs are available
+  useEffect(() => {
+    (async () => {
+      try {
+        const ok = await isNanoAvailable();
+        setNanoAvailable(ok);
+      } catch {
+        setNanoAvailable(false);
+      }
+    })();
   }, []);
 
   // Recompute rect and manage scroll for current step
@@ -271,6 +296,71 @@ export default function SummarizerPage({
 
       const extension = mapDetailLevelToExtension(options.detailLevel);
       console.log('TODO - extension (from slider):', extension);
+
+      // If nano local is enabled and available, try to use it (supports PDFs via pdf.js)
+      if (nanoEnabled && nanoAvailable) {
+        const partsText: string[] = [];
+        let failedToRead = false;
+
+        for (const uf of filesList) {
+          const f = uf.file;
+          try {
+            const isPdf = (f.type || '').includes('pdf') || f.name.toLowerCase().endsWith('.pdf');
+            if (isPdf) {
+              // extract with pdf.js (provide logs)
+              const txt = await extractTextFromPdf(f, (m) => console.log('[pdf-log]', m));
+              partsText.push(txt);
+            } else {
+              // try plain text for other files
+              const txt = await f.text();
+              partsText.push(txt);
+            }
+          } catch (err) {
+            console.warn('Failed to read file for local Nano use; will fall back to backend', uf.file.name, err);
+            failedToRead = true;
+            break;
+          }
+        }
+
+        if (!failedToRead && partsText.length > 0) {
+          const joined = partsText.join('\n\n');
+          try {
+              const nanoResp = await summarizeWithNano(
+                joined,
+                {
+                  language: apiOptions.language,
+                  language_register: (apiOptions as any).languaje_register ?? (apiOptions as any).language_register,
+                  character: apiOptions.character,
+                  extension,
+                  include_references: apiOptions.include_references,
+                  include_examples: apiOptions.include_examples,
+                  include_conclusions: apiOptions.include_conclusions,
+                },
+                (p) => console.log('[nano-progress]', p),
+                (m) => console.log('[nano-log]', m)
+              );
+            const data = nanoResp as any;
+            const outParts: string[] = [];
+            if (data?.summary) outParts.push(`# Resumen\n\n${data.summary}`);
+            if (Array.isArray(data?.references) && data.references.length) {
+              const refs = data.references.map((r: any) => `- ${typeof r === 'string' ? r : JSON.stringify(r)}`).join('\n');
+              outParts.push(`## Referencias\n\n${refs}`);
+            }
+            if (Array.isArray(data?.examples) && data.examples.length) {
+              const exs = data.examples.map((e: any) => `- ${typeof e === 'string' ? e : JSON.stringify(e)}`).join('\n');
+              outParts.push(`## Ejemplos\n\n${exs}`);
+            }
+            if (data?.conclusions) outParts.push(`## Conclusiones\n\n${data.conclusions}`);
+            const content = outParts.length ? outParts.join('\n\n') : String(data?.summary ?? '');
+            setResponse(content);
+            setIsLoading(false);
+            return;
+          } catch (err) {
+            console.error('Nano summarization failed, falling back to backend', err);
+            // continue to backend
+          }
+        }
+      }
 
       const payload: SummaryPromptRequest = {
         files: filesList.map((f) => f.file),
@@ -440,7 +530,24 @@ export default function SummarizerPage({
             {title}
           </h1>
         </div>
-        {date && <p className="text-sm text-gray-500 mt-2 md:mt-0">{new Date(date).toLocaleString('es-ES')}</p>}
+        <div className="flex items-center gap-4">
+          {date && <p className="text-sm text-gray-500 mt-2 md:mt-0">{new Date(date).toLocaleString('es-ES')}</p>}
+          <div className="flex items-center gap-2">
+            <label className="text-sm text-gray-400">Gemini NANO local</label>
+            <button
+              id="nano-toggle"
+              onClick={() => {
+                const next = !nanoEnabled;
+                setNanoEnabled(next);
+                try { window.localStorage.setItem('nano:enabled', next ? '1' : '0'); } catch {}
+              }}
+              title={nanoEnabled ? 'Desactivar Gemini Nano local' : 'Activar Gemini Nano local'}
+              className={`inline-flex items-center gap-2 px-3 py-1 rounded-md text-sm font-medium ${nanoEnabled ? 'bg-emerald-400 text-slate-900' : 'bg-slate-700 text-slate-200'}`}
+            >
+              {nanoEnabled ? 'Activado' : 'Desactivado'}
+            </button>
+          </div>
+        </div>
       </div>
 
       <div id="sp-visualizer">
