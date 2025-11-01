@@ -5,6 +5,7 @@ import PracticeQuestionBox, { type QuestionData } from '@/components/layout/Prac
 import PromptInput from '@/components/layout/PromptInput';
 import PracticeOptions, { PracticeOptionsValue } from '@/components/layout/PracticeOptions';
 import { Api } from '@/services/api';
+import { generateExercises as nanoGenerateExercises } from '@/nano/exercises/Services';
 import PracticeGrader, { type UserAnswersMap } from '@/components/layout/PracticeGrader';
 import LoadingOverlay from '@/components/ui/LoadingOverlay';
 import SaveFloatingButton from '@/components/ui/SaveFloatingButton';
@@ -23,6 +24,7 @@ const TypingText: React.FC<{ text: string; speed?: number; onDone?: () => void; 
 };
 
 export default function PracticePage() {
+  const [useNano, setUseNano] = useState(false);
   const [practiceOptions, setPracticeOptions] = useState<PracticeOptionsValue>({
     exerciseCount: 4,
     difficulty: 2,
@@ -126,6 +128,17 @@ export default function PracticePage() {
     }
   };
 
+  // Nano expects capitalized difficulty without 'extreme'
+  const mapDifficultyNano = (d: PracticeOptionsValue['difficulty']): 'Easy' | 'Medium' | 'Hard' => {
+    switch (d) {
+      case 1: return 'Easy';
+      case 2: return 'Medium';
+      case 3: return 'Hard';
+      case 4: return 'Hard';
+      default: return 'Medium';
+    }
+  };
+
   const mapQuestionTypeToApi = (qt: PracticeOptionsValue['questionType'] | null): string => {
     switch (qt) {
       case 'multiple-choice': return 'multiple_choice';
@@ -138,6 +151,18 @@ export default function PracticePage() {
     }
   };
 
+  // Nano expects hyphenated variants
+  const mapQuestionTypeToNano = (qt: PracticeOptionsValue['questionType'] | null): 'multiple-choice' | 'true-false' | 'fill-in-the-blank' | 'short-answer' | 'matching' => {
+    switch (qt) {
+      case 'multiple-choice': return 'multiple-choice';
+      case 'true-false': return 'true-false';
+      case 'fill-blank': return 'fill-in-the-blank';
+      case 'short-answer': return 'short-answer';
+      case 'relationship': return 'matching';
+      default: return 'multiple-choice';
+    }
+  };
+
   const toQuestionData = (raw: any, requestedType: PracticeOptionsValue['questionType'] | null, index: number): QuestionData => {
   const qText = (raw?.statement ?? raw?.question ?? 'Question') as string;
     const base = {
@@ -147,8 +172,12 @@ export default function PracticePage() {
     } as any;
 
     // Prefer the requested type mapping, fallback to multiple-choice using choices
-    const choices: Array<{ text: string; is_correct?: boolean }> = Array.isArray(raw?.choices) ? raw.choices : [];
-    const correctIndex = Math.max(0, choices.findIndex(c => c?.is_correct));
+    const choices: Array<{ text: string; is_correct?: boolean }> = Array.isArray(raw?.choices) ? raw.choices : (Array.isArray(raw?.options) ? raw.options.map((t: any) => ({ text: String(t) })) : []);
+    let correctIndex = Math.max(0, choices.findIndex(c => c?.is_correct));
+    if (correctIndex < 0 && typeof raw?.correct_answer === 'string' && choices.length) {
+      const idx = choices.findIndex(c => (c?.text ?? '').toString().trim().toLowerCase() === raw.correct_answer.toString().trim().toLowerCase());
+      correctIndex = idx >= 0 ? idx : 0;
+    }
 
     switch (requestedType) {
       case 'true-false': {
@@ -211,13 +240,23 @@ export default function PracticePage() {
     setShowResults(false);
     setScore(undefined);
     try {
-      const usesFiles = Array.isArray(files) && files.length > 0;
+  // Nano mode ignores files and uses only /by_topic endpoints
+      const usesFiles = !useNano && Array.isArray(files) && files.length > 0;
       const exercises_types = mapQuestionTypeToApi(practiceOptions.questionType);
+      const exercises_types_nano = mapQuestionTypeToNano(practiceOptions.questionType);
       const exercises_difficulty = mapDifficulty(practiceOptions.difficulty);
+      const exercises_difficulty_nano = mapDifficultyNano(practiceOptions.difficulty);
       const exercises_count = practiceOptions.exerciseCount;
 
       let data: any;
-      if (usesFiles) {
+      if (useNano) {
+        data = await nanoGenerateExercises({
+          topic: message || 'General',
+          exercises_count,
+          exercises_difficulty: exercises_difficulty_nano,
+          exercises_types: exercises_types_nano,
+        } as any);
+      } else if (usesFiles) {
         data = await Api.generateExercisesFromFiles({
           files: files.map(f => f.file),
           exercises_count,
@@ -233,8 +272,14 @@ export default function PracticePage() {
         });
       }
 
-      console.log('[practice] API response:', data);
-      const list: any[] = data?.exercises?.exercises ?? [];
+      console.log('[practice] response:', data);
+      const list: any[] = Array.isArray(data?.exercises?.exercises)
+        ? data.exercises.exercises
+        : Array.isArray(data?.exercises)
+          ? data.exercises
+          : Array.isArray(data)
+            ? data
+            : [];
       if (!Array.isArray(list) || list.length === 0) {
         setResponse('No se recibieron ejercicios. Intenta con otros parámetros.');
       } else {
@@ -251,6 +296,7 @@ export default function PracticePage() {
             ansText = it.choices[idx]?.text ?? ansText;
           }
           if (!ansText && typeof it?.answer === 'string') ansText = it.answer;
+          if (!ansText && typeof it?.correct_answer === 'string') ansText = it.correct_answer;
           // Relationship pretty answer
           if (!ansText && Array.isArray(it?.premises) && Array.isArray(it?.responses)) {
             const pairs: Array<[number, number]> = [];
@@ -294,6 +340,20 @@ export default function PracticePage() {
         }}
       />
       <div className="max-w-6xl mx-auto px-4 space-y-8">
+      {/* Nano mode banner */}
+      <div className="flex items-center justify-between gap-3 bg-blue-50 border border-blue-200 rounded-xl p-3">
+        <div className="text-sm text-blue-800">
+          <strong>Nano mode</strong> uses by_topic endpoints and ignores file uploads.
+        </div>
+        <button
+          onClick={() => setUseNano((v) => !v)}
+          className={`px-3 py-1.5 rounded-lg text-sm font-semibold ${useNano ? 'bg-blue-600 text-white' : 'bg-white text-blue-700 border border-blue-300'}`}
+          aria-pressed={useNano}
+          aria-label="Toggle Nano mode"
+        >
+          {useNano ? 'Nano: ON' : 'Nano: OFF'}
+        </button>
+      </div>
       {/* Guided tour overlay */}
       {tourOpen && focusRect && (
         <div className="fixed inset-0 z-[9999]">

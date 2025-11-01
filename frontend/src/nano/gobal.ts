@@ -12,7 +12,7 @@ export interface NanoClientOptions {
    content: string;
 }
 
-export declare const LanguageModel: any;
+export const LanguageModel: any = typeof window !== 'undefined' ? (window as any).LanguageModel : undefined;
 
 export interface ExerciseOptions {
    topic: string;

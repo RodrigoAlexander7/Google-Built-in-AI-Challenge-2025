@@ -10,6 +10,7 @@ import LoadingOverlay from '../../components/ui/LoadingOverlay';
 import SaveFloatingButton from '../../components/ui/SaveFloatingButton';
 import LocalArchive from '../../services/localArchive';
 import { toast } from 'sonner';
+import { generateFlashcards as nanoGenerateFlashcards } from '@/nano/flashcards/Services';
 
 // Typing effect reused
 const TypingText: React.FC<{ text: string; speed?: number; onStep?: (i:number,ch:string)=>void }> = ({ text, speed = 16, onStep }) => {
@@ -19,6 +20,7 @@ const TypingText: React.FC<{ text: string; speed?: number; onStep?: (i:number,ch
 };
 
 export default function FlashCardPage() {
+  const [useNano, setUseNano] = useState(false);
   const [options, setOptions] = useState<FlashCardOptionsValue>({
     count: 8,
     complexity: 2,
@@ -140,6 +142,20 @@ export default function FlashCardPage() {
       </div>
 
       <div className="max-w-6xl mx-auto px-4 space-y-8">
+        {/* Nano mode banner */}
+        <div className="flex items-center justify-between gap-3 bg-blue-50 border border-blue-200 rounded-xl p-3">
+          <div className="text-sm text-blue-800">
+            <strong>Nano mode</strong> uses by_topic endpoint and ignores file uploads.
+          </div>
+          <button
+            onClick={() => setUseNano((v) => !v)}
+            className={`px-3 py-1.5 rounded-lg text-sm font-semibold ${useNano ? 'bg-blue-600 text-white' : 'bg-white text-blue-700 border border-blue-300'}`}
+            aria-pressed={useNano}
+            aria-label="Toggle Nano mode"
+          >
+            {useNano ? 'Nano: ON' : 'Nano: OFF'}
+          </button>
+        </div>
         {/* Visualizador de Flashcards */}
         <FlashCardContainer initialCards={cards} />
 
@@ -147,14 +163,15 @@ export default function FlashCardPage() {
         {cards.length === 0 && (
           <div className="bg-white/95 backdrop-blur-xl border border-gray-200/60 rounded-2xl shadow-2xl p-4" id="fc-prompt">
             <PromptInput
-              placeholder="Describe the type of cards you want to generate..."
+              placeholder={useNano ? "Type a topic to generate cards (files ignored in Nano mode)..." : "Describe the type of cards you want to generate..."}
               onSendMessage={async (message, uploaded) => {
                 try {
                   setLoading(true);
-                  const hasFiles = Array.isArray(uploaded) && uploaded.length > 0;
+                  // Nano mode ignores files and always uses /by_topic
+                  const hasFiles = !useNano && Array.isArray(uploaded) && uploaded.length > 0;
                   console.log('FC - BASE_URL:', BASE_URL);
                   console.log('FC - options (UI):', options);
-                  if (hasFiles) {
+                  if (!useNano && hasFiles) {
                     const payload = {
                       files: uploaded.map(f => f.file),
                       flashcards_count: options.count,
@@ -169,6 +186,20 @@ export default function FlashCardPage() {
                     });
                     const resp = await Api.flashcardsFromFiles(payload);
                     console.log('FC - response /api/flashcard/:', resp);
+                    const fc = (resp && resp.flashcards) ? resp.flashcards : Array.isArray(resp) ? resp : [];
+                    const mapped = mapApiToCards(fc);
+                    console.log('FC - mapped cards length:', mapped.length);
+                    setCards(mapped);
+                  } else if (useNano) {
+                    const jsonPayload = {
+                      content: (message && message.trim()) ? message.trim() : 'general',
+                      flashcards_count: options.count,
+                      difficulty_level: options.complexity === 1 ? 'easy' : options.complexity === 2 ? 'medium' : 'hard',
+                      focus_area: (options.focuses[0] ?? 'key concepts'),
+                    } as const;
+                    console.log('FC - nano generateFlashcards payload:', jsonPayload);
+                    const resp = await nanoGenerateFlashcards(jsonPayload as any);
+                    console.log('FC - nano response:', resp);
                     const fc = (resp && resp.flashcards) ? resp.flashcards : Array.isArray(resp) ? resp : [];
                     const mapped = mapApiToCards(fc);
                     console.log('FC - mapped cards length:', mapped.length);
