@@ -12,7 +12,7 @@ const FlashCard: React.FC<FlashCardProps> = ({ card, isFlipped, onFlip }) => {
     <div 
       className="w-[22rem] sm:w-[26rem] h-56 sm:h-64 cursor-pointer perspective-1000"
       onClick={onFlip}
-      title="Click para voltear"
+      title="Click to flip"
     >
       <div className={`relative w-full h-full transition-transform duration-700 transform-style-preserve-3d ${
         isFlipped ? 'rotate-y-180' : ''

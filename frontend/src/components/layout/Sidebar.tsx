@@ -88,31 +88,31 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle, onGameSele
   // Título dinámico con emoji
   const sectionEmoji = isLearnPlay ? '🎮' : isFlashcards ? '🃏' : isPractice ? '🧠' : '📝';
   const title = isLearnPlay
-    ? `${sectionEmoji} Mis Juegos`
+    ? `${sectionEmoji} My Games`
     : isFlashcards
     ? `${sectionEmoji} Flashcards`
     : isPractice
-    ? `${sectionEmoji} Mis Prácticas`
-    : `${sectionEmoji} Resúmenes`;
+    ? `${sectionEmoji} My Practices`
+    : `${sectionEmoji} Summaries`;
 
   // URL base para los enlaces
   const basePath = isLearnPlay ? '/learn-play' : isFlashcards ? '/flashcards' : isPractice ? '/practice' : '/summarizer';
 
   // Texto del botón principal
   const newButtonText = isLearnPlay
-    ? 'Nuevo Juego'
+    ? 'New Game'
     : isFlashcards
-    ? 'Nuevo Grupo'
+    ? 'New Group'
     : isPractice
-    ? 'Nueva Práctica'
-    : 'Nuevo Resumen';
+    ? 'New Practice'
+    : 'New Summary';
 
   // Nombres de los tipos de juego
   const gameTypeNames = {
-    crossword: '🧩 Crucigramas',
-    wordsearch: '🔍 Sopas de Letras',
-    wordconnect: '🔗 Conecta Palabras',
-    explainit: '💡 Explícalo'
+    crossword: '🧩 Crosswords',
+    wordsearch: '🔍 Word Search',
+    wordconnect: '🔗 Word Connect',
+    explainit: '💡 Explain It'
   };
   const gameTypeEmoji: Record<string, string> = {
     crossword: '🧩',
@@ -130,7 +130,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle, onGameSele
 
   return (
     <>
-      {/* Botón flotante para abrir el sidebar en móvil */}
+      {/* Floating button to open sidebar on mobile */}
       <button
         onClick={onToggle}
         className={`
@@ -143,7 +143,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle, onGameSele
           active:scale-95
           ${isOpen ? 'opacity-0 scale-0 rotate-90' : 'opacity-100 scale-100 rotate-0'}
         `}
-        aria-label="Abrir menú"
+        aria-label="Open menu"
       >
         <div className="w-6 h-6 flex flex-col justify-center items-center relative">
           <span className={`absolute w-4 h-0.5 bg-white transform transition-all duration-300 ${isOpen ? 'rotate-45' : '-translate-y-1'}`}></span>
@@ -152,7 +152,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle, onGameSele
         </div>
       </button>
 
-      {/* Fondo oscuro cuando el sidebar está abierto en móvil */}
+      {/* Dim background when sidebar is open on mobile */}
       {isOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-40 lg:hidden"
@@ -160,7 +160,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle, onGameSele
         />
       )}
 
-      {/* Sidebar principal */}
+      {/* Main Sidebar */}
       <div
         className={`
           fixed top-0 left-0 h-full w-80 bg-white/95 backdrop-blur-xl shadow-2xl border-r border-gray-200/50 z-50
@@ -175,16 +175,16 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle, onGameSele
           <button
             onClick={onClose}
             className="lg:hidden p-2 rounded-xl hover:bg-gray-100/80 transition-all duration-300 group"
-            aria-label="Cerrar sidebar"
+            aria-label="Close sidebar"
           >
             <i className="fas fa-times text-gray-600 text-lg group-hover:text-red-500 group-hover:rotate-90 transition-all duration-300"></i>
           </button>
         </div>
 
-        {/* Contenido scrollable */}
+        {/* Scrollable content */}
         <div className="h-[calc(100vh-5rem)] overflow-y-auto">
           <div className="p-6">
-            {/* Botón Nuevo */}
+            {/* New button */}
             <a
               href={basePath}
               className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-3.5 px-4 rounded-2xl transition-all duration-300 flex items-center justify-center gap-3 mb-8 shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-95 group"
@@ -193,7 +193,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle, onGameSele
               <span>{newButtonText}</span>
             </a>
 
-            {/* Para la página de juegos: mostrar juegos agrupados por tipo */}
+            {/* For games page: show games grouped by type */}
             {isLearnPlay ? (
               <div className="space-y-6">
                 {Object.entries(gamesByType).map(([type, games]) => (
@@ -214,7 +214,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle, onGameSele
                               {game.title}
                             </span>
                             <span className="text-xs text-gray-500 mt-1">
-                              {new Date(game.date).toLocaleDateString('es-ES', {
+                              {new Date(game.date).toLocaleDateString('en-US', {
                                 day: '2-digit',
                                 month: 'short',
                                 year: 'numeric',
@@ -232,7 +232,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle, onGameSele
                 ))}
               </div>
             ) : (
-              /* Para otras páginas: mostrar lista normal */
+              /* For other pages: show normal list */
               <div className="space-y-1 mb-8">
                 {mounted && summariesList.length > 0 ? (
                   summariesList.map((item: any) => (
@@ -249,7 +249,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle, onGameSele
                         </span>
                         {item.dateISO && (
                           <span className="text-xs text-gray-500 mt-1">
-                            {new Date(item.dateISO).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
+                            {new Date(item.dateISO).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' })}
                           </span>
                         )}
                         {item.category && (
@@ -259,7 +259,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle, onGameSele
                     </button>
                   ))
                 ) : (
-                  <p className="text-sm text-gray-500 px-4 py-2">{mounted ? (isFlashcards ? 'No hay grupos de flashcards guardados.' : isPractice ? 'No hay prácticas guardadas.' : 'No hay resúmenes guardados.') : 'Cargando…'}</p>
+                  <p className="text-sm text-gray-500 px-4 py-2">{mounted ? (isFlashcards ? 'No saved flashcard groups.' : isPractice ? 'No saved practices.' : 'No saved summaries.') : 'Loading…'}</p>
                 )}
               </div>
             )}

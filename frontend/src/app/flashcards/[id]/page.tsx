@@ -32,7 +32,7 @@ export default function FlashCardGroupPage() {
   if (!loaded) {
     return (
       <Template>
-        <div className="min-h-screen flex items-center justify-center text-gray-600">Cargando…</div>
+        <div className="min-h-screen flex items-center justify-center text-gray-600">Loading…</div>
       </Template>
     );
   }
@@ -41,7 +41,7 @@ export default function FlashCardGroupPage() {
     return (
       <Template>
         <div className="min-h-screen flex items-center justify-center text-gray-600">
-          <p>No se encontró el grupo de flashcards con ID: {idStr}</p>
+          <p>No flashcard group found with ID: {idStr}</p>
         </div>
       </Template>
     );
@@ -53,8 +53,8 @@ export default function FlashCardGroupPage() {
         onDelete={() => {
           if (Number.isFinite(id)) {
             const ok = LocalArchive.remove('flashcards', id);
-            if (ok) { toast.success('Flashcards eliminadas'); try { window.dispatchEvent(new CustomEvent('archive:update')); } catch {} router.push('/flashcards'); }
-            else { toast.error('No se pudo eliminar'); }
+            if (ok) { toast.success('Flashcards deleted'); try { window.dispatchEvent(new CustomEvent('archive:update')); } catch {} router.push('/flashcards'); }
+            else { toast.error('Could not delete'); }
           }
         }}
       />
@@ -63,7 +63,7 @@ export default function FlashCardGroupPage() {
           <div className="text-center">
             <h1 className="text-3xl font-bold text-gray-800">{group.title}</h1>
             <p className="text-gray-500 text-sm">
-              {new Date(group.dateISO).toLocaleDateString('es-ES', {
+              {new Date(group.dateISO).toLocaleDateString('en-US', {
                 day: '2-digit',
                 month: 'short',
                 year: 'numeric',

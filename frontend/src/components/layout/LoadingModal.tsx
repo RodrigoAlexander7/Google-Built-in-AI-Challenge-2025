@@ -9,8 +9,8 @@ interface LoadingModalProps {
 
 const LoadingModal: React.FC<LoadingModalProps> = ({
   isOpen,
-  title = 'Creando Learning Path',
-  message = 'Estamos preparando tu ruta de aprendizaje personalizada...',
+  title = 'Creating learning path',
+  message = 'We are preparing your personalized learning path...',
   progress
 }) => {
   if (!isOpen) return null;

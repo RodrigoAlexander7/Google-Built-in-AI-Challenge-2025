@@ -36,11 +36,11 @@ function computeScore(stats: GameStats): number {
 function difficultyToEs(d: Difficulty): string {
   switch (d) {
     case 'easy':
-      return 'fácil';
+      return 'easy';
     case 'medium':
-      return 'medio';
+      return 'medium';
     case 'hard':
-      return 'difícil';
+      return 'hard';
     default:
       return String(d);
   }
@@ -53,34 +53,34 @@ function ModalVictory({ stats, onClose, wordsCount }: { stats: GameStats; onClos
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
       <div className="relative z-10 w-[min(90%,640px)] bg-white rounded-2xl shadow-2xl p-6">
-        <h2 className="text-2xl font-semibold mb-2">{stats.won ? '¡Victoria!' : 'Juego terminado'}</h2>
-        <p className="text-sm text-gray-600 mb-4">Resumen del juego</p>
+        <h2 className="text-2xl font-semibold mb-2">{stats.won ? 'Victory!' : 'Game Over'}</h2>
+        <p className="text-sm text-gray-600 mb-4">Game summary</p>
         <div className="grid grid-cols-2 gap-3 mb-4">
           <div>
-            <p className="text-xs text-gray-500">Dificultad</p>
+            <p className="text-xs text-gray-500">Difficulty</p>
             <p className="font-medium">{difficultyToEs(stats.difficulty)}</p>
           </div>
           <div>
-            <p className="text-xs text-gray-500">Estado</p>
-            <p className="font-medium">{stats.won ? 'Ganado' : 'No ganado'}</p>
+            <p className="text-xs text-gray-500">Status</p>
+            <p className="font-medium">{stats.won ? 'Won' : 'Not won'}</p>
           </div>
           <div>
-            <p className="text-xs text-gray-500">Tiempo restante (s)</p>
+            <p className="text-xs text-gray-500">Time remaining (s)</p>
             <p className="font-medium">{Math.max(0, Math.floor(stats.timeRemaining))}</p>
           </div>
           <div>
-            <p className="text-xs text-gray-500">Pistas usadas</p>
+            <p className="text-xs text-gray-500">Hints used</p>
             <p className="font-medium">{stats.hintsUsed}</p>
           </div>
           {typeof wordsCount === 'number' && (
             <div className="col-span-2">
-              <p className="text-xs text-gray-500">Palabras</p>
+              <p className="text-xs text-gray-500">Words</p>
               <p className="font-medium">{wordsCount}</p>
             </div>
           )}
         </div>
         <div className="border-t pt-4">
-          <p className="text-sm text-gray-500">Score calculado</p>
+          <p className="text-sm text-gray-500">Calculated score</p>
           <p className="text-3xl font-extrabold">{score}</p>
         </div>
         <div className="mt-4 flex justify-end">
@@ -88,7 +88,7 @@ function ModalVictory({ stats, onClose, wordsCount }: { stats: GameStats; onClos
             onClick={onClose}
             className="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
           >
-            Cerrar
+            Close
           </button>
         </div>
       </div>
@@ -213,7 +213,7 @@ export function GameShell({
         <header className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-2xl font-extrabold bg-gradient-to-r from-indigo-700 to-fuchsia-600 bg-clip-text text-transparent tracking-tight">{title}</h1>
-            <p className="text-sm text-gray-600">Configura el juego antes de empezar</p>
+            <p className="text-sm text-gray-600">Configure the game before starting</p>
           </div>
 
           <div className="flex gap-3 items-center">
@@ -228,7 +228,7 @@ export function GameShell({
             {!started && (
               <div className="flex gap-2 items-center">
                 <div className="flex items-center gap-2">
-                  <label className="text-xs text-gray-600">Tiempo (s)</label>
+                  <label className="text-xs text-gray-600">Time (s)</label>
                   <input
                     type="number"
                     value={params.timeSeconds}
@@ -243,7 +243,7 @@ export function GameShell({
                   onClick={startGame}
                   className="ml-2 px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 text-white font-semibold shadow hover:shadow-lg hover:scale-[1.02] transition"
                 >
-                  Jugar
+                  Play
                 </button>
               </div>
             )}
@@ -267,7 +267,7 @@ export function GameShell({
             onClick={() => endGameCallback(false)}
             className="px-6 py-3 rounded-xl bg-gradient-to-r from-rose-500 to-red-600 text-white font-semibold shadow-lg hover:shadow-xl hover:scale-[1.02] transition"
           >
-            Terminar juego
+            End game
           </button>
         </div>
       )}
@@ -298,13 +298,13 @@ export function GameOne({ words, size = 12, onComplete, difficulty = 'medium' }:
 
   return (
     <GameShell
-      title="Sopa de Letras"
+      title="Word Search"
       defaultParams={{ timeSeconds: 90, difficulty, hints: 2 }}
       summaryWordsCount={words.length}
       renderGameContent={({ started, endGame }) => (
         <div className="p-4">
           {!started ? (
-            <p className="text-gray-500">Ajusta los parámetros y pulsa Jugar para iniciar la sopa de letras.</p>
+            <p className="text-gray-500">Adjust parameters and press Play to start the word search.</p>
           ) : (
             <>
               <WordSearchGame
@@ -327,13 +327,13 @@ export function GameOne({ words, size = 12, onComplete, difficulty = 'medium' }:
 export function GameTwo({ words, onComplete, difficulty = 'medium' }: { words: string[]; onComplete?: () => void; difficulty?: Difficulty }) {
   return (
     <GameShell
-      title="Conecta las Letras"
+      title="Word Connect"
       defaultParams={{ timeSeconds: 60, difficulty, hints: 2 }}
       summaryWordsCount={words.length}
       renderGameContent={({ started, endGame }) => (
         <div className="p-4">
           {!started ? (
-            <p className="text-gray-500">Une las letras en círculo para formar las palabras correctas.</p>
+            <p className="text-gray-500">Connect the letters in a circle to form the correct words.</p>
           ) : (
             <WordConnectGame
               words={words}
@@ -353,13 +353,13 @@ export function GameTwo({ words, onComplete, difficulty = 'medium' }: { words: s
 export function GameThree({ words, size = 12, onComplete, difficulty = 'medium' }: { words: { id: number; word: string; clue: string }[]; size?: number; onComplete?: () => void; difficulty?: Difficulty }) {
   return (
     <GameShell
-      title="Crucigrama"
+      title="Crossword"
       defaultParams={{ timeSeconds: 90, difficulty, hints: 2 }}
       summaryWordsCount={words.length}
       renderGameContent={({ started, endGame }) => (
         <div className="p-4">
           {!started ? (
-            <p className="text-gray-500">Completa el crucigrama escribiendo las palabras correctas.</p>
+            <p className="text-gray-500">Complete the crossword by entering the correct words.</p>
           ) : (
             <CrosswordGame
               words={words}
@@ -380,12 +380,12 @@ export function GameThree({ words, size = 12, onComplete, difficulty = 'medium' 
 export function GameFour({ question, onComplete }: { question: string; onComplete?: () => void }) {
   return (
     <GameShell
-      title="Explícalo"
+      title="Explain It"
       defaultParams={{ timeSeconds: 120, difficulty: 'medium', hints: 1 }}
       renderGameContent={({ started, endGame }) => (
         <div className="p-4">
           {!started ? (
-            <p className="text-gray-500">Explica el concepto que se te indica y presiona "Jugar" para empezar.</p>
+            <p className="text-gray-500">Explain the given concept and press "Play" to begin.</p>
           ) : (
             <ExplainIt 
               question={question}
@@ -404,7 +404,7 @@ export function GameFive({ onComplete }: { onComplete?: () => void }) {
 
   return (
     <GameShell
-      title="Juego de Reacción"
+  title="Reaction Game"
       defaultParams={{ timeSeconds: 20, difficulty: 'medium', hints: 0 }}
       renderGameContent={({ started, useHint, endGame, ticks }) => {
         React.useEffect(() => {
@@ -421,10 +421,10 @@ export function GameFive({ onComplete }: { onComplete?: () => void }) {
         return (
           <div className="p-4">
             {!started ? (
-              <p className="text-gray-500">Prepárate para reaccionar.</p>
+              <p className="text-gray-500">Get ready to react.</p>
             ) : (
               <div className="space-y-3">
-                <p>Presiona el botón cuando aparezca "¡Ahora!"</p>
+                <p>Press the button when "Now!" appears</p>
                 <div className="flex gap-2">
                   <button
                     onClick={() => {
@@ -433,17 +433,17 @@ export function GameFive({ onComplete }: { onComplete?: () => void }) {
                     }}
                     className={`px-4 py-2 rounded-lg ${canPress ? 'bg-green-600 text-white' : 'bg-gray-200'}`}
                   >
-                    {canPress ? '¡Ahora!' : 'Esperando...'}
+                    {canPress ? 'Now!' : 'Waiting...'}
                   </button>
 
                   <button
                     onClick={() => {
-                      if (useHint()) alert('Concéntrate en el cambio de color.');
-                      else alert('No quedan pistas');
+                      if (useHint()) alert('Focus on the color change.');
+                      else alert('No hints left');
                     }}
                     className="px-3 py-2 border rounded-lg"
                   >
-                    Pista
+                    Hint
                   </button>
                 </div>
               </div>

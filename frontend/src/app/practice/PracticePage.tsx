@@ -57,11 +57,11 @@ export default function PracticePage() {
 
   // Steps
   const steps = useMemo(() => [
-    { key:'prompt', selector:'#pr-input', text:'Este es el prompt: escribe el tema o pega contenido para crear ejercicios.' },
-    { key:'exercises', selector:'#pr-opt-exercises', text:'Elige cuántos ejercicios quieres generar.' },
-    { key:'focus', selector:'#pr-opt-focus', text:'Selecciona el área de enfoque: vocabulario, análisis, comprensión o resumen.' },
-    { key:'difficulty', selector:'#pr-opt-difficulty', text:'Ajusta la dificultad: Fácil, Medio, Difícil o Extremo.' },
-    { key:'question', selector:'#pr-opt-question', text:'Selecciona el tipo de pregunta preferido.' },
+    { key:'prompt', selector:'#pr-input', text:'This is the prompt: type the topic or paste content to create exercises.' },
+    { key:'exercises', selector:'#pr-opt-exercises', text:'Choose how many exercises you want to generate.' },
+    { key:'focus', selector:'#pr-opt-focus', text:'Select the focus area: vocabulary, analysis, comprehension or summary.' },
+    { key:'difficulty', selector:'#pr-opt-difficulty', text:'Adjust the difficulty: Easy, Medium, Hard or Extreme.' },
+    { key:'question', selector:'#pr-opt-question', text:'Select your preferred question type.' },
   ], []);
 
   // First-visit only
@@ -139,7 +139,7 @@ export default function PracticePage() {
   };
 
   const toQuestionData = (raw: any, requestedType: PracticeOptionsValue['questionType'] | null, index: number): QuestionData => {
-    const qText = (raw?.statement ?? raw?.question ?? 'Pregunta') as string;
+  const qText = (raw?.statement ?? raw?.question ?? 'Question') as string;
     const base = {
       id: `q_${Date.now()}_${index}`,
       question: qText,
@@ -177,7 +177,7 @@ export default function PracticePage() {
       }
       case 'relationship': {
         // Backend structure: premises (items), responses (concepts), correct_matches (object mapping)
-        const items: string[] = Array.isArray(raw?.premises) ? raw.premises : (choices.length ? choices.map((_, i) => `Ítem ${i+1}`) : []);
+  const items: string[] = Array.isArray(raw?.premises) ? raw.premises : (choices.length ? choices.map((_, i) => `Item ${i+1}`) : []);
         const concepts: string[] = Array.isArray(raw?.responses) ? raw.responses : (choices.length ? choices.map((c: any) => c.text) : []);
         let correctPairs: [number, number][] = [];
         if (raw && raw.correct_matches && typeof raw.correct_matches === 'object') {
@@ -272,7 +272,7 @@ export default function PracticePage() {
       }
     } catch (e: any) {
       console.error('[practice] error', e);
-      setError(e?.message || 'Error al generar ejercicios');
+      setError(e?.message || 'Error generating exercises');
     } finally {
       setIsLoading(false);
     }
@@ -282,15 +282,15 @@ export default function PracticePage() {
 
   return (
     <>
-      <LoadingOverlay open={isLoading} title="Generando tus ejercicios" subtitle="Creando preguntas y opciones…" />
+      <LoadingOverlay open={isLoading} title="Generating your exercises" subtitle="Creating questions and choices…" />
       <SaveFloatingButton
         visible={canSave}
-        defaultTitle={`Práctica de ${questions.length} preguntas`}
-        defaultCategory={'Prácticas'}
+        defaultTitle={`Practice with ${questions.length} questions`}
+        defaultCategory={'Practices'}
         onSave={({ title, category }) => {
           LocalArchive.addPractice({ title, category, questions, metas, options: practiceOptions });
           try { window.dispatchEvent(new CustomEvent('archive:update')); } catch {}
-          toast.success('Práctica guardada');
+          toast.success('Practice saved');
         }}
       />
       <div className="max-w-6xl mx-auto px-4 space-y-8">
@@ -324,15 +324,15 @@ export default function PracticePage() {
       <div className="text-center mb-6">
         <div className="inline-block mb-2"><span className="text-5xl">🧠</span></div>
         <h1 className="text-4xl md:text-5xl font-black text-gray-900 mb-2 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-          Nueva práctica
+          New practice
         </h1>
-        <p className="text-gray-600">Configura y genera tus ejercicios personalizados.</p>
+        <p className="text-gray-600">Configure and generate your custom exercises.</p>
       </div>
       {questions.length === 0 && (
         <>
           <div className="mt-10" id="pr-input">
             <PromptInput
-              placeholder="Escribe el texto o tema para generar ejercicios..."
+              placeholder="Type text or topic to generate exercises..."
               onSendMessage={handleSendMessage}
             />
           </div>
@@ -341,7 +341,7 @@ export default function PracticePage() {
       )}
 
       {isLoading && (
-        <div className="flex justify-center mt-6" aria-label="Cargando preguntas">
+  <div className="flex justify-center mt-6" aria-label="Loading questions">
           <svg className="animate-spin h-6 w-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
@@ -352,7 +352,7 @@ export default function PracticePage() {
 
       {response && (
         <div className="mt-6 p-4 bg-gray-100 rounded-lg">
-          <h3 className="font-bold mb-2">Resultado:</h3>
+          <h3 className="font-bold mb-2">Result:</h3>
           <p className="text-gray-700">{response}</p>
         </div>
       )}
@@ -370,27 +370,27 @@ export default function PracticePage() {
                 {showResults && (
                   <div className="rounded-xl border border-indigo-200 bg-indigo-50/60 p-4">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-semibold tracking-wide text-indigo-700 uppercase">Pregunta {idx + 1}</span>
+                      <span className="text-xs font-semibold tracking-wide text-indigo-700 uppercase">Question {idx + 1}</span>
                       {metas[idx]?.answerText && (
-                        <span className="text-xs px-2 py-1 rounded-full bg-indigo-200 text-indigo-800">Respuesta</span>
+                        <span className="text-xs px-2 py-1 rounded-full bg-indigo-200 text-indigo-800">Answer</span>
                       )}
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                       <div className="md:col-span-2">
                         <div className="text-[13px] text-indigo-900/90">
-                          <span className="font-semibold">Objetivo de aprendizaje: </span>
+                          <span className="font-semibold">Learning objective: </span>
                           <span>{metas[idx]?.learningObjective ?? '—'}</span>
                         </div>
                         {metas[idx]?.explanation && (
                           <div className="text-[13px] text-indigo-900/90 mt-1">
-                            <span className="font-semibold">Explicación: </span>
+                            <span className="font-semibold">Explanation: </span>
                             <span>{metas[idx]?.explanation}</span>
                           </div>
                         )}
                       </div>
                       <div className="md:col-span-1">
                         <div className="text-[13px] text-indigo-900/90">
-                          <span className="font-semibold">Respuesta correcta: </span>
+                          <span className="font-semibold">Correct answer: </span>
                           <span>{metas[idx]?.answerText ?? '—'}</span>
                         </div>
                       </div>

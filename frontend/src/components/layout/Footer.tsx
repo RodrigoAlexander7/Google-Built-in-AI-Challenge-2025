@@ -20,7 +20,7 @@ const Footer: React.FC = () => {
   
   const footerSections: FooterSection[] = [
     {
-      title: 'Producto',
+      title: 'Product',
       links: [
         { href: '/summarizer', label: 'Summarizer' },
         { href: '/practice', label: 'Practice' },
@@ -30,30 +30,30 @@ const Footer: React.FC = () => {
       ],
     },
     {
-      title: 'Recursos',
+      title: 'Resources',
       links: [
-        { href: '/how-it-works', label: '¿Cómo funciona?' },
+        { href: '/how-it-works', label: 'How it works' },
         { href: '/blog', label: 'Blog' },
-        { href: '/docs', label: 'Documentación' },
-        { href: '/tutorials', label: 'Tutoriales' },
+        { href: '/docs', label: 'Docs' },
+        { href: '/tutorials', label: 'Tutorials' },
       ],
     },
     {
-      title: 'Empresa',
+      title: 'Company',
       links: [
-        { href: '/about', label: 'Nosotros' },
-        { href: '/careers', label: 'Carreras' },
-        { href: '/contact', label: 'Contacto' },
+        { href: '/about', label: 'About' },
+        { href: '/careers', label: 'Careers' },
+        { href: '/contact', label: 'Contact' },
         { href: '/partners', label: 'Partners' },
       ],
     },
     {
       title: 'Legal',
       links: [
-        { href: '/privacy', label: 'Privacidad' },
-        { href: '/terms', label: 'Términos' },
+        { href: '/privacy', label: 'Privacy' },
+        { href: '/terms', label: 'Terms' },
         { href: '/cookies', label: 'Cookies' },
-        { href: '/security', label: 'Seguridad' },
+        { href: '/security', label: 'Security' },
       ],
     },
   ];
@@ -110,9 +110,9 @@ const Footer: React.FC = () => {
               </h3>
             </div>
             <p className="text-gray-300 text-lg mb-6 max-w-md leading-relaxed">
-              Transformamos la manera de aprender con tecnología innovadora. 
+              We transform the way you learn with innovative technology. 
               <span className="block mt-2 text-blue-300 font-semibold">
-                ¡Aprende más rápido, recuerda por más tiempo!
+                Learn faster, remember longer.
               </span>
             </p>
             <div className="flex space-x-3">
@@ -123,7 +123,7 @@ const Footer: React.FC = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   className={`p-3 bg-gray-800 rounded-xl ${social.color} transition-all duration-300 transform hover:scale-110 hover:shadow-lg group`}
-                  aria-label={`Síguenos en ${social.name}`}
+                  aria-label={`Follow us on ${social.name}`}
                 >
                   <i className={`${social.icon} text-white group-hover:text-white transition-colors duration-300`}></i>
                 </a>
@@ -180,7 +180,7 @@ const Footer: React.FC = () => {
           </div>
         </div>
 
-        {/* Línea separadora con efecto */}
+  {/* Separator line */}
         <div className="relative my-8">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-gray-700"></div>
@@ -190,12 +190,12 @@ const Footer: React.FC = () => {
           </div>
         </div>
 
-        {/* Copyright y enlaces legales */}
+        {/* Copyright and legal links */}
         <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
           <div className="flex items-center space-x-2 text-gray-400">
             <i className="fas fa-copyright text-sm"></i>
             <p className="text-sm">
-              {currentYear} <span className="text-blue-300 font-semibold">LearnGo!</span> Todos los derechos reservados.
+              {currentYear} <span className="text-blue-300 font-semibold">LearnGo!</span> All rights reserved.
             </p>
           </div>
           <div className="flex space-x-6">
@@ -206,25 +206,25 @@ const Footer: React.FC = () => {
                 className="text-gray-400 hover:text-white text-sm transition-all duration-200 flex items-center group"
               >
                 <i className="fas fa-shield-alt text-blue-400 text-xs mr-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></i>
-                {item === 'privacy' ? 'Privacidad' : 
-                 item === 'terms' ? 'Términos' : 'Cookies'}
+                {item === 'privacy' ? 'Privacy' : 
+                 item === 'terms' ? 'Terms' : 'Cookies'}
               </Link>
             ))}
           </div>
         </div>
 
-        {/* Badge de innovación */}
+        {/* Innovation badge */}
         <div className="text-center mt-8">
           <div className="inline-flex items-center space-x-2 bg-blue-600/20 backdrop-blur-sm rounded-full px-4 py-2 border border-blue-500/30">
             <i className="fas fa-rocket text-blue-300 animate-bounce"></i>
             <span className="text-blue-200 text-sm font-medium">
-              Innovando en educación desde 2025
+              Innovating in education since 2025
             </span>
           </div>
         </div>
       </div>
 
-      {/* Efectos de partículas decorativas */}
+      {/* Decorative particle effects */}
       <div className="absolute bottom-0 left-0 w-20 h-20 bg-blue-500/10 rounded-full blur-xl animate-pulse"></div>
       <div className="absolute top-0 right-0 w-16 h-16 bg-purple-500/10 rounded-full blur-xl animate-pulse delay-1000"></div>
     </footer>

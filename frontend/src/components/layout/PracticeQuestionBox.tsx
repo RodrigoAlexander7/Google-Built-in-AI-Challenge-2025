@@ -146,7 +146,7 @@ const PracticeQuestionBox: React.FC<QuestionBoxProps> = ({
         >
           <div className="text-center">
             <div className="text-2xl font-bold text-gray-800 mb-2">✓</div>
-            <span className="text-gray-700 font-medium">Verdadero</span>
+            <span className="text-gray-700 font-medium">True</span>
           </div>
         </button>
         <button
@@ -159,7 +159,7 @@ const PracticeQuestionBox: React.FC<QuestionBoxProps> = ({
         >
           <div className="text-center">
             <div className="text-2xl font-bold text-gray-800 mb-2">✗</div>
-            <span className="text-gray-700 font-medium">Falso</span>
+            <span className="text-gray-700 font-medium">False</span>
           </div>
         </button>
       </div>
@@ -185,7 +185,7 @@ const PracticeQuestionBox: React.FC<QuestionBoxProps> = ({
                     )
                   : 'border-gray-300 hover:border-blue-300'
               }`}
-              placeholder={`Respuesta ${index + 1}`}
+              placeholder={`Answer ${index + 1}`}
             />
           </div>
         ))}
@@ -204,7 +204,7 @@ const PracticeQuestionBox: React.FC<QuestionBoxProps> = ({
             ? getAnswerStatus(userAnswer?.toLowerCase() === question.correctAnswer.toLowerCase())
             : 'border-gray-300 hover:border-blue-300'
         }`}
-        placeholder="Escribe tu respuesta aquí..."
+  placeholder="Write your answer here..."
         rows={4}
         maxLength={question.maxLength}
       />
@@ -250,7 +250,7 @@ const renderRelationship = (question: RelationshipQuestion) => {
       <div className="grid grid-cols-2 gap-6">
         {/* Items */}
         <div className="space-y-3">
-          <h4 className="font-semibold text-gray-700 mb-3">Temas</h4>
+          <h4 className="font-semibold text-gray-700 mb-3">Topics</h4>
           {question.items.map((item, index) => {
             const pairIndex = relationshipPairs.findIndex(pair => pair[0] === index);
             const isPaired = pairIndex !== -1;
@@ -301,7 +301,7 @@ const renderRelationship = (question: RelationshipQuestion) => {
 
         {/* Concepts */}
         <div className="space-y-3">
-          <h4 className="font-semibold text-gray-700 mb-3">Conceptos</h4>
+          <h4 className="font-semibold text-gray-700 mb-3">Concepts</h4>
           {question.concepts.map((concept, index) => {
             const pairIndex = relationshipPairs.findIndex(pair => pair[1] === index);
             const isPaired = pairIndex !== -1;
@@ -349,7 +349,7 @@ const renderRelationship = (question: RelationshipQuestion) => {
       {/* Pares establecidos con colores */}
       {relationshipPairs.length > 0 && (
         <div className="bg-gray-50 p-4 rounded-xl">
-          <h4 className="font-semibold text-gray-700 mb-3">Relaciones establecidas:</h4>
+          <h4 className="font-semibold text-gray-700 mb-3">Established relationships:</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {relationshipPairs.map(([itemIdx, conceptIdx], index) => {
               const colorClass = getPairColor(index);
@@ -399,8 +399,8 @@ const renderRelationship = (question: RelationshipQuestion) => {
           <i className="fas fa-info-circle"></i>
           <span>
             {selectedItem !== null 
-              ? `Selecciona un concepto para relacionar con "${question.items[selectedItem]}"`
-              : 'Haz clic en un tema para seleccionarlo, luego en un concepto para relacionarlos'
+              ? `Select a concept to match with "${question.items[selectedItem]}"`
+              : 'Click a topic to select it, then a concept to match them'
             }
           </span>
         </div>
@@ -428,7 +428,7 @@ const renderRelationship = (question: RelationshipQuestion) => {
                 : 'border-gray-200 hover:border-blue-300'
             } ${showResults ? getAnswerStatus(true === question.correctAnswer) : ''}`}
           >
-            <div className="text-center font-medium text-gray-700">Verdadero</div>
+            <div className="text-center font-medium text-gray-700">True</div>
           </button>
           <button
             onClick={() => handleAnswer({ answer: false, justification: userAnswer?.justification || '' })}
@@ -438,14 +438,14 @@ const renderRelationship = (question: RelationshipQuestion) => {
                 : 'border-gray-200 hover:border-blue-300'
             } ${showResults ? getAnswerStatus(false === question.correctAnswer) : ''}`}
           >
-            <div className="text-center font-medium text-gray-700">Falso</div>
+            <div className="text-center font-medium text-gray-700">False</div>
           </button>
         </div>
 
         {/* Justificación */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Justifica tu respuesta:
+            Justify your answer:
           </label>
           <textarea
             value={userAnswer?.justification || ''}
@@ -454,7 +454,7 @@ const renderRelationship = (question: RelationshipQuestion) => {
               justification: e.target.value 
             })}
             className="w-full p-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-all duration-200 hover:border-blue-300"
-            placeholder="Explica por qué elegiste esta respuesta..."
+            placeholder="Explain why you chose this answer..."
             rows={3}
           />
         </div>
@@ -472,7 +472,7 @@ const renderRelationship = (question: RelationshipQuestion) => {
           </h3>
           {question.points && (
             <span className="inline-block px-3 py-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-medium rounded-full">
-              {question.points} puntos
+              {question.points} points
             </span>
           )}
         </div>

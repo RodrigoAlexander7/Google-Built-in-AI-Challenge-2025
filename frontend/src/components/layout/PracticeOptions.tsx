@@ -20,18 +20,18 @@ interface PracticeOptionsProps {
 }
 
 const difficultyLabels: Record<PracticeOptionsValue['difficulty'], string> = {
-  1: 'Fácil',
-  2: 'Medio',
-  3: 'Difícil',
-  4: 'Extremo',
+  1: 'Easy',
+  2: 'Medium',
+  3: 'Hard',
+  4: 'Extreme',
 };
 
 const questionTypeItems: CheckBoxItemData[] = [
-  { id: 'multiple-choice', title: 'Opción múltiple', description: 'Selecciona una alternativa' },
-  { id: 'true-false', title: 'Verdadero/Falso', description: 'Elige V o F' },
-  { id: 'fill-blank', title: 'Espacio en blanco', description: 'Completa la oración' },
-  { id: 'short-answer', title: 'Respuesta corta', description: 'Escribe una breve respuesta' },
-  { id: 'relationship', title: 'Relacionar', description: 'Une conceptos con definiciones' },
+  { id: 'multiple-choice', title: 'Multiple choice', description: 'Select one option' },
+  { id: 'true-false', title: 'True/False', description: 'Choose T or F' },
+  { id: 'fill-blank', title: 'Fill in the blank', description: 'Complete the sentence' },
+  { id: 'short-answer', title: 'Short answer', description: 'Write a brief response' },
+  { id: 'relationship', title: 'Match', description: 'Match concepts with definitions' },
 ];
 
 
@@ -42,12 +42,12 @@ const PracticeOptions: React.FC<PracticeOptionsProps> = ({ value, onChange }) =>
 
   return (
     <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-      <h3 className="text-lg font-semibold text-gray-800 mb-4">Opciones de práctica</h3>
+  <h3 className="text-lg font-semibold text-gray-800 mb-4">Practice options</h3>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Número de ejercicios */}
+        {/* Number of exercises */}
         <div id="pr-opt-exercises">
-          <label className="block text-sm font-medium text-gray-700 mb-2">Número de ejercicios</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Number of exercises</label>
           <div className="grid grid-cols-4 gap-2">
             {exerciseOptions.map((n) => {
               const selected = value.exerciseCount === n;
@@ -66,10 +66,10 @@ const PracticeOptions: React.FC<PracticeOptionsProps> = ({ value, onChange }) =>
           </div>
         </div>
 
-        {/* Nivel de dificultad */}
+        {/* Difficulty level */}
         <div id="pr-opt-difficulty">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Nivel de dificultad: <span className="font-semibold text-gray-900">{difficultyLabels[value.difficulty]}</span>
+            Difficulty level: <span className="font-semibold text-gray-900">{difficultyLabels[value.difficulty]}</span>
           </label>
           <div className="px-1">
             <Slider
@@ -83,17 +83,17 @@ const PracticeOptions: React.FC<PracticeOptionsProps> = ({ value, onChange }) =>
             />
           </div>
           <div className="mt-2 grid grid-cols-4 text-xs text-gray-600">
-            <span className="text-left">Fácil</span>
-            <span className="text-center">Medio</span>
-            <span className="text-center">Difícil</span>
-            <span className="text-right">Extremo</span>
+            <span className="text-left">Easy</span>
+            <span className="text-center">Medium</span>
+            <span className="text-center">Hard</span>
+            <span className="text-right">Extreme</span>
           </div>
         </div>
 
 
-        {/* Tipo de pregunta (selección única) */}
+        {/* Question type (single selection) */}
         <div id="pr-opt-question" className="lg:col-span-1">
-          <label className="block text-sm font-medium text-gray-700 mb-2">Tipo de pregunta</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Question type</label>
           <CheckBox
             items={questionTypeItems}
             selectionMode="single"

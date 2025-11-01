@@ -37,8 +37,8 @@ export default function FlashCardPage() {
     if (!Array.isArray(arr)) return [];
     return arr.map((it, idx) => {
       // Accept multiple shapes
-      const q = it?.question ?? it?.prompt ?? it?.front?.text ?? it?.q ?? `Tarjeta ${idx+1}`;
-      const a = it?.answer ?? it?.back?.text ?? it?.a ?? 'Respuesta';
+  const q = it?.question ?? it?.prompt ?? it?.front?.text ?? it?.q ?? `Card ${idx+1}`;
+  const a = it?.answer ?? it?.back?.text ?? it?.a ?? 'Answer';
       const frontColor = it?.front?.color || randomColor();
       const backColor = it?.back?.color || randomColor();
       return {
@@ -56,11 +56,11 @@ export default function FlashCardPage() {
   const [typingReset, setTypingReset] = useState(0);
 
   const steps = useMemo(() => [
-    { key:'prompt', selector:'#fc-prompt', text:'Este es el prompt para generar tus flashcards.' },
-    { key:'count', selector:'#fc-opt-count', text:'Elige cuántas tarjetas quieres en esta sesión.' },
-    { key:'complexity', selector:'#fc-opt-complexity', text:'Ajusta la complejidad: Básico, Intermedio o Avanzado.' },
-    { key:'focus', selector:'#fc-opt-focus', text:'Selecciona en qué enfocarte: vocabulario, conceptos, definiciones, etc.' },
-    { key:'container', selector:'#fc-container', text:'Aquí verás y manejarás tus flashcards.' },
+    { key:'prompt', selector:'#fc-prompt', text:'This is the prompt to generate your flashcards.' },
+    { key:'count', selector:'#fc-opt-count', text:'Choose how many cards you want in this session.' },
+    { key:'complexity', selector:'#fc-opt-complexity', text:'Adjust complexity: Basic, Intermediate, or Advanced.' },
+    { key:'focus', selector:'#fc-opt-focus', text:'Select the focus: vocabulary, concepts, definitions, etc.' },
+    { key:'container', selector:'#fc-container', text:'Here you will view and manage your flashcards.' },
   ], []);
 
   useEffect(() => {
@@ -95,7 +95,7 @@ export default function FlashCardPage() {
 
   return (
     <>
-      <LoadingOverlay open={loading} title="Generando tus flashcards" subtitle="Preparando tarjetas de estudio…" />
+  <LoadingOverlay open={loading} title="Generating your flashcards" subtitle="Preparing study cards…" />
       <SaveFloatingButton
         visible={canSave}
         defaultTitle={`Flashcards (${cards.length})`}
@@ -103,7 +103,7 @@ export default function FlashCardPage() {
         onSave={({ title, category }) => {
           LocalArchive.addFlashcards({ title, category, cards, options });
           try { window.dispatchEvent(new CustomEvent('archive:update')); } catch {}
-          toast.success('Flashcards guardadas');
+          toast.success('Flashcards saved');
         }}
       />
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
@@ -116,13 +116,13 @@ export default function FlashCardPage() {
           <div className="absolute left-0" style={{top:focusRect.y+focusRect.h, bottom:0, width:'100%', background:'rgba(2,6,23,0.75)', backdropFilter:'blur(4px)'}} onClick={skip}/>
           <div className="absolute rounded-xl pointer-events-none" style={{left:focusRect.x, top:focusRect.y, width:focusRect.w, height:focusRect.h, boxShadow:'0 0 0 2px rgba(56,189,248,0.9), 0 0 40px rgba(56,189,248,0.35)'}}/>
           <div className="absolute max-w-sm p-4 rounded-xl bg-slate-900 text-slate-100 border border-cyan-400/30 shadow-2xl" style={{left: Math.max(16, Math.min(window.innerWidth - 336, focusRect.x)), top: Math.min(window.innerHeight - 140, focusRect.y + focusRect.h + 12)}}>
-            <div className="text-xs text-cyan-300 mb-1">Paso {tourIndex+1} de {steps.length}</div>
+            <div className="text-xs text-cyan-300 mb-1">Step {tourIndex+1} of {steps.length}</div>
             <div className="text-sm leading-relaxed">
               <TypingText key={typingReset + tourIndex*1000} text={steps[tourIndex].text} speed={16} onStep={(i,ch)=>console.log('[fc-tour] typing',{i,ch})}/>
             </div>
             <div className="mt-3 flex items-center justify-end gap-2">
-              <button onClick={skip} className="inline-flex items-center gap-2 rounded-md text-slate-300 hover:text-white px-3 py-1.5">Saltar</button>
-              <button onClick={next} className="inline-flex items-center gap-2 rounded-md bg-gradient-to-r from-cyan-400 to-sky-500 text-slate-900 font-semibold px-3 py-1.5 shadow ring-1 ring-white/10 hover:from-cyan-300 hover:to-sky-400">{tourIndex < steps.length-1 ? 'Siguiente' : 'Entendido'}</button>
+              <button onClick={skip} className="inline-flex items-center gap-2 rounded-md text-slate-300 hover:text-white px-3 py-1.5">Skip</button>
+              <button onClick={next} className="inline-flex items-center gap-2 rounded-md bg-gradient-to-r from-cyan-400 to-sky-500 text-slate-900 font-semibold px-3 py-1.5 shadow ring-1 ring-white/10 hover:from-cyan-300 hover:to-sky-400">{tourIndex < steps.length-1 ? 'Next' : 'Got it'}</button>
             </div>
           </div>
         </div>
@@ -135,7 +135,7 @@ export default function FlashCardPage() {
           <h1 className="text-4xl md:text-5xl font-black text-gray-900 mb-2 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             Flashcards
           </h1>
-          <p className="text-gray-600">Genera tarjetas de estudio en segundos.</p>
+          <p className="text-gray-600">Generate study cards in seconds.</p>
         </div>
       </div>
 
@@ -147,7 +147,7 @@ export default function FlashCardPage() {
         {cards.length === 0 && (
           <div className="bg-white/95 backdrop-blur-xl border border-gray-200/60 rounded-2xl shadow-2xl p-4" id="fc-prompt">
             <PromptInput
-              placeholder="Describe el tipo de tarjetas que quieres generar..."
+              placeholder="Describe the type of cards you want to generate..."
               onSendMessage={async (message, uploaded) => {
                 try {
                   setLoading(true);
@@ -192,8 +192,8 @@ export default function FlashCardPage() {
                   console.error('FC - error:', err);
                   // Fallback local sample so UI is testable
                   const fallback = mapApiToCards([
-                    { question: '¿Qué es una función en JS?', answer: 'Un bloque reutilizable de código.' },
-                    { question: '¿Qué es React?', answer: 'Una biblioteca para construir interfaces.' },
+                    { question: 'What is a function in JS?', answer: 'A reusable block of code.' },
+                    { question: 'What is React?', answer: 'A library for building user interfaces.' },
                   ]);
                   setCards(fallback);
                 } finally {

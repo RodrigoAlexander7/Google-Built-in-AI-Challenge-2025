@@ -167,7 +167,7 @@ function HeroSection() {
           transition={{ duration: 0.6 }}
           className="inline-flex items-center gap-2 text-xs md:text-sm font-semibold px-3 py-1 rounded-full ring-1 ring-white/15 bg-white/10 backdrop-blur-md"
         >
-          Nuevo • Tutor IA Multimodular
+          New • Multimodule AI Tutor
         </motion.span>
         <motion.h1
           initial={{ opacity: 0, y: 12 }}
@@ -176,7 +176,7 @@ function HeroSection() {
           transition={{ duration: 0.7, delay: 0.05 }}
           className="mt-5 max-w-5xl text-4xl md:text-6xl font-extrabold leading-tight tracking-tight drop-shadow-[0_4px_22px_rgba(34,211,238,0.55)]"
         >
-          Aprende más rápido con un Tutor IA que te guía, practica y juega
+          Learn faster with an AI Tutor that guides you, lets you practice, and play
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: 12 }}
@@ -185,7 +185,7 @@ function HeroSection() {
           transition={{ duration: 0.7, delay: 0.1 }}
           className="mt-5 max-w-2xl text-base md:text-lg text-white/90"
         >
-          Unifica resúmenes, práctica guiada, tarjetas, rutas de aprendizaje y minijuegos en un solo lugar.
+          Bring summaries, guided practice, flashcards, learning paths, and mini‑games together in one place.
         </motion.p>
 
         <motion.div
@@ -199,13 +199,13 @@ function HeroSection() {
             href="#features"
             className="inline-flex items-center justify-center gap-2 rounded-md bg-gradient-to-r from-cyan-400 to-sky-500 text-slate-900 font-semibold px-5 py-2.5 shadow-lg shadow-cyan-500/20 ring-1 ring-white/10 hover:from-cyan-300 hover:to-sky-400"
           >
-            Explorar módulos
+            Explore modules
           </a>
           <a
             href="#how"
             className="inline-flex items-center justify-center gap-2 rounded-md bg-white/10 text-white font-medium px-5 py-2.5 ring-1 ring-white/20 hover:bg-white/15"
           >
-            Cómo se usa
+            How it works
           </a>
         </motion.div>
 
@@ -217,24 +217,24 @@ function HeroSection() {
           className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-4 text-left w-full max-w-4xl"
         >
           <div className="rounded-lg bg-slate-800/40 p-4 ring-1 ring-white/10">
-            <span className="text-[10px] uppercase tracking-wide text-slate-400">Módulos</span>
+            <span className="text-[10px] uppercase tracking-wide text-slate-400">Modules</span>
             <span className="block text-xl font-bold">5</span>
           </div>
           <div className="rounded-lg bg-slate-800/40 p-4 ring-1 ring-white/10">
-            <span className="text-[10px] uppercase tracking-wide text-slate-400">Estudiantes</span>
+            <span className="text-[10px] uppercase tracking-wide text-slate-400">Students</span>
             <span className="block text-xl font-bold">+1K</span>
           </div>
           <div className="rounded-lg bg-slate-800/40 p-4 ring-1 ring-white/10">
-            <span className="text-[10px] uppercase tracking-wide text-slate-400">Ahorro de tiempo</span>
+            <span className="text-[10px] uppercase tracking-wide text-slate-400">Time saved</span>
             <span className="block text-xl font-bold">~60%</span>
           </div>
           <div className="rounded-lg bg-slate-800/40 p-4 ring-1 ring-white/10">
-            <span className="text-[10px] uppercase tracking-wide text-slate-400">Soporte</span>
+            <span className="text-[10px] uppercase tracking-wide text-slate-400">Support</span>
             <span className="block text-xl font-bold">24/7</span>
           </div>
         </motion.div>
 
-        <button aria-label="Desplazar a la siguiente sección" onClick={() => document.getElementById('info')?.scrollIntoView({ behavior: 'smooth' })}>
+        <button aria-label="Scroll to next section" onClick={() => document.getElementById('info')?.scrollIntoView({ behavior: 'smooth' })}>
           <ScrollIndicator />
         </button>
       </div>
@@ -247,24 +247,24 @@ function InfoSection() {
     <section id="info" className="py-20 md:py-28 container mx-auto px-6 bg-slate-950">
       <div className="grid md:grid-cols-3 gap-8 items-start">
         <motion.div initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="rounded-xl bg-slate-800/40 p-6 ring-1 ring-white/10 backdrop-blur-sm">
-          <h3 className="text-xl font-semibold">¿Qué hace tu proyecto?</h3>
+          <h3 className="text-xl font-semibold">What does this project do?</h3>
           <p className="text-slate-300 leading-relaxed">
-            Es un Tutor mediante IA que integra cinco módulos: Resúmenes (Summarizer), Práctica guiada (Practice), Tarjetas (FlashCards), Rutas personalizadas (LearningPath) y juegos generados por IA (LearnPlay).
+            It’s an AI tutor with five modules: Summaries (Summarizer), Guided Practice (Practice), Flashcards (FlashCards), Personalized Routes (LearningPath), and AI‑generated games (LearnPlay).
           </p>
         </motion.div>
         <motion.div initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.65, delay: 0.05 }} className="rounded-xl bg-slate-800/40 p-6 ring-1 ring-white/10 backdrop-blur-sm">
-          <h3 className="text-xl font-semibold">¿A quién ayuda?</h3>
+          <h3 className="text-xl font-semibold">Who is it for?</h3>
           <p className="text-slate-300 leading-relaxed">
-            A estudiantes de diversas áreas. Incluimos menús con opciones guiadas para evitar prompts complejos y acelerar su flujo de estudio.
+            Students across many fields. We include guided menus to avoid complex prompts and speed up study flow.
           </p>
         </motion.div>
         <motion.div id="how" initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, delay: 0.1 }} className="rounded-xl bg-slate-800/40 p-6 ring-1 ring-white/10 backdrop-blur-sm">
-          <h3 className="text-xl font-semibold">¿Cómo se usa?</h3>
+          <h3 className="text-xl font-semibold">How do I use it?</h3>
           <ol className="list-decimal list-inside text-slate-200 space-y-2">
-            <li>Elige un módulo (p.ej., Summarizer o Practice).</li>
-            <li>Sube tu material o pega el contenido.</li>
-            <li>Selecciona objetivo (resumir, practicar, memorizar, planificar o jugar).</li>
-            <li>La IA genera contenido y te guía con pasos claros y medibles.</li>
+            <li>Pick a module (e.g., Summarizer or Practice).</li>
+            <li>Upload your material or paste the content.</li>
+            <li>Select the goal (summarize, practice, memorize, plan, or play).</li>
+            <li>The AI generates content and guides you with clear, measurable steps.</li>
           </ol>
         </motion.div>
       </div>
@@ -277,14 +277,14 @@ function ProblemSection() {
     <section id="problem" className="py-20 md:py-28 container mx-auto px-6 bg-slate-950">
       <div className="grid md:grid-cols-2 gap-8 items-center">
         <motion.div initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
-          <h3 className="text-2xl md:text-3xl font-bold">Problema y solución</h3>
+          <h3 className="text-2xl md:text-3xl font-bold">Problem and solution</h3>
           <p className="text-slate-300 leading-relaxed">
-            Estudiar con múltiples herramientas dispersas fragmenta la atención y aumenta el tiempo invertido. Nuestra solución reúne todo en una sola experiencia coherente: resume, practica, memoriza y juega con el mismo contexto; además, genera rutas de aprendizaje adaptadas.
+            Studying with many scattered tools fragments attention and wastes time. Our solution brings everything into one coherent experience: summarize, practice, memorize, and play with the same context; plus, generate tailored learning paths.
           </p>
         </motion.div>
         <motion.div initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.65 }} className="rounded-xl bg-slate-800/30 ring-1 ring-white/10 overflow-hidden">
           {/* Imagen sugerida: problem-solution-graphic.png */}
-          <img src="/images/problem-solution-graphic.png" alt="Problema y solución" className="w-full h-64 object-cover" />
+          <img src="/images/problem-solution-graphic.png" alt="Problem and solution" className="w-full h-64 object-cover" />
         </motion.div>
       </div>
     </section>
@@ -293,17 +293,17 @@ function ProblemSection() {
 
 function FeaturesSection() {
   const features = [
-    { key: 'summarizer', title: 'Summarizer', desc: 'Convierte textos densos en ideas clave y resúmenes accionables.', img: '/images/feature-summarizer.gif' },
-    { key: 'practice', title: 'Practice', desc: 'Ejercicios generados por IA con feedback inmediato.', img: '/images/feature-practice.gif' },
-    { key: 'flashcards', title: 'FlashCards', desc: 'Tarjetas inteligentes con repetición espaciada.', img: '/images/feature-flashcards.gif' },
-    { key: 'learningpath', title: 'LearningPath', desc: 'Ruta personalizada según tu nivel y meta.', img: '/images/feature-learningpath.gif' },
-    { key: 'learnplay', title: 'LearnPlay', desc: 'Minijuegos generados por IA para aprender jugando.', img: '/images/feature-learnplay.gif' },
+    { key: 'summarizer', title: 'Summarizer', desc: 'Turn dense text into key ideas and actionable summaries.', img: '/images/feature-summarizer.gif' },
+    { key: 'practice', title: 'Practice', desc: 'AI‑generated exercises with instant feedback.', img: '/images/feature-practice.gif' },
+    { key: 'flashcards', title: 'FlashCards', desc: 'Smart flashcards with spaced repetition.', img: '/images/feature-flashcards.gif' },
+    { key: 'learningpath', title: 'LearningPath', desc: 'A personalized path based on your level and goal.', img: '/images/feature-learningpath.gif' },
+    { key: 'learnplay', title: 'LearnPlay', desc: 'AI‑generated mini‑games for learning by playing.', img: '/images/feature-learnplay.gif' },
   ];
   return (
     <section id="features" className="py-20 md:py-28 container mx-auto px-6 bg-slate-950">
-      <h3 className="text-2xl md:text-3xl font-bold text-center">Características principales</h3>
+      <h3 className="text-2xl md:text-3xl font-bold text-center">Key features</h3>
       <p className="text-center text-slate-400 max-w-2xl mx-auto">
-        Diseñadas para mantenerte en flujo: aprende, practica y juega sin cambiar de contexto.
+        Designed to keep you in flow: learn, practice, and play without context switching.
       </p>
       <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {features.map(f => (
@@ -323,13 +323,13 @@ function FeaturesSection() {
 
 function TeamSection() {
   const team = [
-    { name: 'Integrante 1', role: 'IA / Backend', img: '/images/team-1.jpg' },
-    { name: 'Integrante 2', role: 'Frontend / UX', img: '/images/team-2.jpg' },
-    { name: 'Integrante 3', role: 'PM / Investigación', img: '/images/team-3.jpg' },
+    { name: 'Member 1', role: 'AI / Backend', img: '/images/team-1.jpg' },
+    { name: 'Member 2', role: 'Frontend / UX', img: '/images/team-2.jpg' },
+    { name: 'Member 3', role: 'PM / Research', img: '/images/team-3.jpg' },
   ];
   return (
     <section id="team" className="py-20 md:py-28 container mx-auto px-6 bg-slate-950">
-      <h3 className="text-2xl md:text-3xl font-bold text-center">El equipo</h3>
+      <h3 className="text-2xl md:text-3xl font-bold text-center">The team</h3>
       <div className="mt-8 grid sm:grid-cols-2 md:grid-cols-3 gap-6">
         {team.map(m => (
           <motion.div key={m.name} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="rounded-xl bg-slate-800/40 p-6 ring-1 ring-white/10 text-center">

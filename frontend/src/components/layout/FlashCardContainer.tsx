@@ -93,7 +93,7 @@ const FlashCardContainer: React.FC<FlashCardContainerProps> = ({ initialCards = 
             <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-sky-600 via-indigo-600 to-fuchsia-600 bg-clip-text text-transparent">
               Flashcards
             </h1>
-            <p className="text-sm text-slate-600 mt-1">Practica con tarjetas interactivas y animadas.</p>
+            <p className="text-sm text-slate-600 mt-1">Practice with interactive and animated cards.</p>
           </div>
           <div className="flex gap-3">
             <button
@@ -101,20 +101,20 @@ const FlashCardContainer: React.FC<FlashCardContainerProps> = ({ initialCards = 
               disabled={!currentCard}
               className="px-4 py-2 rounded-xl text-sm font-semibold bg-gradient-to-r from-indigo-500 to-sky-500 text-white shadow-lg shadow-sky-500/20 hover:from-indigo-400 hover:to-sky-400 disabled:opacity-40 disabled:shadow-none transition-all"
             >
-              Editar
+              Edit
             </button>
             <button
               onClick={openDeleteModal}
               disabled={!currentCard}
               className="px-4 py-2 rounded-xl text-sm font-semibold bg-gradient-to-r from-rose-500 to-orange-500 text-white shadow-lg shadow-rose-500/20 hover:from-rose-400 hover:to-orange-400 disabled:opacity-40 disabled:shadow-none transition-all"
             >
-              Eliminar
+              Delete
             </button>
             <button
               onClick={() => setIsCreateModalOpen(true)}
               className="px-4 py-2 rounded-xl text-sm font-semibold bg-gradient-to-r from-emerald-500 to-lime-500 text-white shadow-lg shadow-emerald-500/20 hover:from-emerald-400 hover:to-lime-400 transition-all"
             >
-              Crear
+              Create
             </button>
           </div>
         </div>
@@ -146,12 +146,12 @@ const FlashCardContainer: React.FC<FlashCardContainerProps> = ({ initialCards = 
 
             {/* Área principal */}
             <div className="flex items-center justify-center gap-4 sm:gap-6">
-              {/* Botón Anterior */}
+              {/* Previous button */}
               <button
                 onClick={handlePrevCard}
                 disabled={cards.length <= 1}
                 className="p-3 rounded-2xl bg-white/80 backdrop-blur-md border border-slate-200 shadow-md hover:shadow-lg hover:scale-[1.03] disabled:opacity-50 disabled:hover:scale-100 transition-all"
-                aria-label="Anterior"
+                aria-label="Previous"
               >
                 <svg className="w-6 h-6 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -167,12 +167,12 @@ const FlashCardContainer: React.FC<FlashCardContainerProps> = ({ initialCards = 
                 />
               )}
 
-              {/* Botón Siguiente */}
+              {/* Next button */}
               <button
                 onClick={handleNextCard}
                 disabled={cards.length <= 1}
                 className="p-3 rounded-2xl bg-white/80 backdrop-blur-md border border-slate-200 shadow-md hover:shadow-lg hover:scale-[1.03] disabled:opacity-50 disabled:hover:scale-100 transition-all"
-                aria-label="Siguiente"
+                aria-label="Next"
               >
                 <svg className="w-6 h-6 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -200,8 +200,8 @@ const FlashCardContainer: React.FC<FlashCardContainerProps> = ({ initialCards = 
                 <path d="M19.5 6h-15A1.5 1.5 0 003 7.5v9A1.5 1.5 0 004.5 18h15a1.5 1.5 0 001.5-1.5v-9A1.5 1.5 0 0019.5 6zM5 8h14v7H5V8zm3 6h5v1H8v-1z" />
               </svg>
             </div>
-            <p className="text-lg font-semibold text-slate-800">No hay flashcards en este grupo aún</p>
-            <p className="text-slate-600 text-sm">Genera tarjetas desde el prompt para comenzar a practicar.</p>
+            <p className="text-lg font-semibold text-slate-800">There are no flashcards in this group yet</p>
+            <p className="text-slate-600 text-sm">Generate cards from the prompt to start practicing.</p>
           </div>
         )}
       </div>
@@ -226,8 +226,8 @@ const FlashCardContainer: React.FC<FlashCardContainerProps> = ({ initialCards = 
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleDeleteCard}
-        title="Eliminar Flashcard"
-        message="¿Estás seguro de que quieres eliminar esta flashcard? Esta acción no se puede deshacer."
+        title="Delete Flashcard"
+        message="Are you sure you want to delete this flashcard? This action cannot be undone."
       />
     </div>
   );

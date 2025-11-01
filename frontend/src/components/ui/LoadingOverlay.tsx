@@ -8,7 +8,7 @@ interface LoadingOverlayProps {
   subtitle?: string;
 }
 
-export default function LoadingOverlay({ open, title = 'Procesando…', subtitle = 'Esto puede tardar unos segundos.' }: LoadingOverlayProps) {
+export default function LoadingOverlay({ open, title = 'Processing…', subtitle = 'This may take a few seconds.' }: LoadingOverlayProps) {
   const [progress, setProgress] = React.useState(0);
 
   React.useEffect(() => {
@@ -56,12 +56,12 @@ export default function LoadingOverlay({ open, title = 'Procesando…', subtitle
             />
           </div>
           <div className="mt-2 flex items-center justify-between text-[11px] text-gray-500">
-            <span>Preparando</span>
+            <span>Preparing</span>
             <span>{Math.min(100, Math.floor(progress))}%</span>
           </div>
         </div>
         <div className="mt-4 text-[11px] text-gray-500">
-          No cierres esta ventana. Estamos generando tu contenido con IA.
+          Don't close this window. We're generating your content with AI.
         </div>
       </div>
     </div>

@@ -269,9 +269,9 @@ export default function CrosswordGame({
         )}
       </div>
 
-      {/* Definiciones */}
+      {/* Clues */}
       <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-4 border border-indigo-100">
-        <h2 className="text-lg font-extrabold bg-gradient-to-r from-indigo-700 to-fuchsia-600 bg-clip-text text-transparent mb-3">Definiciones</h2>
+        <h2 className="text-lg font-extrabold bg-gradient-to-r from-indigo-700 to-fuchsia-600 bg-clip-text text-transparent mb-3">Clues</h2>
         <div className="space-y-2">
           {words.map((w) => (
             <div

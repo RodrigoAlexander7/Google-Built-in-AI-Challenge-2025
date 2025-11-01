@@ -25,10 +25,10 @@ export default function SaveFloatingButton({ visible, defaultTitle = '', default
       <button
         onClick={() => setOpen(true)}
         className="fixed bottom-6 right-6 z-[9000] bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold shadow-2xl hover:shadow-[0_12px_30px_rgba(16,185,129,0.45)] px-5 py-3 rounded-2xl flex items-center gap-2 hover:scale-105 active:scale-95 transition-all"
-        aria-label="Guardar"
+        aria-label="Save"
       >
         <i className="fas fa-save"></i>
-        Guardar
+        Save
       </button>
 
       {/* Modal */}
@@ -41,37 +41,37 @@ export default function SaveFloatingButton({ visible, defaultTitle = '', default
                 <i className="fas fa-bookmark" />
               </div>
               <div>
-                <h3 className="text-lg font-extrabold text-emerald-700">Guardar en tu navegador</h3>
-                <p className="text-sm text-gray-600">Asigna un título y categoría para encontrarlo en el sidebar.</p>
+                <h3 className="text-lg font-extrabold text-emerald-700">Save in your browser</h3>
+                <p className="text-sm text-gray-600">Give it a title and category to find it in the sidebar.</p>
               </div>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-gray-700">Título</label>
+                <label className="text-sm font-medium text-gray-700">Title</label>
                 <input
                   className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Ej: Resumen de Historia del Perú"
+                  placeholder="e.g., Summary of World History"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-700">Categoría</label>
+                <label className="text-sm font-medium text-gray-700">Category</label>
                 <input
                   className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400"
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  placeholder="Ej: Conocimiento General, Lengua, Ciencia"
+                  placeholder="e.g., General Knowledge, Language, Science"
                 />
               </div>
             </div>
             <div className="mt-6 flex items-center justify-end gap-2">
-              <button className="px-4 py-2 rounded-xl text-gray-600 hover:bg-gray-100" onClick={() => setOpen(false)}>Cancelar</button>
+              <button className="px-4 py-2 rounded-xl text-gray-600 hover:bg-gray-100" onClick={() => setOpen(false)}>Cancel</button>
               <button
                 className="px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold shadow hover:opacity-95"
-                onClick={() => { onSave({ title: title.trim() || 'Sin título', category: category.trim() || 'General' }); setOpen(false); }}
+                onClick={() => { onSave({ title: title.trim() || 'Untitled', category: category.trim() || 'General' }); setOpen(false); }}
               >
-                Guardar
+                Save
               </button>
             </div>
           </div>

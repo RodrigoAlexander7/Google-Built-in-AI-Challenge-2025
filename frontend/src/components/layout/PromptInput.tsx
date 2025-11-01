@@ -48,7 +48,7 @@ const getFileColor = (fileType: string) => {
 };
 
 const PromptInput: React.FC<PromptInputProps> = ({ 
-  placeholder = "Escribe tu mensaje...",
+  placeholder = "Type your message...",
   onFilesChange,
   onSendMessage
 }) => {
@@ -158,7 +158,7 @@ const PromptInput: React.FC<PromptInputProps> = ({
           <button
             type="button"
             className="flex-shrink-0 p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-            title="Más opciones"
+            title="More options"
           >
             <Plus className="w-5 h-5" />
           </button>
@@ -185,7 +185,7 @@ const PromptInput: React.FC<PromptInputProps> = ({
             type="button"
             onClick={open}
             className="flex-shrink-0 p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-            title="Adjuntar archivos"
+            title="Attach files"
           >
             <Paperclip className="w-5 h-5" />
           </button>
@@ -195,8 +195,8 @@ const PromptInput: React.FC<PromptInputProps> = ({
             type="button"
             onClick={handleSend}
             disabled={!canSend}
-            aria-label="Enviar"
-            title="Enviar"
+            aria-label="Send"
+            title="Send"
             className={`flex-shrink-0 p-2 rounded-lg transition-colors shadow-sm
               ${canSend 
                 ? 'text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700' 
@@ -207,13 +207,13 @@ const PromptInput: React.FC<PromptInputProps> = ({
         </div>
       </div>
 
-      {/* Indicador de arrastrar archivos */}
+      {/* Drag-and-drop indicator */}
       {isDragActive && (
         <div className="absolute inset-0 bg-blue-500 bg-opacity-10 border-2 border-blue-500 border-dashed rounded-lg flex items-center justify-center pointer-events-none">
           <div className="text-blue-500 text-center bg-white bg-opacity-90 rounded-lg p-4">
             <Paperclip className="w-8 h-8 mx-auto mb-2" />
-            <p className="font-medium">Suelta los archivos aquí</p>
-            <p className="text-sm text-blue-400">Se agregarán a tu mensaje</p>
+            <p className="font-medium">Drop files here</p>
+            <p className="text-sm text-blue-400">They will be added to your message</p>
           </div>
         </div>
       )}

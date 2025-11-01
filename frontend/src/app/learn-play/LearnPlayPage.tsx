@@ -64,16 +64,16 @@ export default function LearnPlayPage({ onGameSelect }: LearnPlayPageProps) {
 
   const menuData = [
     {
-      title: '🎮 Juegos de vocabulario',
-      options: ['Sopa de letras', 'Conecta letras'],
+      title: '🎮 Vocabulary games',
+      options: ['Word Search', 'Word Connect'],
     },
     {
-      title: '🧩 Juegos de puzzle',
-      options: ['Explicalo!', 'Crucigrama'],
+      title: '🧩 Puzzle games',
+      options: ['Explain It!', 'Crossword'],
     },
   ];
 
-  const [selectedOption, setSelectedOption] = useState<string>('Sopa de letras');
+  const [selectedOption, setSelectedOption] = useState<string>('Word Search');
   const [topic, setTopic] = useState<string>('');
   const [language, setLanguage] = useState<string>('Spanish');
   const [difficulty, setDifficulty] = useState<number>(2);
@@ -81,7 +81,7 @@ export default function LearnPlayPage({ onGameSelect }: LearnPlayPageProps) {
   const [error, setError] = useState<string | null>(null);
 
   // Map numeric difficulty to text label
-  const difficultyLabels: Record<number, string> = { 1: 'fácil', 2: 'medio', 3: 'difícil' };
+  const difficultyLabels: Record<number, string> = { 1: 'easy', 2: 'medium', 3: 'hard' };
   const difficultyText = difficultyLabels[difficulty] ?? String(difficulty);
 
   const languageItems = [
@@ -93,17 +93,17 @@ export default function LearnPlayPage({ onGameSelect }: LearnPlayPageProps) {
   ];
 
   const gameTypeMap = {
-    'Sopa de letras': 'wordsearch',
-    'Conecta letras': 'wordconnect',
-    'Explicalo!': 'explainit',
-    'Crucigrama': 'crossword'
-  };
+    'Word Search': 'wordsearch',
+    'Word Connect': 'wordconnect',
+    'Explain It!': 'explainit',
+    'Crossword': 'crossword'
+  } as const;
 
   const handleStartGame = async () => {
     const gameType = gameTypeMap[selectedOption as keyof typeof gameTypeMap];
 
     // Build final topic including textual difficulty
-    const finalTopic = `${(topic || 'General').trim()} - dificultad ${difficultyText}`;
+  const finalTopic = `${(topic || 'General').trim()} - difficulty ${difficultyText}`;
     const difficultyCode: Difficulty = difficulty === 1 ? 'easy' : difficulty === 3 ? 'hard' : 'medium';
 
     setError(null);
@@ -121,7 +121,7 @@ export default function LearnPlayPage({ onGameSelect }: LearnPlayPageProps) {
 
         onGameSelect({
           type: 'wordsearch',
-          title: data?.title || 'Sopa de Letras',
+          title: data?.title || 'Word Search',
           words,
           difficulty: difficultyCode,
           category: data?.category || 'General',
@@ -130,7 +130,7 @@ export default function LearnPlayPage({ onGameSelect }: LearnPlayPageProps) {
       }
 
       if (gameType === 'wordconnect') {
-        const topicPrefixed = `Word connect de ${finalTopic}`;
+  const topicPrefixed = `Word Connect for ${finalTopic}`;
         const payload = { topic: topicPrefixed, language };
         console.log('WC - Start payload (uses word_search):', { ...payload, game_type: 'word_search' });
         const data = await createWordSearchGame(payload);
@@ -140,7 +140,7 @@ export default function LearnPlayPage({ onGameSelect }: LearnPlayPageProps) {
 
         onGameSelect({
           type: 'wordconnect',
-          title: `Word connect de ${data?.title || (topic || 'General')}`,
+          title: `Word Connect - ${data?.title || (topic || 'General')}`,
           words,
           difficulty: difficultyCode,
           category: data?.category || 'General',
@@ -158,7 +158,7 @@ export default function LearnPlayPage({ onGameSelect }: LearnPlayPageProps) {
 
         onGameSelect({
           type: 'crossword',
-          title: data?.title || 'Crucigrama',
+          title: data?.title || 'Crossword',
           words,
           difficulty: difficultyCode,
           category: data?.category || 'General',
@@ -170,12 +170,12 @@ export default function LearnPlayPage({ onGameSelect }: LearnPlayPageProps) {
       if (gameType === 'explainit') {
         const randomId = Math.floor(Math.random() * explainItGames.length) + 1;
         const item = explainItGames.find((g) => g.id === randomId);
-        onGameSelect({ type: 'explainit', id: randomId, title: item ? item.question : 'Explícalo' });
+  onGameSelect({ type: 'explainit', id: randomId, title: item ? item.question : 'Explain It' });
         return;
       }
     } catch (err: any) {
-      console.error('Game start error:', err);
-      setError(err?.message || 'No se pudo iniciar el juego.');
+  console.error('Game start error:', err);
+  setError(err?.message || 'Could not start the game.');
     } finally {
       setLoading(false);
     }
@@ -187,11 +187,11 @@ export default function LearnPlayPage({ onGameSelect }: LearnPlayPageProps) {
 
   // --- Tour steps ---
   const steps = useMemo(() => ([
-    { key: 'game-type', selector: '#lp-game-type', text: 'Elige el tipo de juego entre Sopa de letras, Conecta letras o Crucigrama.' },
-    { key: 'topic', selector: '#lp-topic', text: 'Escribe un tópico; se usará para generar el contenido del juego.' },
-    { key: 'language', selector: '#lp-language', text: 'Selecciona el idioma del juego.' },
-    { key: 'difficulty', selector: '#lp-difficulty', text: 'Ajusta la dificultad; se concatenará al tópico y se usará al generar el juego.' },
-    { key: 'start', selector: '#lp-start', text: 'Cuando todo esté listo, pulsa Comenzar para generar tu juego y jugar.' },
+    { key: 'game-type', selector: '#lp-game-type', text: 'Choose the game type: Word Search, Word Connect, or Crossword.' },
+    { key: 'topic', selector: '#lp-topic', text: 'Type a topic; it will be used to generate game content.' },
+    { key: 'language', selector: '#lp-language', text: 'Select the game language.' },
+    { key: 'difficulty', selector: '#lp-difficulty', text: 'Adjust difficulty; it will be appended to the topic and used when generating your game.' },
+    { key: 'start', selector: '#lp-start', text: 'When ready, click Start to generate and play your game.' },
   ]), []);
 
   // First-visit only tour
@@ -283,11 +283,11 @@ export default function LearnPlayPage({ onGameSelect }: LearnPlayPageProps) {
     return <span>{shown}</span>;
   };
 
-  const loadingTitle = useMemo(() => `Generando ${selectedOption}`, [selectedOption]);
+  const loadingTitle = useMemo(() => `Generating ${selectedOption}`, [selectedOption]);
 
   return (
     <>
-      <LoadingOverlay open={loading} title={loadingTitle} subtitle="Preparando tu juego…" />
+  <LoadingOverlay open={loading} title={loadingTitle} subtitle="Preparing your game…" />
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       <div className="max-w-4xl mx-auto px-6 py-16">
         <div className="text-center mb-16">
@@ -298,14 +298,14 @@ export default function LearnPlayPage({ onGameSelect }: LearnPlayPageProps) {
             Learn&Play
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-            Descubre tu próxima aventura de aprendizaje. Selecciona tu juego preferido y comienza a divertirte mientras aprendes.
+            Discover your next learning adventure. Select your preferred game and start having fun while learning.
           </p>
         </div>
 
         <div id="lp-game-type" className="bg-white rounded-2xl p-6 mb-12 shadow-lg border border-gray-100">
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-gray-500 text-lg">Juego seleccionado:</span>
+              <span className="text-gray-500 text-lg">Selected game:</span>
               <span className="ml-3 text-2xl font-bold text-gray-900 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 {selectedOption}
               </span>
@@ -316,31 +316,31 @@ export default function LearnPlayPage({ onGameSelect }: LearnPlayPageProps) {
               disabled={loading}
               className={`bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transform transition-all duration-300 ${loading ? 'opacity-60 cursor-not-allowed' : 'hover:scale-105'}`}
             >
-              {loading ? 'Cargando…' : '¡Comenzar!'}
+              {loading ? 'Loading…' : 'Start!'}
             </button>
           </div>
 
           <div className="mt-6 grid gap-6 md:grid-cols-2">
             <div id="lp-topic" className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Tópico</label>
+              <label className="text-sm font-medium text-gray-700">Topic</label>
               <PromptInput
-                placeholder="Escribe un tópico y presiona enviar..."
+                placeholder="Type a topic and press send..."
                 onSendMessage={(msg) => setTopic(msg.trim())}
               />
               <p className="text-xs text-gray-500">
-                Actual: {topic ? `"${topic}"` : 'Sin tópico'}
+                Current: {topic ? `"${topic}"` : 'No topic'}
               </p>
             </div>
 
             <div id="lp-language" className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Idioma</label>
+              <label className="text-sm font-medium text-gray-700">Language</label>
               <ListBox
                 items={languageItems}
                 selectionMode="single"
                 selectedIds={[language]}
                 onSelectionChange={(ids) => setLanguage(ids[0] || 'Spanish')}
               />
-              <p className="text-xs text-gray-500">Seleccionado: {language}</p>
+              <p className="text-xs text-gray-500">Selected: {language}</p>
             </div>
 
             <div id="lp-difficulty" className="md:col-span-2">
@@ -350,10 +350,10 @@ export default function LearnPlayPage({ onGameSelect }: LearnPlayPageProps) {
                 step={1}
                 value={difficulty}
                 onChange={setDifficulty}
-                label="Dificultad"
+                label="Difficulty"
                 showMinMaxLabels
               />
-              <p className="text-xs text-gray-500 mt-1">Se concatenará al tópico como: "{(topic || 'General').trim()} - dificultad {difficultyText}"</p>
+              <p className="text-xs text-gray-500 mt-1">It will be appended to the topic as: "{(topic || 'General').trim()} - difficulty {difficultyText}"</p>
               {error && (
                 <p className="text-xs mt-2 text-red-600">{error}</p>
               )}
@@ -376,17 +376,17 @@ export default function LearnPlayPage({ onGameSelect }: LearnPlayPageProps) {
         <div className="text-center mt-20">
           <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
             <h3 className="text-2xl font-bold text-gray-900 mb-4">
-              ¿Listo para comenzar?
+              Ready to start?
             </h3>
             <p className="text-gray-600 mb-6">
-              Presiona el botón para iniciar tu experiencia de aprendizaje con <span className="font-semibold text-blue-600">{selectedOption}</span>
+              Press the button to start your learning experience with <span className="font-semibold text-blue-600">{selectedOption}</span>
             </p>
             <button 
               onClick={handleStartGame}
               disabled={loading}
               className={`bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-12 py-4 rounded-2xl font-bold text-lg shadow-2xl transform transition-all duration-300 ${loading ? 'opacity-60 cursor-not-allowed' : 'hover:shadow-3xl hover:scale-110'}`}
             >
-              {loading ? 'Generando…' : '🚀 Empezar a Jugar'}
+              {loading ? 'Generating…' : '🚀 Start Playing'}
             </button>
           </div>
         </div>
@@ -409,20 +409,20 @@ export default function LearnPlayPage({ onGameSelect }: LearnPlayPageProps) {
                 width: 320,
               }}
             >
-              <div className="text-xs text-cyan-300 mb-1">Paso {tourIndex + 1} de {steps.length}</div>
+              <div className="text-xs text-cyan-300 mb-1">Step {tourIndex + 1} of {steps.length}</div>
               <div className="text-sm leading-relaxed">
                 <TypingText key={typingReset + tourIndex * 1000} text={steps[tourIndex].text} speed={16} />
               </div>
               <div className="mt-3 flex items-center justify-between gap-2">
                 <button onClick={prev} disabled={tourIndex === 0} className="inline-flex items-center gap-2 rounded-md text-slate-300 hover:text-white px-3 py-1.5">
-                  Atrás
+                  Back
                 </button>
                 <div className="flex items-center gap-2">
                   <button onClick={finishTour} className="inline-flex items-center gap-2 rounded-md text-slate-300 hover:text-white px-3 py-1.5">
-                    Omitir
+                    Skip
                   </button>
                   <button onClick={next} className="inline-flex items-center gap-2 rounded-md bg-gradient-to-r from-cyan-400 to-sky-500 text-slate-900 font-semibold px-3 py-1.5 shadow ring-1 ring-white/10 hover:from-cyan-300 hover:to-sky-400">
-                    {tourIndex < steps.length - 1 ? 'Siguiente' : 'Entendido'}
+                    {tourIndex < steps.length - 1 ? 'Next' : 'Got it'}
                   </button>
                 </div>
               </div>

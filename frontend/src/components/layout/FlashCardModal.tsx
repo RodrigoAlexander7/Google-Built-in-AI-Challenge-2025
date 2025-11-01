@@ -57,7 +57,7 @@ const FlashCardModal: React.FC<FlashCardModalProps> = ({
       <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
         <div className="px-6 py-4 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-800">
-            {mode === 'create' ? 'Crear Flashcard' : 'Editar Flashcard'}
+            {mode === 'create' ? 'Create Flashcard' : 'Edit Flashcard'}
           </h2>
         </div>
         
@@ -65,19 +65,19 @@ const FlashCardModal: React.FC<FlashCardModalProps> = ({
           {/* Front side */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Anverso
+              Front
             </label>
             <textarea
               value={frontText}
               onChange={(e) => setFrontText(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               rows={3}
-              placeholder="Texto del anverso..."
+              placeholder="Front text..."
               required
             />
             <div className="mt-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Color del anverso
+                Front color
               </label>
               <input
                 type="color"
@@ -91,19 +91,19 @@ const FlashCardModal: React.FC<FlashCardModalProps> = ({
           {/* Back side */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Reverso
+              Back
             </label>
             <textarea
               value={backText}
               onChange={(e) => setBackText(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               rows={3}
-              placeholder="Texto del reverso..."
+              placeholder="Back text..."
               required
             />
             <div className="mt-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Color del reverso
+                Back color
               </label>
               <input
                 type="color"
@@ -120,13 +120,13 @@ const FlashCardModal: React.FC<FlashCardModalProps> = ({
               onClick={onClose}
               className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
             >
-              Cancelar
+              Cancel
             </button>
             <button
               type="submit"
               className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              {mode === 'create' ? 'Crear' : 'Guardar'}
+              {mode === 'create' ? 'Create' : 'Save'}
             </button>
           </div>
         </form>

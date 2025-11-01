@@ -19,21 +19,21 @@ interface FlashCardOptionProps {
 }
 
 const COUNT_ITEMS = [
-  { id: '4', title: '4', description: 'Sesión rápida' },
-  { id: '8', title: '8', description: 'Equilibrado' },
-  { id: '12', title: '12', description: 'Sesión completa' }
+  { id: '4', title: '4', description: 'Quick session' },
+  { id: '8', title: '8', description: 'Balanced' },
+  { id: '12', title: '12', description: 'Full session' }
 ];
 
 const FOCUS_ITEMS = [
-  { id: 'vocabulario', title: 'Vocabulario', description: 'Términos clave' },
-  { id: 'conceptos', title: 'Conceptos', description: 'Ideas fundamentales' },
-  { id: 'definiciones', title: 'Definiciones', description: 'Significados claros' },
-  { id: 'ejemplos', title: 'Ejemplos', description: 'Casos prácticos' },
-  { id: 'comparaciones', title: 'Comparaciones', description: 'Diferencias y similitudes' }
+  { id: 'vocabulario', title: 'Vocabulary', description: 'Key terms' },
+  { id: 'conceptos', title: 'Concepts', description: 'Fundamental ideas' },
+  { id: 'definiciones', title: 'Definitions', description: 'Clear meanings' },
+  { id: 'ejemplos', title: 'Examples', description: 'Practical cases' },
+  { id: 'comparaciones', title: 'Comparisons', description: 'Differences and similarities' }
 ];
 
 const complexityLabel = (c: Complexity) =>
-  c === 1 ? 'Básico' : c === 2 ? 'Intermedio' : 'Avanzado';
+  c === 1 ? 'Basic' : c === 2 ? 'Intermediate' : 'Advanced';
 
 const FlashCardOption: React.FC<FlashCardOptionProps> = ({ value, onChange, className = '' }) => {
   const [internal, setInternal] = useState<FlashCardOptionsValue>(
@@ -64,13 +64,13 @@ const FlashCardOption: React.FC<FlashCardOptionProps> = ({ value, onChange, clas
       <div className="p-6 border-b border-gray-200/50">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-gray-800">Opciones de Flashcards</h3>
+            <h3 className="text-lg font-semibold text-gray-800">Flashcards options</h3>
             <p className="text-xs text-gray-500 mt-1">
-              Personaliza cantidad, dificultad y enfoque
+              Customize count, difficulty and focus
             </p>
           </div>
           <div className="px-3 py-1 text-xs font-medium rounded-full bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700">
-            Configuración
+            Settings
           </div>
         </div>
       </div>
@@ -81,7 +81,7 @@ const FlashCardOption: React.FC<FlashCardOptionProps> = ({ value, onChange, clas
         <div className="col-span-1" id="fc-opt-count">
           <div className="mb-3">
             <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-              Número de flashcards
+              Number of flashcards
             </h4>
           </div>
           <CheckBox
@@ -100,7 +100,7 @@ const FlashCardOption: React.FC<FlashCardOptionProps> = ({ value, onChange, clas
         <div className="col-span-1" id="fc-opt-complexity">
           <div className="mb-3 flex items-center justify-between">
             <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-              Nivel de complejidad
+              Complexity level
             </h4>
             <span className="text-xs font-semibold text-blue-700 bg-blue-50 px-2 py-1 rounded-lg">
               {complexityLabel(internal.complexity)}
@@ -118,9 +118,9 @@ const FlashCardOption: React.FC<FlashCardOptionProps> = ({ value, onChange, clas
               showMinMaxLabels={false}
             />
             <div className="flex justify-between mt-2 text-xs text-gray-500">
-              <span>Básico</span>
-              <span>Intermedio</span>
-              <span>Avanzado</span>
+              <span>Basic</span>
+              <span>Intermediate</span>
+              <span>Advanced</span>
             </div>
           </div>
         </div>
@@ -129,7 +129,7 @@ const FlashCardOption: React.FC<FlashCardOptionProps> = ({ value, onChange, clas
         <div className="col-span-1" id="fc-opt-focus">
           <div className="mb-3">
             <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-              Enfoque de la carta
+              Card focus
             </h4>
           </div>
           <CheckBox
@@ -146,14 +146,14 @@ const FlashCardOption: React.FC<FlashCardOptionProps> = ({ value, onChange, clas
       <div className="px-6 pb-6">
         <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-gray-200/60 rounded-xl p-4 flex flex-wrap items-center gap-3">
           <span className="text-sm text-gray-700">
-            Selección: <strong className="text-gray-900">{internal.count}</strong> tarjetas ·{' '}
+            Selection: <strong className="text-gray-900">{internal.count}</strong> cards ·{' '}
             <strong className="text-gray-900">{complexityLabel(internal.complexity)}</strong>
           </span>
           <span className="text-sm text-gray-700">
-            Enfoques: {internal.focuses.length > 0 ? (
-              <strong className="text-gray-900">{internal.focuses.join(', ')}</strong>
+            Focus: {internal.focuses.length > 0 ? (
+              <strong className="text-gray-900">{internal.focuses.map(id => FOCUS_ITEMS.find(i => i.id === id)?.title ?? id).join(', ')}</strong>
             ) : (
-              <em className="text-gray-500">sin selección</em>
+              <em className="text-gray-500">no selection</em>
             )}
           </span>
         </div>

@@ -73,7 +73,7 @@ export const LocalArchive = {
     const item: SummaryRecordArchive = {
       id: nextId(),
       kind: 'summary',
-      title: params.title.trim() || 'Resumen sin título',
+      title: params.title.trim() || 'Untitled summary',
       category: params.category.trim() || 'General',
       dateISO: new Date().toISOString(),
       payload: { content: params.content, options: params.options },
@@ -95,7 +95,7 @@ export const LocalArchive = {
     const item: PracticeRecordArchive = {
       id: nextId(),
       kind: 'practice',
-      title: params.title.trim() || 'Práctica',
+      title: params.title.trim() || 'Practice',
       category: params.category.trim() || 'General',
       dateISO: new Date().toISOString(),
       payload: { questions: params.questions, metas: params.metas, options: params.options },
@@ -107,7 +107,7 @@ export const LocalArchive = {
       id: nextId(),
       kind: 'game',
       gameType: params.gameType,
-      title: params.title.trim() || 'Juego',
+      title: params.title.trim() || 'Game',
       category: params.category.trim() || 'General',
       dateISO: new Date().toISOString(),
       payload: params.payload,

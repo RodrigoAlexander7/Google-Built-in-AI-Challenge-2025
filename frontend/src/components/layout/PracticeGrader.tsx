@@ -77,10 +77,10 @@ const PracticeGrader: React.FC<PracticeGraderProps> = ({ questions, userAnswers,
         <div className="text-gray-700">
           {isGraded ? (
             <div className="text-lg font-semibold">
-              Puntaje: <span className="text-blue-600">{score}</span> / {total}
+              Score: <span className="text-blue-600">{score}</span> / {total}
             </div>
           ) : (
-            <div className="text-sm">Pulsa calificar para ver tu puntaje y resaltar respuestas.</div>
+            <div className="text-sm">Press grade to see your score and highlight answers.</div>
           )}
         </div>
         <div className="flex items-center gap-3">
@@ -89,14 +89,14 @@ const PracticeGrader: React.FC<PracticeGraderProps> = ({ questions, userAnswers,
               onClick={onReset}
               className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50"
             >
-              Reiniciar práctica
+              Reset practice
             </button>
           )}
           <button
             onClick={handleGrade}
             className="px-4 py-2 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-medium shadow hover:from-emerald-600 hover:to-teal-700"
           >
-            Calificar
+            Grade
           </button>
         </div>
       </div>

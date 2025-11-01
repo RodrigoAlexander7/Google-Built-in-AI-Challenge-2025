@@ -117,7 +117,7 @@ export default function Home() {
             <SaveFloatingButton
               visible={!!selectedGame && !selectedGame.fromArchive}
               defaultTitle={selectedGame.title}
-              defaultCategory={selectedGame.category || 'Juegos'}
+              defaultCategory={selectedGame.category || 'Games'}
               onSave={({ title, category }) => {
                 if (selectedGame.type === 'crossword') {
                   LocalArchive.addGame({ gameType: 'crossword', title, category, payload: { words: selectedGame.words, difficulty: selectedGame.difficulty } });
@@ -129,7 +129,7 @@ export default function Home() {
                   LocalArchive.addGame({ gameType: 'explainit', title, category, payload: { id: selectedGame.id, question: selectedGame.title } });
                 }
                 try { window.dispatchEvent(new CustomEvent('archive:update')); } catch {}
-                toast.success('Juego guardado');
+                toast.success('Game saved');
               }}
             />
             {selectedGame?.fromArchive && typeof (selectedGame as any).id === 'number' && (
@@ -138,11 +138,11 @@ export default function Home() {
                   const idToDelete = (selectedGame as any).id as number;
                   const kind: 'game' = 'game';
                   if (LocalArchive.remove(kind, idToDelete)) {
-                    toast.success('Juego eliminado');
+                    toast.success('Game deleted');
                     try { window.dispatchEvent(new CustomEvent('archive:update')); } catch {}
                     setSelectedGame(null);
                   } else {
-                    toast.error('No se pudo eliminar');
+                    toast.error('Could not delete');
                   }
                 }}
               />
@@ -154,7 +154,7 @@ export default function Home() {
                   className="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold mb-2 transition-colors"
                 >
                   <i className="fas fa-arrow-left"></i>
-                  Volver al menú
+                  Back to menu
                 </button>
                 <h1 className="text-3xl font-bold text-gray-900">{selectedGame.title}</h1>
               </div>

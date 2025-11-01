@@ -50,11 +50,11 @@ const LearningPathOptions: React.FC<LearningPathOptionsProps> = ({ value, onChan
   // Tipo de enfoque (single selection)
   const focusTypeItems: CheckBoxItemData[] = useMemo(
     () => [
-      { id: 'teorico', title: 'Teórico', description: 'Enfocado en conceptos y fundamentos.' },
-      { id: 'practico', title: 'Práctico', description: 'Orientado a ejercicios y aplicaciones.' },
-      { id: 'balanceado', title: 'Balanceado', description: 'Combinación de teoría y práctica.' },
-      { id: 'proyecto', title: 'Basado en Proyectos', description: 'Aprendizaje mediante desarrollo de proyectos.' },
-      { id: 'rapido', title: 'Rápido', description: 'Conceptos esenciales en el menor tiempo.' }
+      { id: 'teorico', title: 'Theoretical', description: 'Focused on concepts and fundamentals.' },
+      { id: 'practico', title: 'Practical', description: 'Oriented to exercises and applications.' },
+      { id: 'balanceado', title: 'Balanced', description: 'Combination of theory and practice.' },
+      { id: 'proyecto', title: 'Project-based', description: 'Learning by building projects.' },
+      { id: 'rapido', title: 'Fast', description: 'Essential concepts in less time.' }
     ],
     []
   );
@@ -65,12 +65,12 @@ const LearningPathOptions: React.FC<LearningPathOptionsProps> = ({ value, onChan
   // Registro de lenguaje (single selection)
   const languageRegisterItems: CheckBoxItemData[] = useMemo(
     () => [
-      { id: 'formal', title: 'Formal', description: 'Académico y profesional.' },
-      { id: 'neutral', title: 'Neutral', description: 'Equilibrado y claro.' },
-      { id: 'informal', title: 'Informal', description: 'Cercano y conversacional.' },
-      { id: 'technical', title: 'Técnico', description: 'Con terminología especializada.' },
-      { id: 'beginner-friendly', title: 'Para Principiantes', description: 'Explicaciones simples y gradual.' },
-      { id: 'advanced', title: 'Avanzado', description: 'Para expertos, sin redundancias.' }
+      { id: 'formal', title: 'Formal', description: 'Academic and professional.' },
+      { id: 'neutral', title: 'Neutral', description: 'Balanced and clear.' },
+      { id: 'informal', title: 'Informal', description: 'Casual and conversational.' },
+      { id: 'technical', title: 'Technical', description: 'With specialized terminology.' },
+      { id: 'beginner-friendly', title: 'Beginner-friendly', description: 'Simple explanations with gradual complexity.' },
+      { id: 'advanced', title: 'Advanced', description: 'For experts, no redundancy.' }
     ],
     []
   );
@@ -80,7 +80,7 @@ const LearningPathOptions: React.FC<LearningPathOptionsProps> = ({ value, onChan
 
   // Nivel de detalle (1..5)
   const [detailLevel, setDetailLevel] = useState<number>(value?.detailLevel ?? 3);
-  const detailLabels = ['Básico', 'Intermedio', 'Avanzado', 'Experto', 'Máster'];
+  const detailLabels = ['Basic', 'Intermediate', 'Advanced', 'Expert', 'Master'];
 
   // Número de módulos (1..5)
   const [moduleCount, setModuleCount] = useState<number>(value?.moduleCount ?? 3);
@@ -159,13 +159,13 @@ const LearningPathOptions: React.FC<LearningPathOptionsProps> = ({ value, onChan
 
   return (
     <div className={`p-6 md:p-8 max-w-10xl mx-auto space-y-6 ${className ?? ''}`}>
-      <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Opciones de Learning Path</h1>
+  <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Learning Path options</h1>
 
       {/* Grid superior: Tipo de Enfoque y Registro de Lenguaje */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Tipo de enfoque */}
         <section className="bg-white border border-gray-200 rounded-2xl p-5 md:p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Tipo de Enfoque</h2>
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">Focus type</h2>
           <CheckBox
             items={focusTypeItems}
             selectionMode="single"
@@ -177,7 +177,7 @@ const LearningPathOptions: React.FC<LearningPathOptionsProps> = ({ value, onChan
 
         {/* Registro de lenguaje */}
         <section className="bg-white border border-gray-200 rounded-2xl p-5 md:p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Registro de Lenguaje</h2>
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">Language register</h2>
           <CheckBox
             items={languageRegisterItems}
             selectionMode="single"
@@ -189,12 +189,12 @@ const LearningPathOptions: React.FC<LearningPathOptionsProps> = ({ value, onChan
           <div className="mt-4 flex flex-wrap gap-2 text-xs text-gray-600">
             {focusTypeSelected[0] && (
               <span className="px-2 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
-                Enfoque: {focusTypeItems.find(i => i.id === focusTypeSelected[0])?.title}
+                Focus: {focusTypeItems.find(i => i.id === focusTypeSelected[0])?.title}
               </span>
             )}
             {registerSelected[0] && (
               <span className="px-2 py-1 rounded-full bg-purple-50 text-purple-700 border border-purple-200">
-                Registro: {languageRegisterItems.find(i => i.id === registerSelected[0])?.title}
+                Register: {languageRegisterItems.find(i => i.id === registerSelected[0])?.title}
               </span>
             )}
           </div>
@@ -205,7 +205,7 @@ const LearningPathOptions: React.FC<LearningPathOptionsProps> = ({ value, onChan
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Nivel de detalle */}
         <section className="bg-white border border-gray-200 rounded-2xl p-5 md:p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Nivel de Detalle</h2>
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">Detail level</h2>
           <Slider
             min={1}
             max={5}
@@ -239,7 +239,7 @@ const LearningPathOptions: React.FC<LearningPathOptionsProps> = ({ value, onChan
 
         {/* Número de módulos */}
         <section className="bg-white border border-gray-200 rounded-2xl p-5 md:p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Número de Módulos</h2>
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">Number of modules</h2>
           <Slider
             min={1}
             max={5}
@@ -272,7 +272,7 @@ const LearningPathOptions: React.FC<LearningPathOptionsProps> = ({ value, onChan
 
         {/* Número de sesiones por módulo */}
         <section className="bg-white border border-gray-200 rounded-2xl p-5 md:p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Sesiones por Módulo</h2>
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">Sessions per module</h2>
           <Slider
             min={1}
             max={10}
@@ -296,7 +296,7 @@ const LearningPathOptions: React.FC<LearningPathOptionsProps> = ({ value, onChan
       {/* Opciones Avanzadas */}
       <section className="bg-white border border-gray-200 rounded-2xl p-5 md:p-6 shadow-sm">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-800">Opciones Avanzadas</h2>
+          <h2 className="text-lg font-semibold text-gray-800">Advanced options</h2>
           
           {/* Botón Toggle Auto/Personalizado */}
           <button
@@ -314,7 +314,7 @@ const LearningPathOptions: React.FC<LearningPathOptionsProps> = ({ value, onChan
                 Auto
               </span>
               <span className={`transition-colors ${advancedOptions.mode === 'custom' ? 'text-white' : 'text-gray-700'}`}>
-                Personalizado
+                Custom
               </span>
             </span>
           </button>

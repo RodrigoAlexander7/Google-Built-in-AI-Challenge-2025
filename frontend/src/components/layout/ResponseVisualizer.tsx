@@ -52,7 +52,7 @@ const ResponseVisualizer: React.FC<ResponseVisualizerProps> = ({
       onCopy?.();
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error('Error al copiar: ', err);
+      console.error('Error copying: ', err);
     }
   };
 
@@ -104,7 +104,7 @@ const ResponseVisualizer: React.FC<ResponseVisualizerProps> = ({
           </div>
         ) : (
           <div className="flex items-center justify-center h-32 text-gray-500">
-            <p>No hay respuesta para mostrar</p>
+            <p>No response to display</p>
           </div>
         )}
 
@@ -115,19 +115,19 @@ const ResponseVisualizer: React.FC<ResponseVisualizerProps> = ({
               <button
                 onClick={handleCopy}
                 className="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors"
-                title="Copiar respuesta"
+                title="Copy response"
               >
                 <Copy className="w-4 h-4" />
-                <span>{copied ? '¡Copiado!' : 'Copiar'}</span>
+                <span>{copied ? 'Copied!' : 'Copy'}</span>
               </button>
 
               <button
                 onClick={handleRegenerate}
                 className="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors"
-                title="Regenerar respuesta"
+                title="Regenerate response"
               >
                 <RefreshCw className="w-4 h-4" />
-                <span>Regenerar</span>
+                <span>Regenerate</span>
               </button>
 
               <div className="h-4 w-px bg-gray-300"></div>
@@ -135,19 +135,19 @@ const ResponseVisualizer: React.FC<ResponseVisualizerProps> = ({
               <button
                 onClick={onLike}
                 className="flex items-center gap-1.5 px-3 py-2 text-sm text-green-600 hover:text-green-700 hover:bg-green-50 rounded-md transition-colors"
-                title="Me gusta esta respuesta"
+                title="I like this response"
               >
                 <ThumbsUp className="w-4 h-4" />
-                <span>Me gusta</span>
+                <span>Like</span>
               </button>
 
               <button
                 onClick={onDislike}
                 className="flex items-center gap-1.5 px-3 py-2 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors"
-                title="No me gusta esta respuesta"
+                title="I don't like this response"
               >
                 <ThumbsDown className="w-4 h-4" />
-                <span>No me gusta</span>
+                <span>Dislike</span>
               </button>
             </div>
           </div>
@@ -163,7 +163,7 @@ const ResponseVisualizer: React.FC<ResponseVisualizerProps> = ({
               className="flex items-center gap-2 px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors shadow-sm"
             >
               <PlayCircle className="w-5 h-5" />
-              <span>Ejercicios</span>
+              <span>Exercises</span>
             </button>
 
             <button
@@ -179,7 +179,7 @@ const ResponseVisualizer: React.FC<ResponseVisualizerProps> = ({
               className="flex items-center gap-2 px-4 py-2.5 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors shadow-sm"
             >
               <GraduationCap className="w-5 h-5" />
-              <span>Ruta de aprendizaje</span>
+              <span>Learning Path</span>
             </button>
           </div>
         </div>

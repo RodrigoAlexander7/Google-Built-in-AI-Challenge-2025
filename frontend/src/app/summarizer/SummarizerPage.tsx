@@ -46,7 +46,7 @@ interface SummarizerPageProps {
 
 export default function SummarizerPage({
   initialResponse = '',
-  title = 'Nuevo Resumen',
+  title = 'New Summary',
   date,
   files = [],
   readonly = false,
@@ -75,7 +75,7 @@ export default function SummarizerPage({
     try {
       const key = 'visited:summarizer:v1';
       if (!window.localStorage.getItem(key)) {
-        alert('Bienvenido al módulo Summarizer. Aquí podrás subir archivos o texto y obtener un resumen con IA.');
+        alert('Welcome to the Summarizer module. Here you can upload files or text and get an AI-generated summary.');
         window.localStorage.setItem(key, '1');
       }
     } catch {
@@ -86,15 +86,15 @@ export default function SummarizerPage({
   // Define tour steps (in order)
   const tourSteps = useMemo(
     () => [
-      { key: 'prompt', selector: '#sp-input', text: 'Este es el área de entrada. Escribe tu texto o arrastra archivos para resumirlos.' },
-      { key: 'type', selector: '#sp-opt-type', text: 'Elige el tipo de resumen: informativo, descriptivo, investigación, sinopsis o review.' },
-      { key: 'register', selector: '#sp-opt-register', text: 'Selecciona el registro de lenguaje: formal, neutral, informal, técnico, creativo o persuasivo.' },
-      { key: 'language', selector: '#sp-opt-language', text: 'Define el idioma final del resumen: español, inglés, portugués, etc.' },
-      { key: 'detail', selector: '#sp-opt-detail', text: 'Ajusta el nivel de detalle: corto, medio o largo.' },
-      { key: 'content', selector: '#sp-opt-content', text: 'Enfoca el contenido: palabras clave, temas principales y puntos clave.' },
-      { key: 'attributes', selector: '#sp-opt-attributes', text: 'Activa atributos del resumen: conclusiones, citas/referencias, métricas, múltiples fuentes, análisis.' },
-      { key: 'visualizer', selector: '#sp-visualizer', text: 'Aquí verás el resultado del resumen con formato y herramientas útiles.' },
-      { key: 'navbar', selector: '#sp-navbar', text: 'En el encabezado verás datos del resumen y accesos del módulo.' },
+      { key: 'prompt', selector: '#sp-input', text: 'This is the input area. Type your text or drag-and-drop files to summarize them.' },
+      { key: 'type', selector: '#sp-opt-type', text: 'Pick the summary type: informative, descriptive, research, synopsis or review.' },
+      { key: 'register', selector: '#sp-opt-register', text: 'Choose the language register: formal, neutral, informal, technical, creative or persuasive.' },
+      { key: 'language', selector: '#sp-opt-language', text: 'Set the final language of the summary: English, Spanish, Portuguese, etc.' },
+      { key: 'detail', selector: '#sp-opt-detail', text: 'Adjust the level of detail: short, medium or long.' },
+      { key: 'content', selector: '#sp-opt-content', text: 'Focus the content: keywords, main topics and key points.' },
+      { key: 'attributes', selector: '#sp-opt-attributes', text: 'Enable summary attributes: conclusions, citations/references, metrics, multiple sources, analysis.' },
+      { key: 'visualizer', selector: '#sp-visualizer', text: 'Here you will see the formatted summary with helpful tools.' },
+      { key: 'navbar', selector: '#sp-navbar', text: 'In the header you will see summary info and module shortcuts.' },
     ],
     []
   );
@@ -259,7 +259,7 @@ export default function SummarizerPage({
     );
 
     if (!filesList.length) {
-      console.warn('TODO - No hay archivos para enviar.');
+      console.warn('TODO - No files to send.');
       setIsLoading(false);
       return;
     }
@@ -306,20 +306,20 @@ export default function SummarizerPage({
       console.log('TODO - parsed.conclusions:', data?.conclusions ?? null);
 
       const parts: string[] = [];
-      if (data?.summary) parts.push(`# Resumen\n\n${data.summary}`);
+  if (data?.summary) parts.push(`# Summary\n\n${data.summary}`);
       if (Array.isArray(data?.references) && data.references.length) {
         const refs = data.references
           .map((r: any) => `- ${typeof r === 'string' ? r : JSON.stringify(r)}`)
           .join('\n');
-        parts.push(`## Referencias\n\n${refs}`);
+  parts.push(`## References\n\n${refs}`);
       }
       if (Array.isArray(data?.examples) && data.examples.length) {
         const exs = data.examples
           .map((e: any) => `- ${typeof e === 'string' ? e : JSON.stringify(e)}`)
           .join('\n');
-        parts.push(`## Ejemplos\n\n${exs}`);
+  parts.push(`## Examples\n\n${exs}`);
       }
-      if (data?.conclusions) parts.push(`## Conclusiones\n\n${data.conclusions}`);
+  if (data?.conclusions) parts.push(`## Conclusions\n\n${data.conclusions}`);
 
       const content = parts.length ? parts.join('\n\n') : JSON.stringify(resp, null, 2);
       console.log('TODO - formatted content for UI:', content);
@@ -330,7 +330,7 @@ export default function SummarizerPage({
       try {
         setResponse(String(err));
       } catch {
-        setResponse('Error inesperado.');
+        setResponse('Unexpected error.');
       }
     } finally {
       setIsLoading(false);
@@ -339,16 +339,16 @@ export default function SummarizerPage({
 
   return (
     <>
-      <LoadingOverlay open={isLoading} title="Generando tu resumen" subtitle="Analizando y sintetizando tu contenido…" />
+  <LoadingOverlay open={isLoading} title="Generating your summary" subtitle="Analyzing and synthesizing your content…" />
       {/* Save button when there is a generated response */}
       <SaveFloatingButton
         visible={hasResponse && !readonly}
-        defaultTitle={title || 'Resumen'}
-        defaultCategory={'Resumenes'}
+        defaultTitle={title || 'Summary'}
+        defaultCategory={'Summaries'}
         onSave={({ title: t, category }) => {
           LocalArchive.addSummary({ title: t, category, content: response, options });
           try { window.dispatchEvent(new CustomEvent('archive:update')); } catch {}
-          try { const { toast } = require('sonner'); toast.success('Resumen guardado'); } catch {}
+          try { const { toast } = require('sonner'); toast.success('Summary saved'); } catch {}
         }}
       />
       {/* Guided tour overlay */}
@@ -396,7 +396,7 @@ export default function SummarizerPage({
               top: Math.min(window.innerHeight - 140, focusRect.y + focusRect.h + 12),
             }}
           >
-            <div className="text-xs text-cyan-300 mb-1">Paso {tourIndex + 1} de {tourSteps.length}</div>
+            <div className="text-xs text-cyan-300 mb-1">Step {tourIndex + 1} of {tourSteps.length}</div>
             <div className="text-sm leading-relaxed">
               <TypingText
                 key={typingReset + tourIndex * 1000}
@@ -412,20 +412,20 @@ export default function SummarizerPage({
                 className="inline-flex items-center gap-2 rounded-md text-slate-300 hover:text-white px-3 py-1.5"
                 disabled={tourIndex === 0}
               >
-                Atrás
+                Back
               </button>
               <div className="flex items-center gap-2">
                 <button
                   onClick={finishTour}
                   className="inline-flex items-center gap-2 rounded-md text-slate-300 hover:text-white px-3 py-1.5"
                 >
-                  Saltar
+                  Skip
                 </button>
                 <button
                   onClick={nextStep}
                   className="inline-flex items-center gap-2 rounded-md bg-gradient-to-r from-cyan-400 to-sky-500 text-slate-900 font-semibold px-3 py-1.5 shadow ring-1 ring-white/10 hover:from-cyan-300 hover:to-sky-400"
                 >
-                  {tourIndex < tourSteps.length - 1 ? 'Siguiente' : 'Entendido'}
+                  {tourIndex < tourSteps.length - 1 ? 'Next' : 'Got it'}
                 </button>
               </div>
             </div>
@@ -440,7 +440,7 @@ export default function SummarizerPage({
             {title}
           </h1>
         </div>
-        {date && <p className="text-sm text-gray-500 mt-2 md:mt-0">{new Date(date).toLocaleString('es-ES')}</p>}
+  {date && <p className="text-sm text-gray-500 mt-2 md:mt-0">{new Date(date).toLocaleString('en-US')}</p>}
       </div>
 
       <div id="sp-visualizer">
@@ -448,19 +448,19 @@ export default function SummarizerPage({
           content={response}
           isLoading={isLoading}
           onCopy={() => navigator.clipboard.writeText(response)}
-          onRegenerate={() => console.log('Regenerar')}
+          onRegenerate={() => console.log('Regenerate')}
           onLike={() => console.log('Like')}
           onDislike={() => console.log('Dislike')}
-          onExercises={() => console.log('Ejercicios')}
+          onExercises={() => console.log('Exercises')}
           onFlashcards={() => console.log('Flashcards')}
-          onLearningPath={() => console.log('Ruta de aprendizaje')}
+          onLearningPath={() => console.log('Learning path')}
         />
       </div>
 
       {!hasResponse && (
         <div id="sp-input">
           <PromptInput
-            placeholder="Escribe texto para resumir o sube archivos..."
+            placeholder="Type text to summarize or upload files..."
             onFilesChange={handleFilesChange}
             onSendMessage={handleSendMessage}
           />

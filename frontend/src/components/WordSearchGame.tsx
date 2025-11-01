@@ -179,9 +179,9 @@ export default function WordSearchGame({ words, size = 10, onComplete }: WordSea
         )}
       </div>
 
-      {/* Palabras a encontrar */}
+      {/* Words to find */}
       <div className="flex flex-col text-sm min-w-[140px]">
-        <h3 className="font-semibold mb-2">Palabras</h3>
+        <h3 className="font-semibold mb-2">Words</h3>
         {wordItems.map(({ word, found }) => (
           <div key={word} className={`mb-1 ${found ? 'line-through text-green-600' : ''}`}>
             {word}
