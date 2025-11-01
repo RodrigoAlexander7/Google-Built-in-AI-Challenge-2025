@@ -62,7 +62,7 @@ const Navbar: React.FC = () => {
                 <i className="fas fa-graduation-cap text-white text-lg"></i>
               </div>
               <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                LearnGo!
+                LEARN GO!
               </span>
             </Link>
           </div>

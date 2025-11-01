@@ -1,10 +1,10 @@
 import Template from "../../pages/Template";
-import LearningPathCreatorPage from "./LearningPathCreatorPage";
+import RoutePlaceholder from "@/components/RoutePlaceholder";
 
 export default function Home() {
     return (
         <Template>
-            <LearningPathCreatorPage />
+            <RoutePlaceholder title="Learning Path" />
         </Template>
     );
 } 
