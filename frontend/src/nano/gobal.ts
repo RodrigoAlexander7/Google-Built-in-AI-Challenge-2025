@@ -20,3 +20,10 @@ export interface ExerciseOptions {
    exercises_count: number;
    exercises_types: 'multiple-choice' | 'true-false' | 'fill-in-the-blank' | 'short-answer' | 'matching';
 }
+
+export interface FlashcardOptions {
+   content: string;
+   flashcards_count: number;
+   difficulty_level: 'easy' | 'medium' | 'hard';
+   focus_area: string;
+}
