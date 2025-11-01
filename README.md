@@ -288,10 +288,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Powered by **Gemini Nano** and **Gemini API**
 - Special thanks to the Chrome AI team for the Built-in AI APIs
 
-## 📞 Contact
-
-Project Link: [https://github.com/yourusername/ai-learning-assistant](https://github.com/yourusername/ai-learning-assistant)
-
 ---
 
 **Note**: This project is part of the Google Built-in AI Challenge 2025 and showcases the capabilities of Gemini Nano for on-device AI processing in educational applications.
