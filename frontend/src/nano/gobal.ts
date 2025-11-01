@@ -18,5 +18,5 @@ export interface ExerciseOptions {
    topic: string;
    exercises_difficulty: 'Easy' | 'Medium' | 'Hard';
    exercises_count: number;
-   exercises_types: 'multiple-choice' | 'true-false' | 'fill-in-the-blank';
+   exercises_types: 'multiple-choice' | 'true-false' | 'fill-in-the-blank' | 'short-answer' | 'matching';
 }
