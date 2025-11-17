@@ -29,9 +29,13 @@ This AI-powered learning assistant revolutionizes the educational experience by 
 - 🎓 **Comprehensive learning tools** for effective study sessions
 
 ## 📸 ScreenShots
+- **Home Page**
 <img width="1872" height="969" alt="projectAILearning" src="https://github.com/user-attachments/assets/88b8c514-8784-4e8e-9dbb-a50d86be1d4f" />
+- **Roadmap Module**
 <img width="1888" height="967" alt="Screenshot 2025-10-29 133123 - Copy" src="https://github.com/user-attachments/assets/9cb8e961-1649-425d-9eba-0971161e1608" />
+- **Sumarizer Module**
 <img width="1879" height="970" alt="Screenshot 2025-10-29 132846 - Copy" src="https://github.com/user-attachments/assets/09a8d279-b2b6-4482-bd83-ac2278289bbe" />
+- **FlashCards Molule**
 <img width="1859" height="959" alt="Screenshot 2025-10-29 133150" src="https://github.com/user-attachments/assets/579ea708-977e-4c1a-8815-e767b8454058" />
 
 
